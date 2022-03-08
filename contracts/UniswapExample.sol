@@ -14,32 +14,26 @@ contract UniswapExample {
 		uniswapRouter = IUniswapV2Router02(UNISWAP_ROUTER_ADDRESS);
 	}
 
-	function convertEthToDai(uint256 daiAmount, address multiDaiKovan)
+	function convertEthToDai(uint256 daiAmountMin, address multiDaiKovan)
 		public
 		payable
-		returns (uint256[] memory)
+		returns (uint[] memory amounts)
 	{
 		// solhint-disable-next-line not-rely-on-time
 		uint256 deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
-		uint256[] memory amounts = uniswapRouter.swapETHForExactTokens{
+		uniswapRouter.swapExactETHForTokens{
 			value: msg.value
-		}(daiAmount, getPathForETHtoDAI(multiDaiKovan), msg.sender, deadline);
-
-		// refund leftover ETH to user
-		// solhint-disable-next-line avoid-low-level-calls
-		(bool success, ) = msg.sender.call{value: address(this).balance}("");
-		require(success, "refund failed");
-		return amounts;
+		}(daiAmountMin, getPathForETHtoDAI(multiDaiKovan), msg.sender, deadline);
 	}
 
-	function getEstimatedETHforDAI(uint256 daiAmount, address multiDaiKovan)
+	function getEstimatedDAIforETH(uint256 ethAmount, address multiDaiKovan)
 		public
 		view
 		returns (uint256[] memory)
 	{
 		return
-			uniswapRouter.getAmountsIn(
-				daiAmount,
+			uniswapRouter.getAmountsOut(
+				ethAmount,
 				getPathForETHtoDAI(multiDaiKovan)
 			);
 	}
@@ -55,7 +49,4 @@ contract UniswapExample {
 
 		return path;
 	}
-
-	// important to receive ETH
-	receive() external payable {}
 }

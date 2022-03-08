@@ -24,8 +24,7 @@ describe('UniswapExample', () => {
 					jsonRpcUrl: 'https://eth-mainnet.alchemyapi.io/v2/' + alchemyApiKey,
 					blockNumber: 12057273,
 				},
-			},
-		])
+			},])
 
 		const accounts = await ethers.getSigners()
 
@@ -33,10 +32,10 @@ describe('UniswapExample', () => {
 
 		swap = await deploy<UniswapExample>('UniswapExample')
 	})
-	describe('value', () => {
+	describe('swap eth for dev', () => {
 		it('should swap eth for dev', async () => {
-			const amounts = await swap.getEstimatedETHforDAI(
-				1000000,
+			const amounts = await swap.getEstimatedDAIforETH(
+				ethers.utils.parseEther('1'),
 				'0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26'
 			)
 			console.log('amounts', amounts)
@@ -52,7 +51,7 @@ describe('UniswapExample', () => {
 			)
 			console.log('before balance', ethBalanceBefore, daiBalanceBefore)
 			await swap.convertEthToDai(
-				1000000,
+				1,
 				'0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26',
 				{ value: ethers.utils.parseEther('1') }
 			)
@@ -63,8 +62,8 @@ describe('UniswapExample', () => {
 			expect(daiBalanceAfter).gt(daiBalanceBefore)
 		})
 		it('should not swap eth for dev', async () => {
-			const amounts = await swap.getEstimatedETHforDAI(
-				1000000,
+			const amounts = await swap.getEstimatedDAIforETH(
+				ethers.utils.parseEther('1'),
 				'0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26'
 			)
 			console.log('amounts', amounts)
@@ -81,11 +80,11 @@ describe('UniswapExample', () => {
 			console.log('before balance', ethBalanceBefore, daiBalanceBefore)
 			await expect(
 				swap.convertEthToDai(
-					1000000,
+					ethers.utils.parseEther('1000'),
 					'0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26',
-					{ value: ethers.utils.parseUnits('1000', 0) }
+					{ value: ethers.utils.parseEther('1') }
 				)
-			).to.be.revertedWith('UniswapV2Router: EXCESSIVE_INPUT_AMOUNT')
+			).to.be.revertedWith('UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT')
 		})
 	})
 })
