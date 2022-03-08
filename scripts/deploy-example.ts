@@ -1,26 +1,34 @@
-import { ethers } from 'hardhat'
-import { deployAdmin, deployProxy } from './utils'
+import {UniswapExample} from '../typechain'
+import {ethers, run} from 'hardhat'
+import {delay} from '../utils'
+const dotenv = require('dotenv')
+const fs = require('fs')
 
-async function main() {
-	const Example = await ethers.getContractFactory('Example')
-	const example = await Example.deploy()
+async function deploySwap() {
+	const Swap = await ethers.getContractFactory('UniswapExample')
+	console.log('starting deploying UniswapExample...')
+	const swap = await Swap.deploy() as UniswapExample
+	console.log('UniswapExample` deployed with address: ' + swap.address)
+	console.log('wait of deploying...')
+	await swap.deployed()
+	console.log('wait of delay...')
+	await delay(25000)
+	console.log('starting verify swap...')
+	try {
+		await run('verify:verify', {
+			address: swap!.address,
+			contract: 'contracts/UniswapExample.sol:UniswapExample',
+		});
+		console.log('verify success')
+	} catch (e: any) {
+		console.log(e.message)
+	}
 
-	const admin = await deployAdmin()
-
-	const upgradeableProxy = await deployProxy(
-		example.address,
-		admin.address,
-		ethers.utils.arrayify('0x')
-	)
-
-	console.log('Example address:', example.address)
-	console.log('Admin address:', admin.address)
-	console.log('UpgradeableProxy address:', upgradeableProxy.address)
 }
 
-main()
-	.then(() => process.exit(0))
-	.catch((error) => {
-		console.error(error)
-		process.exit(1)
-	})
+deploySwap()
+.then(() => process.exit(0))
+.catch(error => {
+	console.error(error)
+	process.exit(1)
+})
