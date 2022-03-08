@@ -24,7 +24,8 @@ describe('UniswapExample', () => {
 					jsonRpcUrl: 'https://eth-mainnet.alchemyapi.io/v2/' + alchemyApiKey,
 					blockNumber: 12057273,
 				},
-			},])
+			},
+		])
 
 		const accounts = await ethers.getSigners()
 

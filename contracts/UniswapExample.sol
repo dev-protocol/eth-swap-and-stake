@@ -17,13 +17,16 @@ contract UniswapExample {
 	function convertEthToDai(uint256 daiAmountMin, address multiDaiKovan)
 		public
 		payable
-		returns (uint[] memory amounts)
+		returns (uint256[] memory amounts)
 	{
 		// solhint-disable-next-line not-rely-on-time
 		uint256 deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
-		uniswapRouter.swapExactETHForTokens{
-			value: msg.value
-		}(daiAmountMin, getPathForETHtoDAI(multiDaiKovan), msg.sender, deadline);
+		uniswapRouter.swapExactETHForTokens{value: msg.value}(
+			daiAmountMin,
+			getPathForETHtoDAI(multiDaiKovan),
+			msg.sender,
+			deadline
+		);
 	}
 
 	function getEstimatedDAIforETH(uint256 ethAmount, address multiDaiKovan)
