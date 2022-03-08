@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ethers } from 'hardhat'
 import { Contract, BigNumber } from 'ethers'
 import { UpgradeableProxy, UpgradeableProxy__factory } from '../typechain'
