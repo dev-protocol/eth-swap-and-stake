@@ -59,8 +59,14 @@ describe('UniswapExample', () => {
 			const ethBalanceAfter = await ethers.provider.getBalance(account1.address)
 			const daiBalanceAfter = await daiTokenContract.balanceOf(account1.address)
 			console.log('after balance', ethBalanceAfter, daiBalanceAfter)
+			// ethBalance reduces
 			expect(ethBalanceAfter).lt(ethBalanceBefore)
+			// ethBalance delta is 1 eth + gas
+			expect(ethBalanceBefore.sub(ethBalanceAfter)).gt(ethers.utils.parseEther('1'))
+			// daiBalance increases
 			expect(daiBalanceAfter).gt(daiBalanceBefore)
+			// daiBalance is the estimated amount
+			expect(daiBalanceAfter).to.equal(amounts[1])
 		})
 		it('should not swap eth for dev', async () => {
 			const amounts = await swap.getEstimatedDAIforETH(

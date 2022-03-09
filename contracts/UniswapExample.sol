@@ -8,8 +8,6 @@ contract UniswapExample {
 
 	IUniswapV2Router02 public uniswapRouter;
 
-	// address private multiDaiKovan = 0x4DBCdF9B62e891a7cec5A2568C3F4FAF9E8Abe2b;
-
 	constructor() {
 		uniswapRouter = IUniswapV2Router02(UNISWAP_ROUTER_ADDRESS);
 	}
