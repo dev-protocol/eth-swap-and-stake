@@ -13,10 +13,7 @@ contract UniswapExample {
 		uniswapRouter = IUniswapV2Router02(UNISWAP_ROUTER_ADDRESS);
 	}
 
-	function convertEthToDev(uint256 devAmountMin)
-		public
-		payable
-	{
+	function convertEthToDev(uint256 devAmountMin) public payable {
 		// solhint-disable-next-line not-rely-on-time
 		uint256 deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
 		uniswapRouter.swapExactETHForTokens{value: msg.value}(

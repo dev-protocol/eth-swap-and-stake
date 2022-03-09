@@ -50,7 +50,9 @@ describe('UniswapExample', () => {
 				account1.address
 			)
 			console.log('before balance', ethBalanceBefore, daiBalanceBefore)
-			const convertResult = await swap.convertEthToDev(1, { value: ethers.utils.parseEther('1') })
+			const convertResult = await swap.convertEthToDev(1, {
+				value: ethers.utils.parseEther('1'),
+			})
 			console.log('convertResult', convertResult)
 			const ethBalanceAfter = await ethers.provider.getBalance(account1.address)
 			const daiBalanceAfter = await daiTokenContract.balanceOf(account1.address)
