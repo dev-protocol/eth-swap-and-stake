@@ -16,7 +16,6 @@ contract UniswapExample {
 	function convertEthToDev(uint256 devAmountMin)
 		public
 		payable
-		returns (uint256[] memory amounts)
 	{
 		// solhint-disable-next-line not-rely-on-time
 		uint256 deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
