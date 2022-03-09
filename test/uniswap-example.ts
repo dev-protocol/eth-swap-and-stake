@@ -50,10 +50,7 @@ describe('UniswapExample', () => {
 				account1.address
 			)
 			console.log('before balance', ethBalanceBefore, daiBalanceBefore)
-			await swap.convertEthToDev(
-				1,
-				{ value: ethers.utils.parseEther('1') }
-			)
+			await swap.convertEthToDev(1, { value: ethers.utils.parseEther('1') })
 			const ethBalanceAfter = await ethers.provider.getBalance(account1.address)
 			const daiBalanceAfter = await daiTokenContract.balanceOf(account1.address)
 			console.log('after balance', ethBalanceAfter, daiBalanceAfter)
@@ -70,7 +67,7 @@ describe('UniswapExample', () => {
 		})
 		it('should not swap eth for dev', async () => {
 			const amounts = await swap.getEstimatedDEVforETH(
-				ethers.utils.parseEther('1'),
+				ethers.utils.parseEther('1')
 			)
 			console.log('amounts', amounts)
 			const daiTokenContract = await ethers.getContractAt(
@@ -84,12 +81,11 @@ describe('UniswapExample', () => {
 				account1.address
 			)
 			console.log('before balance', ethBalanceBefore, daiBalanceBefore)
-			// fails if daiAmountMin exceeds the uniswap reserve
+			// Fails if daiAmountMin exceeds the uniswap reserve
 			await expect(
-				swap.convertEthToDev(
-					ethers.utils.parseEther('1000000'),
-					{ value: ethers.utils.parseEther('1') }
-				)
+				swap.convertEthToDev(ethers.utils.parseEther('1000000'), {
+					value: ethers.utils.parseEther('1'),
+				})
 			).to.be.revertedWith('UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT')
 		})
 	})

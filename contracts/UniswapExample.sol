@@ -33,18 +33,10 @@ contract UniswapExample {
 		view
 		returns (uint256[] memory)
 	{
-		return
-			uniswapRouter.getAmountsOut(
-				ethAmount,
-				getPathForETHtoDEV()
-			);
+		return uniswapRouter.getAmountsOut(ethAmount, getPathForETHtoDEV());
 	}
 
-	function getPathForETHtoDEV()
-		private
-		view
-		returns (address[] memory)
-	{
+	function getPathForETHtoDEV() private view returns (address[] memory) {
 		address[] memory path = new address[](2);
 		path[0] = uniswapRouter.WETH();
 		path[1] = devAddress;
