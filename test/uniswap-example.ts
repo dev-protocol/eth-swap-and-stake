@@ -22,7 +22,7 @@ describe('UniswapExample', () => {
 			{
 				forking: {
 					jsonRpcUrl: 'https://eth-mainnet.alchemyapi.io/v2/' + alchemyApiKey,
-					blockNumber: 12057273,
+					blockNumber: 14350029,
 				},
 			},
 		])
@@ -35,13 +35,12 @@ describe('UniswapExample', () => {
 	})
 	describe('swap eth for dev', () => {
 		it('should swap eth for dev', async () => {
-			const amounts = await swap.getEstimatedDAIforETH(
-				ethers.utils.parseEther('1'),
-				'0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26'
+			const amounts = await swap.getEstimatedDEVforETH(
+				ethers.utils.parseEther('1')
 			)
 			console.log('amounts', amounts)
 			const daiTokenContract = await ethers.getContractAt(
-				'IWAVAX',
+				'IERC20',
 				'0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26'
 			)
 			const ethBalanceBefore = await ethers.provider.getBalance(
@@ -51,31 +50,31 @@ describe('UniswapExample', () => {
 				account1.address
 			)
 			console.log('before balance', ethBalanceBefore, daiBalanceBefore)
-			await swap.convertEthToDai(
+			await swap.convertEthToDev(
 				1,
-				'0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26',
 				{ value: ethers.utils.parseEther('1') }
 			)
 			const ethBalanceAfter = await ethers.provider.getBalance(account1.address)
 			const daiBalanceAfter = await daiTokenContract.balanceOf(account1.address)
 			console.log('after balance', ethBalanceAfter, daiBalanceAfter)
-			// ethBalance reduces
+			// EthBalance reduces
 			expect(ethBalanceAfter).lt(ethBalanceBefore)
-			// ethBalance delta is 1 eth + gas
-			expect(ethBalanceBefore.sub(ethBalanceAfter)).gt(ethers.utils.parseEther('1'))
-			// daiBalance increases
+			// EthBalance delta is 1 eth + gas
+			expect(ethBalanceBefore.sub(ethBalanceAfter)).gt(
+				ethers.utils.parseEther('1')
+			)
+			// DaiBalance increases
 			expect(daiBalanceAfter).gt(daiBalanceBefore)
-			// daiBalance is the estimated amount
+			// DaiBalance is the estimated amount
 			expect(daiBalanceAfter).to.equal(amounts[1])
 		})
 		it('should not swap eth for dev', async () => {
-			const amounts = await swap.getEstimatedDAIforETH(
+			const amounts = await swap.getEstimatedDEVforETH(
 				ethers.utils.parseEther('1'),
-				'0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26'
 			)
 			console.log('amounts', amounts)
 			const daiTokenContract = await ethers.getContractAt(
-				'IWAVAX',
+				'IERC20',
 				'0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26'
 			)
 			const ethBalanceBefore = await ethers.provider.getBalance(
@@ -85,10 +84,10 @@ describe('UniswapExample', () => {
 				account1.address
 			)
 			console.log('before balance', ethBalanceBefore, daiBalanceBefore)
+			// fails if daiAmountMin exceeds the uniswap reserve
 			await expect(
-				swap.convertEthToDai(
-					ethers.utils.parseEther('1000'),
-					'0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26',
+				swap.convertEthToDev(
+					ethers.utils.parseEther('1000000'),
 					{ value: ethers.utils.parseEther('1') }
 				)
 			).to.be.revertedWith('UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT')

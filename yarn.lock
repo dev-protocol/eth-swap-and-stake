@@ -35,6 +35,13 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
+"@devprotocol/protocol@^3.4.0":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@devprotocol/protocol/-/protocol-3.4.0.tgz#df746e7b82d1aed18d51b146fea62b50e1a6bbc8"
+  integrity sha512-LRQrpT078PavgqxD584QWpALCr9BgX1abttGTOe0gUZsRnT5JSruxp6Bs4k5yfaAD3XRdkf/SR2+YLPwah0QYQ==
+  dependencies:
+    "@openzeppelin/contracts" "2.5.1"
+
 "@ensdomains/ens@^0.4.4":
   version "0.4.5"
   resolved "https://registry.npmjs.org/@ensdomains/ens/-/ens-0.4.5.tgz"
@@ -984,6 +991,11 @@
   version "4.4.2"
   resolved "https://registry.npmjs.org/@openzeppelin/contracts-upgradeable/-/contracts-upgradeable-4.4.2.tgz"
   integrity sha512-bavxs18L47EmcdnL9I6DzsVSUJO+0/zD6zH7/6qG7QRBugvR3VNVZR+nMvuZlCNwuTTnCa3apR00PYzYr/efAw==
+
+"@openzeppelin/contracts@2.5.1":
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-2.5.1.tgz#c76e3fc57aa224da3718ec351812a4251289db31"
+  integrity sha512-qIy6tLx8rtybEsIOAlrM4J/85s2q2nPkDqj/Rx46VakBZ0LwtFhXIVub96LXHczQX0vaqmAueDqNPXtbSXSaYQ==
 
 "@openzeppelin/contracts@3.4.1-solc-0.7-2":
   version "3.4.1-solc-0.7-2"
