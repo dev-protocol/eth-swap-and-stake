@@ -52,7 +52,7 @@ describe('UniswapExample', () => {
 			)
 			const devBalanceBefore = await devTokenContract.balanceOf(swap.address)
 
-			await swap.stakeEthforDev(1, propertyAddress, {
+			await swap.stakeEthforDev(propertyAddress, {
 				value: ethers.utils.parseEther('1'),
 			})
 			const ethBalanceAfter = await ethers.provider.getBalance(account1.address)
@@ -67,18 +67,6 @@ describe('UniswapExample', () => {
 			expect(devBalanceAfter).gt(devBalanceBefore)
 			// DevBalance is the estimated amount
 			expect(devBalanceAfter).to.equal(amounts[1])
-		})
-		it('should not swap eth for dev', async () => {
-			// Fails if devAmountMin exceeds the uniswap reserve
-			await expect(
-				swap.stakeEthforDev(
-					ethers.utils.parseEther('1000000'),
-					propertyAddress,
-					{
-						value: ethers.utils.parseEther('1'),
-					}
-				)
-			).to.be.revertedWith('UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT')
 		})
 	})
 })

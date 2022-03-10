@@ -18,7 +18,7 @@ contract UniswapExample {
 		lockupAddress = _lockupAddress;
 	}
 
-	function stakeEthforDev(uint256 devAmountMin, address property)
+	function stakeEthforDev(address property)
 		public
 		payable
 	{
@@ -26,7 +26,7 @@ contract UniswapExample {
 		uint256 deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
 		uint256[] memory amounts = uniswapRouter.swapExactETHForTokens{
 			value: msg.value
-		}(devAmountMin, getPathForETHtoDEV(), address(this), deadline);
+		}(1, getPathForETHtoDEV(), address(this), deadline);
 		IERC20(devAddress).approve(lockupAddress, amounts[1]);
 		console.log(property);
 		// ILockup(lockupAddress).depositToProperty(property, amounts[1]);
