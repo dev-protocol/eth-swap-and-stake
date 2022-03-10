@@ -22,15 +22,11 @@ contract UniswapExample {
 	{
 		// solhint-disable-next-line not-rely-on-time
 		uint256 deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
-		uint[] memory amounts = uniswapRouter.swapExactETHForTokens{
+		uint256[] memory amounts = uniswapRouter.swapExactETHForTokens{
 			value: msg.value
-		}(
-			devAmountMin,
-			getPathForETHtoDEV(),
-			address(this),
-			deadline
-		);
+		}(devAmountMin, getPathForETHtoDEV(), address(this), deadline);
 		IERC20(devAddress).approve(lockupAddress, amounts[1]);
+		console.log(property);
 		// ILockup(lockupAddress).depositToProperty(property, amounts[1]);
 	}
 

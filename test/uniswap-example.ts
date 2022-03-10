@@ -1,10 +1,10 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { deploy } from './utils'
-import { UniswapExample, IERC20 } from '../typechain'
+import { UniswapExample } from '../typechain'
 import { ethers } from 'hardhat'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { Contract, constants, BigNumber } from 'ethers'
+import { Contract } from 'ethers'
 import * as dotenv from 'dotenv'
 
 dotenv.config()
@@ -19,8 +19,8 @@ describe('UniswapExample', () => {
 	let account1: SignerWithAddress
 	let devTokenContract: Contract
 
-	const devAddress = "0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26"
-	const propertyAddress = "0xac1AC9d00314aE7B4a7d6DbEE4860bECedF92309"
+	const devAddress = '0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26'
+	const propertyAddress = '0xac1AC9d00314aE7B4a7d6DbEE4860bECedF92309'
 
 	beforeEach(async () => {
 		await ethers.provider.send('hardhat_reset', [
@@ -38,10 +38,7 @@ describe('UniswapExample', () => {
 
 		swap = await deploy<UniswapExample>('UniswapExample')
 
-		devTokenContract = await ethers.getContractAt(
-			'IERC20',
-			devAddress
-		)
+		devTokenContract = await ethers.getContractAt('IERC20', devAddress)
 	})
 	describe('swap eth for dev', () => {
 		it('should stake eth for dev', async () => {
@@ -51,15 +48,11 @@ describe('UniswapExample', () => {
 			const ethBalanceBefore = await ethers.provider.getBalance(
 				account1.address
 			)
-			const devBalanceBefore = await devTokenContract.balanceOf(
-				swap.address
-			)
+			const devBalanceBefore = await devTokenContract.balanceOf(swap.address)
 
-			await swap.stakeEthforDev(
-				1, propertyAddress,
-				{
-					value: ethers.utils.parseEther('1'),
-				})
+			await swap.stakeEthforDev(1, propertyAddress, {
+				value: ethers.utils.parseEther('1'),
+			})
 			const ethBalanceAfter = await ethers.provider.getBalance(account1.address)
 			const devBalanceAfter = await devTokenContract.balanceOf(swap.address)
 			// EthBalance reduces
@@ -68,19 +61,21 @@ describe('UniswapExample', () => {
 			expect(ethBalanceBefore.sub(ethBalanceAfter)).gt(
 				ethers.utils.parseEther('1')
 			)
-			// devBalance increases
+			// DevBalance increases
 			expect(devBalanceAfter).gt(devBalanceBefore)
-			// devBalance is the estimated amount
+			// DevBalance is the estimated amount
 			expect(devBalanceAfter).to.equal(amounts[1])
 		})
 		it('should not swap eth for dev', async () => {
 			// Fails if devAmountMin exceeds the uniswap reserve
 			await expect(
 				swap.stakeEthforDev(
-					ethers.utils.parseEther('1000000'), propertyAddress,
+					ethers.utils.parseEther('1000000'),
+					propertyAddress,
 					{
 						value: ethers.utils.parseEther('1'),
-					})
+					}
+				)
 			).to.be.revertedWith('UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT')
 		})
 	})
