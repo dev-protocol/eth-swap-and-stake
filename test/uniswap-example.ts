@@ -1,6 +1,7 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { ethers } from 'hardhat'
+import { UniswapExample } from '../typechain'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract } from 'ethers'
 import * as dotenv from 'dotenv'
@@ -14,7 +15,7 @@ use(solidity)
 
 describe('UniswapExample', () => {
 	let account1: SignerWithAddress
-	let swap: Contract
+	let swap: UniswapExample
 	let devTokenContract: Contract
 
 	const devAddress = '0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26'
@@ -36,7 +37,7 @@ describe('UniswapExample', () => {
 		account1 = accounts[0]
 
 		const factory = await ethers.getContractFactory('UniswapExample')
-		swap = await factory.deploy(devAddress, lockupAddress)
+		swap = (await factory.deploy(devAddress, lockupAddress)) as UniswapExample
 		await swap.deployed()
 
 		devTokenContract = await ethers.getContractAt('IERC20', devAddress)
