@@ -8,12 +8,14 @@ import "hardhat/console.sol";
 contract UniswapExample {
 	address internal constant UNISWAP_ROUTER_ADDRESS =
 		0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
-	address public devAddress = 0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26;
-	address public lockupAddress = 0xBD2a75e11De78Af8D58595FB16181d505777804F;
+	address public devAddress;
+	address public lockupAddress;
 	IUniswapV2Router02 public uniswapRouter;
 
-	constructor() {
+	constructor(address _devAddress, address _lockupAddress) {
 		uniswapRouter = IUniswapV2Router02(UNISWAP_ROUTER_ADDRESS);
+		devAddress = _devAddress;
+		lockupAddress = _lockupAddress;
 	}
 
 	function stakeEthforDev(uint256 devAmountMin, address property)

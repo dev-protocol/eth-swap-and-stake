@@ -1,7 +1,5 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
-import { deploy } from './utils'
-import { UniswapExample } from '../typechain'
 import { ethers } from 'hardhat'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract } from 'ethers'
@@ -15,11 +13,12 @@ const alchemyApiKey =
 use(solidity)
 
 describe('UniswapExample', () => {
-	let swap: UniswapExample
 	let account1: SignerWithAddress
+	let swap: Contract
 	let devTokenContract: Contract
 
 	const devAddress = '0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26'
+	const lockupAddress = '0xBD2a75e11De78Af8D58595FB16181d505777804F'
 	const propertyAddress = '0xac1AC9d00314aE7B4a7d6DbEE4860bECedF92309'
 
 	beforeEach(async () => {
@@ -36,7 +35,9 @@ describe('UniswapExample', () => {
 
 		account1 = accounts[0]
 
-		swap = await deploy<UniswapExample>('UniswapExample')
+		const factory = await ethers.getContractFactory('UniswapExample')
+		swap = await factory.deploy(devAddress, lockupAddress)
+		await swap.deployed()
 
 		devTokenContract = await ethers.getContractAt('IERC20', devAddress)
 	})
