@@ -1,9 +1,10 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { deploy } from './utils'
-import { UniswapExample } from '../typechain'
+import { UniswapExample, IERC20 } from '../typechain'
 import { ethers } from 'hardhat'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { Contract, constants, BigNumber } from 'ethers'
 import * as dotenv from 'dotenv'
 
 dotenv.config()
@@ -16,6 +17,10 @@ use(solidity)
 describe('UniswapExample', () => {
 	let swap: UniswapExample
 	let account1: SignerWithAddress
+	let devTokenContract: Contract
+
+	const devAddress = "0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26"
+	const propertyAddress = "0xac1AC9d00314aE7B4a7d6DbEE4860bECedF92309"
 
 	beforeEach(async () => {
 		await ethers.provider.send('hardhat_reset', [
@@ -32,63 +37,50 @@ describe('UniswapExample', () => {
 		account1 = accounts[0]
 
 		swap = await deploy<UniswapExample>('UniswapExample')
+
+		devTokenContract = await ethers.getContractAt(
+			'IERC20',
+			devAddress
+		)
 	})
 	describe('swap eth for dev', () => {
-		it('should swap eth for dev', async () => {
+		it('should stake eth for dev', async () => {
 			const amounts = await swap.getEstimatedDEVforETH(
 				ethers.utils.parseEther('1')
-			)
-			console.log('amounts', amounts)
-			const daiTokenContract = await ethers.getContractAt(
-				'IERC20',
-				'0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26'
 			)
 			const ethBalanceBefore = await ethers.provider.getBalance(
 				account1.address
 			)
-			const daiBalanceBefore = await daiTokenContract.balanceOf(
-				account1.address
+			const devBalanceBefore = await devTokenContract.balanceOf(
+				swap.address
 			)
-			console.log('before balance', ethBalanceBefore, daiBalanceBefore)
-			const convertResult = await swap.convertEthToDev(1, {
-				value: ethers.utils.parseEther('1'),
-			})
-			console.log('convertResult', convertResult)
+
+			await swap.stakeEthforDev(
+				1, propertyAddress,
+				{
+					value: ethers.utils.parseEther('1'),
+				})
 			const ethBalanceAfter = await ethers.provider.getBalance(account1.address)
-			const daiBalanceAfter = await daiTokenContract.balanceOf(account1.address)
-			console.log('after balance', ethBalanceAfter, daiBalanceAfter)
+			const devBalanceAfter = await devTokenContract.balanceOf(swap.address)
 			// EthBalance reduces
 			expect(ethBalanceAfter).lt(ethBalanceBefore)
 			// EthBalance delta is 1 eth + gas
 			expect(ethBalanceBefore.sub(ethBalanceAfter)).gt(
 				ethers.utils.parseEther('1')
 			)
-			// DaiBalance increases
-			expect(daiBalanceAfter).gt(daiBalanceBefore)
-			// DaiBalance is the estimated amount
-			expect(daiBalanceAfter).to.equal(amounts[1])
+			// devBalance increases
+			expect(devBalanceAfter).gt(devBalanceBefore)
+			// devBalance is the estimated amount
+			expect(devBalanceAfter).to.equal(amounts[1])
 		})
 		it('should not swap eth for dev', async () => {
-			const amounts = await swap.getEstimatedDEVforETH(
-				ethers.utils.parseEther('1')
-			)
-			console.log('amounts', amounts)
-			const daiTokenContract = await ethers.getContractAt(
-				'IERC20',
-				'0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26'
-			)
-			const ethBalanceBefore = await ethers.provider.getBalance(
-				account1.address
-			)
-			const daiBalanceBefore = await daiTokenContract.balanceOf(
-				account1.address
-			)
-			console.log('before balance', ethBalanceBefore, daiBalanceBefore)
-			// Fails if daiAmountMin exceeds the uniswap reserve
+			// Fails if devAmountMin exceeds the uniswap reserve
 			await expect(
-				swap.convertEthToDev(ethers.utils.parseEther('1000000'), {
-					value: ethers.utils.parseEther('1'),
-				})
+				swap.stakeEthforDev(
+					ethers.utils.parseEther('1000000'), propertyAddress,
+					{
+						value: ethers.utils.parseEther('1'),
+					})
 			).to.be.revertedWith('UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT')
 		})
 	})
