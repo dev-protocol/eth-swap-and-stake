@@ -18,10 +18,7 @@ contract UniswapExample {
 		lockupAddress = _lockupAddress;
 	}
 
-	function stakeEthforDev(address property)
-		public
-		payable
-	{
+	function stakeEthforDev(address property) public payable {
 		// solhint-disable-next-line not-rely-on-time
 		uint256 deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
 		uint256[] memory amounts = uniswapRouter.swapExactETHForTokens{
