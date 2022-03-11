@@ -8,7 +8,7 @@ import * as dotenv from 'dotenv'
 
 dotenv.config()
 
-// const alchemyKeyMainnet =
+// Const alchemyKeyMainnet =
 // 	typeof process.env.ALCHEMY_KEY_MAINNET === 'undefined' ? '' : process.env.ALCHEMY_KEY_MAINNET
 const alchemyKeyArbitrum =
 	typeof process.env.ALCHEMY_KEY_ARBITRUM === 'undefined'
