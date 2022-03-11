@@ -8,8 +8,8 @@ import * as dotenv from 'dotenv'
 
 dotenv.config()
 
-const alchemyApiKey =
-	typeof process.env.ALCHEMY_KEY === 'undefined' ? '' : process.env.ALCHEMY_KEY
+const alchemyKeyMainnet =
+	typeof process.env.ALCHEMY_KEY_MAINNET === 'undefined' ? '' : process.env.ALCHEMY_KEY_MAINNET
 
 use(solidity)
 
@@ -28,7 +28,7 @@ describe('UniswapExample', () => {
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {
-					jsonRpcUrl: 'https://arb-mainnet.g.alchemy.com/v2/' + alchemyApiKey,
+					jsonRpcUrl: 'https://arb-mainnet.g.alchemy.com/v2/' + alchemyKeyMainnet,
 					blockNumber: 7683813,
 				},
 			},

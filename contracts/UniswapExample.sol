@@ -7,14 +7,14 @@ import {IERC20} from "./interfaces/IERC20.sol";
 import "hardhat/console.sol";
 
 contract UniswapExample {
-	address internal constant UNISWAP_ROUTER_ADDRESS =
-		0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+	// address internal constant UNISWAP_ROUTER_ADDRESS =
+	// 	0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 	address public devAddress;
 	address public lockupAddress;
 	IUniswapV2Router02 public uniswapRouter;
 
-	constructor(address _devAddress, address _lockupAddress) {
-		uniswapRouter = IUniswapV2Router02(UNISWAP_ROUTER_ADDRESS);
+	constructor(address _uniswapRouterAddress, address _devAddress, address _lockupAddress) {
+		uniswapRouter = IUniswapV2Router02(_uniswapRouterAddress);
 		devAddress = _devAddress;
 		lockupAddress = _lockupAddress;
 	}
