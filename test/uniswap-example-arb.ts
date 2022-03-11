@@ -18,7 +18,7 @@ describe('UniswapExample', () => {
 	let swap: UniswapExample
 	let devTokenContract: Contract
 
-	// arbitrum
+	// Arbitrum
 	// const wethAddress = '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'
 	const devAddress = '0x91F5dC90979b058eBA3be6B7B7e523df7e84e137'
 	const lockupAddress = '0x1A2B49e10013C40AAC9b6f9e785837bfd329e5e0'

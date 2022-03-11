@@ -58,15 +58,18 @@ contract Uniswap3 {
 	}
 
 	// do not used on-chain, gas inefficient!
-	function getEstimatedDEVforETH(
-		uint256 ethAmount
-	) external payable returns (uint256) {
+	function getEstimatedDEVforETH(uint256 ethAmount)
+		external
+		payable
+		returns (uint256)
+	{
 		address tokenIn = wethAddress;
 		address tokenOut = devAddress;
 		uint24 fee = 3000;
 		uint160 sqrtPriceLimitX96 = 0;
 
-			return quoter.quoteExactInputSingle(
+		return
+			quoter.quoteExactInputSingle(
 				tokenIn,
 				tokenOut,
 				fee,
