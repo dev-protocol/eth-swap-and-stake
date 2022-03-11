@@ -8,7 +8,7 @@ import * as dotenv from 'dotenv'
 
 dotenv.config()
 
-// Const alchemyKeyMainnet =
+// const alchemyKeyMainnet =
 // 	typeof process.env.ALCHEMY_KEY_MAINNET === 'undefined' ? '' : process.env.ALCHEMY_KEY_MAINNET
 const alchemyKeyArbitrum =
 	typeof process.env.ALCHEMY_KEY_ARBITRUM === 'undefined'
@@ -37,11 +37,9 @@ describe('UniswapExample', () => {
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {
-					JsonRpcUrl:
+					jsonRpcUrl:
 						'https://arb-mainnet.g.alchemy.com/v2/' + alchemyKeyArbitrum,
-					blockNumber: 7683813,
-					// JsonRpcUrl: 'https://eth-mainnet.alchemyapi.io/v2/' + alchemyKeyMainnet,
-					// blockNumber: 14350029,
+					blockNumber: 7727395,
 				},
 			},
 		])
