@@ -24,9 +24,11 @@ const infuraApiKey =
 	typeof process.env.INFURA_KEY === 'undefined' ? '' : process.env.INFURA_KEY
 
 const alchemyKeyMainnet =
-	typeof process.env.ALCHEMY_KEY_MAINNET === 'undefined' ? '' : process.env.ALCHEMY_KEY_MAINNET
-const alchemyKeyArbitrum =
-	typeof process.env.ALCHEMY_KEY_ARBITRUM === 'undefined' ? '' : process.env.ALCHEMY_KEY_ARBITRUM
+	typeof process.env.ALCHEMY_KEY_MAINNET === 'undefined'
+		? ''
+		: process.env.ALCHEMY_KEY_MAINNET
+// Const alchemyKeyArbitrum =
+// 	typeof process.env.ALCHEMY_KEY_ARBITRUM === 'undefined' ? '' : process.env.ALCHEMY_KEY_ARBITRUM
 
 function createNetworkConfig(network: string) {
 	const url = 'https://' + network + '.infura.io/v3/' + infuraApiKey
@@ -67,7 +69,7 @@ module.exports = {
 			forking: {
 				url: 'https://eth-mainnet.alchemyapi.io/v2/' + alchemyKeyMainnet,
 				blockNumber: 12057273,
-				// url: 'https://arb-mainnet.g.alchemy.com/v2/' + alchemyKeyArbitrum,
+				// Url: 'https://arb-mainnet.g.alchemy.com/v2/' + alchemyKeyArbitrum,
 				// blockNumber: 7683813,
 			},
 		},

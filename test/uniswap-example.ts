@@ -9,7 +9,9 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 const alchemyKeyMainnet =
-	typeof process.env.ALCHEMY_KEY_MAINNET === 'undefined' ? '' : process.env.ALCHEMY_KEY_MAINNET
+	typeof process.env.ALCHEMY_KEY_MAINNET === 'undefined'
+		? ''
+		: process.env.ALCHEMY_KEY_MAINNET
 
 use(solidity)
 
@@ -27,7 +29,8 @@ describe('UniswapExample', () => {
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {
-					jsonRpcUrl: 'https://eth-mainnet.alchemyapi.io/v2/' + alchemyKeyMainnet,
+					jsonRpcUrl:
+						'https://eth-mainnet.alchemyapi.io/v2/' + alchemyKeyMainnet,
 					blockNumber: 14350029,
 				},
 			},
@@ -38,7 +41,11 @@ describe('UniswapExample', () => {
 		account1 = accounts[0]
 
 		const factory = await ethers.getContractFactory('UniswapExample')
-		swap = (await factory.deploy(uniswapRouterAddress, devAddress, lockupAddress)) as UniswapExample
+		swap = (await factory.deploy(
+			uniswapRouterAddress,
+			devAddress,
+			lockupAddress
+		)) as UniswapExample
 		await swap.deployed()
 
 		devTokenContract = await ethers.getContractAt('IERC20', devAddress)

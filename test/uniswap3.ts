@@ -8,10 +8,12 @@ import * as dotenv from 'dotenv'
 
 dotenv.config()
 
-const alchemyKeyMainnet =
-	typeof process.env.ALCHEMY_KEY_MAINNET === 'undefined' ? '' : process.env.ALCHEMY_KEY_MAINNET
+// Const alchemyKeyMainnet =
+// 	typeof process.env.ALCHEMY_KEY_MAINNET === 'undefined' ? '' : process.env.ALCHEMY_KEY_MAINNET
 const alchemyKeyArbitrum =
-	typeof process.env.ALCHEMY_KEY_ARBITRUM === 'undefined' ? '' : process.env.ALCHEMY_KEY_ARBITRUM
+	typeof process.env.ALCHEMY_KEY_ARBITRUM === 'undefined'
+		? ''
+		: process.env.ALCHEMY_KEY_ARBITRUM
 
 use(solidity)
 
@@ -24,8 +26,8 @@ describe('UniswapExample', () => {
 	const wethAddress = '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'
 	const devAddress = '0x91F5dC90979b058eBA3be6B7B7e523df7e84e137'
 	const lockupAddress = '0x1A2B49e10013C40AAC9b6f9e785837bfd329e5e0'
-	const propertyAddress = '0x7645306DfB9e14C0B849bb71eeC7BB4D1Cde8251'
-	// mainnet
+	// Const propertyAddress = '0x7645306DfB9e14C0B849bb71eeC7BB4D1Cde8251'
+	// Mainnet
 	// const wethAddress = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 	// const devAddress = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' //usdc
 	// const lockupAddress = '0x1A2B49e10013C40AAC9b6f9e785837bfd329e5e0'
@@ -35,9 +37,10 @@ describe('UniswapExample', () => {
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {
-					JsonRpcUrl: 'https://arb-mainnet.g.alchemy.com/v2/' + alchemyKeyArbitrum,
+					JsonRpcUrl:
+						'https://arb-mainnet.g.alchemy.com/v2/' + alchemyKeyArbitrum,
 					blockNumber: 7683813,
-					// jsonRpcUrl: 'https://eth-mainnet.alchemyapi.io/v2/' + alchemyKeyMainnet,
+					// JsonRpcUrl: 'https://eth-mainnet.alchemyapi.io/v2/' + alchemyKeyMainnet,
 					// blockNumber: 14350029,
 				},
 			},

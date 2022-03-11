@@ -9,7 +9,9 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 const alchemyKeyPolygon =
-	typeof process.env.ALCHEMY_KEY_POLYGON === 'undefined' ? '' : process.env.ALCHEMY_KEY_POLYGON
+	typeof process.env.ALCHEMY_KEY_POLYGON === 'undefined'
+		? ''
+		: process.env.ALCHEMY_KEY_POLYGON
 
 use(solidity)
 
@@ -18,7 +20,7 @@ describe('UniswapExample', () => {
 	let swap: UniswapExample
 	let devTokenContract: Contract
 
-	// polygon
+	// Polygon
 	// const wethAddress = '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'
 	const uniswapRouterAddress = '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff'
 	const devAddress = '0xA5577D1cec2583058A6Bd6d5DEAC44797c205701'
@@ -29,7 +31,8 @@ describe('UniswapExample', () => {
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {
-					jsonRpcUrl: 'https://polygon-mainnet.g.alchemy.com/v2/' + alchemyKeyPolygon,
+					jsonRpcUrl:
+						'https://polygon-mainnet.g.alchemy.com/v2/' + alchemyKeyPolygon,
 					blockNumber: 25811386,
 				},
 			},
@@ -40,7 +43,11 @@ describe('UniswapExample', () => {
 		account1 = accounts[0]
 
 		const factory = await ethers.getContractFactory('UniswapExample')
-		swap = (await factory.deploy(uniswapRouterAddress, devAddress, lockupAddress)) as UniswapExample
+		swap = (await factory.deploy(
+			uniswapRouterAddress,
+			devAddress,
+			lockupAddress
+		)) as UniswapExample
 		await swap.deployed()
 
 		devTokenContract = await ethers.getContractAt('IERC20', devAddress)

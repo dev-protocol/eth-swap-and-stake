@@ -13,7 +13,11 @@ contract UniswapExample {
 	address public lockupAddress;
 	IUniswapV2Router02 public uniswapRouter;
 
-	constructor(address _uniswapRouterAddress, address _devAddress, address _lockupAddress) {
+	constructor(
+		address _uniswapRouterAddress,
+		address _devAddress,
+		address _lockupAddress
+	) {
 		uniswapRouter = IUniswapV2Router02(_uniswapRouterAddress);
 		devAddress = _devAddress;
 		lockupAddress = _lockupAddress;
