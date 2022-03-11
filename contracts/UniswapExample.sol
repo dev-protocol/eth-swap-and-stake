@@ -3,6 +3,7 @@ pragma solidity 0.8.7;
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import {ILockup} from "@devprotocol/protocol/contracts/interface/ILockup.sol";
 import {IERC20} from "./interfaces/IERC20.sol";
+
 import "hardhat/console.sol";
 
 contract UniswapExample {
