@@ -36,7 +36,8 @@ contract Uniswap3 {
 		uint256 deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
 		address tokenIn = wethAddress;
 		address tokenOut = devAddress;
-		uint24 fee = 3000;
+		// V3 ETH-DEV pair fee is 1%
+		uint24 fee = 10000;
 		address recipient = address(this);
 		uint256 amountIn = msg.value;
 		uint256 amountOutMinimum = 1;
@@ -65,7 +66,8 @@ contract Uniswap3 {
 	{
 		address tokenIn = wethAddress;
 		address tokenOut = devAddress;
-		uint24 fee = 3000;
+		// V3 ETH-DEV pair fee is 1%
+		uint24 fee = 10000;
 		uint160 sqrtPriceLimitX96 = 0;
 
 		return

@@ -44,7 +44,6 @@ describe('UniswapExample', () => {
 			},
 		])
 
-		console.log('alchemyKey', alchemyKeyArbitrum)
 		const accounts = await ethers.getSigners()
 
 		account1 = accounts[0]
