@@ -1,37 +1,38 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { ethers } from 'hardhat'
-import { UniswapExample } from '../typechain'
+import { SwapStakeV2 } from '../typechain'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract } from 'ethers'
 import * as dotenv from 'dotenv'
 
 dotenv.config()
 
-const alchemyKeyMainnet =
-	typeof process.env.ALCHEMY_KEY_MAINNET === 'undefined'
+const alchemyKeyPolygon =
+	typeof process.env.ALCHEMY_KEY_POLYGON === 'undefined'
 		? ''
-		: process.env.ALCHEMY_KEY_MAINNET
+		: process.env.ALCHEMY_KEY_POLYGON
 
 use(solidity)
 
-describe('UniswapExample Mainnet', () => {
+describe('SwapStakeV2 Quickswap', () => {
 	let account1: SignerWithAddress
-	let swap: UniswapExample
+	let swap: SwapStakeV2
 	let devTokenContract: Contract
 
-	const uniswapRouterAddress = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
-	const devAddress = '0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26'
-	const lockupAddress = '0xBD2a75e11De78Af8D58595FB16181d505777804F'
-	const propertyAddress = '0xac1AC9d00314aE7B4a7d6DbEE4860bECedF92309'
+	// Polygon
+	const uniswapRouterAddress = '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff'
+	const devAddress = '0xA5577D1cec2583058A6Bd6d5DEAC44797c205701'
+	const lockupAddress = '0x42767B12d3f07bE0D951a64eE6573B40Ff165C4e'
+	const propertyAddress = '0x234C1C344796A68f6913F5126B726DF94de186A9'
 
 	beforeEach(async () => {
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {
 					jsonRpcUrl:
-						'https://eth-mainnet.alchemyapi.io/v2/' + alchemyKeyMainnet,
-					blockNumber: 14350029,
+						'https://polygon-mainnet.g.alchemy.com/v2/' + alchemyKeyPolygon,
+					blockNumber: 25811386,
 				},
 			},
 		])
@@ -40,12 +41,12 @@ describe('UniswapExample Mainnet', () => {
 
 		account1 = accounts[0]
 
-		const factory = await ethers.getContractFactory('UniswapExample')
+		const factory = await ethers.getContractFactory('SwapStakeV2')
 		swap = (await factory.deploy(
 			uniswapRouterAddress,
 			devAddress,
 			lockupAddress
-		)) as UniswapExample
+		)) as SwapStakeV2
 		await swap.deployed()
 
 		devTokenContract = await ethers.getContractAt('IERC20', devAddress)

@@ -6,7 +6,7 @@ import {IERC20} from "./interfaces/IERC20.sol";
 
 import "hardhat/console.sol";
 
-contract UniswapExample {
+contract SwapStakeV2 {
 	// address internal constant UNISWAP_ROUTER_ADDRESS =
 	// 	0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 	address public devAddress;

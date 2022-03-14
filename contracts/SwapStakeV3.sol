@@ -9,7 +9,7 @@ import {IERC20} from "./interfaces/IERC20.sol";
 
 import "hardhat/console.sol";
 
-contract Uniswap3 {
+contract SwapStakeV3 {
 	// solhint-disable-next-line const-name-snakecase
 	ISwapRouter public constant uniswapRouter =
 		ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
@@ -56,7 +56,9 @@ contract Uniswap3 {
 				amountOutMinimum,
 				sqrtPriceLimitX96
 			);
-		uint256 amountOut = uniswapRouter.exactInputSingle{value: msg.value}(params);
+		uint256 amountOut = uniswapRouter.exactInputSingle{value: msg.value}(
+			params
+		);
 		IERC20(devAddress).approve(lockupAddress, amountOut);
 		console.log(property);
 		// ILockup(lockupAddress).depositToProperty(property, amountOut);

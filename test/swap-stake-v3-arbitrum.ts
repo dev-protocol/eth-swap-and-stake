@@ -1,7 +1,7 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { ethers } from 'hardhat'
-import { Uniswap3 } from '../typechain'
+import { SwapStakeV3 } from '../typechain'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract } from 'ethers'
 import * as dotenv from 'dotenv'
@@ -17,9 +17,9 @@ const alchemyKeyArbitrum =
 
 use(solidity)
 
-describe('UniswapExample Arbitrum', () => {
+describe('SwapStakeV3 Arbitrum', () => {
 	let account1: SignerWithAddress
-	let swap: Uniswap3
+	let swap: SwapStakeV3
 	let devTokenContract: Contract
 
 	// Arbitrum
@@ -48,12 +48,12 @@ describe('UniswapExample Arbitrum', () => {
 
 		account1 = accounts[0]
 
-		const factory = await ethers.getContractFactory('Uniswap3')
+		const factory = await ethers.getContractFactory('SwapStakeV3')
 		swap = (await factory.deploy(
 			wethAddress,
 			devAddress,
 			lockupAddress
-		)) as Uniswap3
+		)) as SwapStakeV3
 		await swap.deployed()
 
 		devTokenContract = await ethers.getContractAt('IERC20', devAddress)
