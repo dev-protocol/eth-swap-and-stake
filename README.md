@@ -1,11 +1,7 @@
-# template-repos-ts-sol
-
-Template repository for using TypeScript and Solidity
-
-# Usage
-
-Create a repository using this template; just runs following command.
-
-```bash
-yarn
+# .env
+To test with hardhat forking, set the alchemy keys.
+```
+ALCHEMY_KEY_MAINNET=***
+ALCHEMY_KEY_ARBITRUM=***
+ALCHEMY_KEY_POLYGON=***
 ```
