@@ -4,6 +4,8 @@ pragma abicoder v2;
 
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/IQuoter.sol";
+import {ILockup} from "@devprotocol/protocol-v2/contracts/interface/ILockup.sol";
+import {IERC20} from "./interfaces/IERC20.sol";
 
 import "hardhat/console.sol";
 
@@ -29,7 +31,7 @@ contract Uniswap3 {
 		lockupAddress = _lockupAddress;
 	}
 
-	function stakeEthforDev() external payable {
+	function stakeEthforDev(address property) external payable {
 		require(msg.value > 0, "Must pass non 0 ETH amount");
 
 		// solhint-disable-next-line not-rely-on-time
@@ -54,8 +56,10 @@ contract Uniswap3 {
 				amountOutMinimum,
 				sqrtPriceLimitX96
 			);
-
-		uniswapRouter.exactInputSingle{value: msg.value}(params);
+		uint256 amountOut = uniswapRouter.exactInputSingle{value: msg.value}(params);
+		IERC20(devAddress).approve(lockupAddress, amountOut);
+		console.log(property);
+		// ILockup(lockupAddress).depositToProperty(property, amountOut);
 	}
 
 	// do not used on-chain, gas inefficient!

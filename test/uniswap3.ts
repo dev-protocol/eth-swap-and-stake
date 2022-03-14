@@ -17,7 +17,7 @@ const alchemyKeyArbitrum =
 
 use(solidity)
 
-describe('UniswapExample', () => {
+describe('UniswapExample Arbitrum', () => {
 	let account1: SignerWithAddress
 	let swap: Uniswap3
 	let devTokenContract: Contract
@@ -26,7 +26,7 @@ describe('UniswapExample', () => {
 	const wethAddress = '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'
 	const devAddress = '0x91F5dC90979b058eBA3be6B7B7e523df7e84e137'
 	const lockupAddress = '0x1A2B49e10013C40AAC9b6f9e785837bfd329e5e0'
-	// Const propertyAddress = '0x7645306DfB9e14C0B849bb71eeC7BB4D1Cde8251'
+	const propertyAddress = '0x7645306DfB9e14C0B849bb71eeC7BB4D1Cde8251'
 	// Mainnet
 	// const wethAddress = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 	// const devAddress = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' //usdc
@@ -69,7 +69,7 @@ describe('UniswapExample', () => {
 			)
 			const devBalanceBefore = await devTokenContract.balanceOf(swap.address)
 
-			await swap.stakeEthforDev({
+			await swap.stakeEthforDev(propertyAddress, {
 				value: ethers.utils.parseEther('1'),
 			})
 			const ethBalanceAfter = await ethers.provider.getBalance(account1.address)

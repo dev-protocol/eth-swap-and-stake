@@ -43,6 +43,15 @@
     ethereum-waffle "3.4.0"
     solhint "3.3.7"
 
+"@devprotocol/protocol-v2@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@devprotocol/protocol-v2/-/protocol-v2-0.5.0.tgz#5174ebb31fa13ffcd22d2fe39ebada56b3c4d858"
+  integrity sha512-HMdrQGGxhQjuht89V9pFFN0pcUazZG+VMUzQEO/IhyF39ojOKd4ij1yNQBGhua+Q4q86SMFKQ5+ansSMdBCaNA==
+  dependencies:
+    "@devprotocol/util-contracts" "3.3.0"
+    "@openzeppelin/contracts" "4.3.2"
+    "@openzeppelin/contracts-upgradeable" "4.3.2"
+
 "@devprotocol/protocol@^3.4.1":
   version "3.4.1"
   resolved "https://registry.yarnpkg.com/@devprotocol/protocol/-/protocol-3.4.1.tgz#a3021dd395c68679244cf4948e22bef179ef2e19"
@@ -50,6 +59,13 @@
   dependencies:
     "@devprotocol/i-s-tokens" "1.7.0"
     "@openzeppelin/contracts" "2.5.1"
+
+"@devprotocol/util-contracts@3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@devprotocol/util-contracts/-/util-contracts-3.3.0.tgz#56978e832f12b1796d937b20e57be307f2fcbc07"
+  integrity sha512-5KgaYUcp7tbPIjSzoxE/40pMYqfFdqHsMraKy+ATDWVEy1D7gfdQEvOyx2nMwE/a5pjSO+UDgZP1hclEbnyTRQ==
+  dependencies:
+    "@openzeppelin/contracts" "4.3.0"
 
 "@ensdomains/ens@^0.4.4":
   version "0.4.5"
@@ -996,6 +1012,11 @@
     "@types/sinon-chai" "^3.2.3"
     "@types/web3" "1.0.19"
 
+"@openzeppelin/contracts-upgradeable@4.3.2":
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts-upgradeable/-/contracts-upgradeable-4.3.2.tgz#92df481362e366c388fc02133cf793029c744cea"
+  integrity sha512-i/pOaOtcqDk4UqsrOv735uYyTbn6dvfiuVu5hstsgV6c4ZKUtu88/31zT2BzkCg+3JfcwOfgg2TtRKVKKZIGkQ==
+
 "@openzeppelin/contracts-upgradeable@^4.4.2":
   version "4.4.2"
   resolved "https://registry.npmjs.org/@openzeppelin/contracts-upgradeable/-/contracts-upgradeable-4.4.2.tgz"
@@ -1010,6 +1031,16 @@
   version "3.4.1-solc-0.7-2"
   resolved "https://registry.npmjs.org/@openzeppelin/contracts/-/contracts-3.4.1-solc-0.7-2.tgz"
   integrity sha512-tAG9LWg8+M2CMu7hIsqHPaTyG4uDzjr6mhvH96LvOpLZZj6tgzTluBt+LsCf1/QaYrlis6pITvpIaIhE+iZB+Q==
+
+"@openzeppelin/contracts@4.3.0":
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.3.0.tgz#345236d4ec73ef381ab4907c6ef66fd55e5dedad"
+  integrity sha512-+uBDl/TrmR0Kch6mq3tuxMex/fK7huR6+fQMae+zJk1K5T+dp0pFl12Hbc+1L6oYMXoyDSBJ8zqhRIntrREDFA==
+
+"@openzeppelin/contracts@4.3.2":
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.3.2.tgz#ff80affd6d352dbe1bbc5b4e1833c41afd6283b6"
+  integrity sha512-AybF1cesONZStg5kWf6ao9OlqTZuPqddvprc0ky7lrUVOjXeKpmQ2Y9FK+6ygxasb+4aic4O5pneFBfwVsRRRg==
 
 "@openzeppelin/contracts@4.5.0":
   version "4.5.0"

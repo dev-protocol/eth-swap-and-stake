@@ -15,7 +15,7 @@ const alchemyKeyMainnet =
 
 use(solidity)
 
-describe('UniswapExample', () => {
+describe('UniswapExample Mainnet', () => {
 	let account1: SignerWithAddress
 	let swap: UniswapExample
 	let devTokenContract: Contract

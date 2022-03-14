@@ -15,7 +15,7 @@ const alchemyKeyPolygon =
 
 use(solidity)
 
-describe('UniswapExample', () => {
+describe('UniswapExample Quickswap', () => {
 	let account1: SignerWithAddress
 	let swap: UniswapExample
 	let devTokenContract: Contract
