@@ -56,6 +56,7 @@
 		"@uniswap/v2-periphery": "^1.1.0-beta.0",
 		"@uniswap/v3-periphery": "^1.4.0",
 		"solhint": "^3.3.2",
+		"solidity-coverage": "^0.7.20",
 		"typechain": "^7.0.0"
 	}
 }
