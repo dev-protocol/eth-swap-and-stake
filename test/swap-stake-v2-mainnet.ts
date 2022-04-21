@@ -3,7 +3,7 @@ import { solidity } from 'ethereum-waffle'
 import { ethers } from 'hardhat'
 import { SwapStakeV2 } from '../typechain'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { Contract } from 'ethers'
+import { Contract, BigNumber } from 'ethers'
 import * as dotenv from 'dotenv'
 
 dotenv.config()
@@ -17,13 +17,15 @@ use(solidity)
 
 describe('SwapStakeV2 Mainnet', () => {
 	let account1: SignerWithAddress
-	let swap: SwapStakeV2
-	let devTokenContract: Contract
+	let swapStakeContract: SwapStakeV2
+	let lockupContract: Contract
+	let sTokensManagerContract: Contract
 
 	const uniswapRouterAddress = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
 	const devAddress = '0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26'
-	const lockupAddress = '0xBD2a75e11De78Af8D58595FB16181d505777804F'
+	const lockupAddress = '0x71A25Bb05C68037B867E165c229D0c30e73f07Ad'
 	const propertyAddress = '0xac1AC9d00314aE7B4a7d6DbEE4860bECedF92309'
+	const sTokensManagerAddress = '0x50489Ff5f879A44C87bBA85287729D663b18CeD5'
 
 	beforeEach(async () => {
 		await ethers.provider.send('hardhat_reset', [
@@ -31,7 +33,7 @@ describe('SwapStakeV2 Mainnet', () => {
 				forking: {
 					jsonRpcUrl:
 						'https://eth-mainnet.alchemyapi.io/v2/' + alchemyKeyMainnet,
-					blockNumber: 14350029,
+					blockNumber: 9389486,
 				},
 			},
 		])
@@ -41,40 +43,47 @@ describe('SwapStakeV2 Mainnet', () => {
 		account1 = accounts[0]
 
 		const factory = await ethers.getContractFactory('SwapStakeV2')
-		swap = (await factory.deploy(
+		swapStakeContract = (await factory.deploy(
 			uniswapRouterAddress,
 			devAddress,
-			lockupAddress
+			lockupAddress,
+			sTokensManagerAddress
 		)) as SwapStakeV2
-		await swap.deployed()
+		await swapStakeContract.deployed()
 
-		devTokenContract = await ethers.getContractAt('IERC20', devAddress)
+		lockupContract = await ethers.getContractAt(
+			'@devprotocol/protocol/contracts/interface/ILockup.sol:ILockup',
+			lockupAddress
+		)
 	})
 	describe('swap eth for dev', () => {
 		it('should stake eth for dev', async () => {
-			const amounts = await swap.getEstimatedDEVforETH(
+			const amounts = await swapStakeContract.getEstimatedDEVforETH(
 				ethers.utils.parseEther('1')
 			)
-			const ethBalanceBefore = await ethers.provider.getBalance(
-				account1.address
-			)
-			const devBalanceBefore = await devTokenContract.balanceOf(swap.address)
 
-			await swap.stakeEthforDev(propertyAddress, {
-				value: ethers.utils.parseEther('1'),
-			})
-			const ethBalanceAfter = await ethers.provider.getBalance(account1.address)
-			const devBalanceAfter = await devTokenContract.balanceOf(swap.address)
-			// EthBalance reduces
-			expect(ethBalanceAfter).lt(ethBalanceBefore)
-			// EthBalance delta is 1 eth + gas
-			expect(ethBalanceBefore.sub(ethBalanceAfter)).gt(
-				ethers.utils.parseEther('1')
+			// STokenId = currentIndex + 1 will be minted.
+			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
+			sTokenId = sTokenId.add(1)
+			await expect(
+				swapStakeContract.stakeEthforDev(propertyAddress, {
+					value: ethers.utils.parseEther('1'),
+				})
 			)
-			// DevBalance increases
-			expect(devBalanceAfter).gt(devBalanceBefore)
-			// DevBalance is the estimated amount
-			expect(devBalanceAfter).to.equal(amounts[1])
+				.to.emit(lockupContract, 'Lockedup')
+				.withArgs(
+					swapStakeContract.address,
+					propertyAddress,
+					amounts[1],
+					sTokenId
+				)
+
+			const sTokenOwner = await sTokensManagerContract.ownerOf(sTokenId)
+			const sTokenPosition: number[] = await sTokensManagerContract.positions(
+				sTokenId
+			)
+			expect(sTokenOwner).to.equal(account1.address)
+			expect(sTokenPosition[1]).to.equal(amounts[1])
 		})
 	})
 })

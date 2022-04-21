@@ -6,6 +6,7 @@ import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/IQuoter.sol";
 import {ILockup} from "@devprotocol/protocol-v2/contracts/interface/ILockup.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 import "hardhat/console.sol";
 
@@ -20,15 +21,18 @@ contract SwapStakeV3 {
 	address public wethAddress;
 	address public devAddress;
 	address public lockupAddress;
+	address public sTokensAddress;
 
 	constructor(
 		address _wethAddress,
 		address _devAddress,
-		address _lockupAddress
+		address _lockupAddress,
+		address _sTokensAddress
 	) {
 		wethAddress = _wethAddress;
 		devAddress = _devAddress;
 		lockupAddress = _lockupAddress;
+		sTokensAddress = _sTokensAddress;
 	}
 
 	function stakeEthforDev(address property) external payable {
@@ -60,8 +64,15 @@ contract SwapStakeV3 {
 			params
 		);
 		IERC20(devAddress).approve(lockupAddress, amountOut);
-		console.log(property);
-		// ILockup(lockupAddress).depositToProperty(property, amountOut);
+		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
+			property,
+			amountOut
+		);
+		IERC721(sTokensAddress).safeTransferFrom(
+			address(this),
+			msg.sender,
+			tokenId
+		);
 	}
 
 	// do not used on-chain, gas inefficient!
