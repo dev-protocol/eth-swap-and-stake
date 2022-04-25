@@ -33,8 +33,7 @@ describe('SwapStakeV2 Mainnet', () => {
 				swapStakeContract.stakeEthforDev(propertyAddress, {
 					value: ethers.utils.parseEther('1'),
 				})
-			)
-				.to.revertedWith("UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT")
+			).to.revertedWith('UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT')
 		})
 	})
 })

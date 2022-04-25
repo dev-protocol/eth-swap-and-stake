@@ -34,8 +34,7 @@ describe('SwapStakeV3 Arbitrum', () => {
 				swapStakeContract.stakeEthforDev(propertyAddress, {
 					value: ethers.utils.parseEther('0'),
 				})
-			)
-				.to.revertedWith("Must pass non 0 ETH amount")
+			).to.revertedWith('Must pass non 0 ETH amount')
 		})
 	})
 })
