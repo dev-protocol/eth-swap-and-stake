@@ -8,8 +8,6 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "hardhat/console.sol";
 
 contract SwapStakeV2 {
-	// address internal constant UNISWAP_ROUTER_ADDRESS =
-	// 	0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 	address public devAddress;
 	address public lockupAddress;
 	address public sTokensAddress;
