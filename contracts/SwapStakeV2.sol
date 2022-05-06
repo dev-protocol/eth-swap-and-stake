@@ -30,7 +30,7 @@ contract SwapStakeV2 {
 		uint256 deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
 		uint256[] memory amounts = uniswapRouter.swapExactETHForTokens{
 			value: msg.value
-		}(1, getPathForETHtoDEV(), address(this), deadline);
+		}(1, getPathForEthToDev(), address(this), deadline);
 		IERC20(devAddress).approve(lockupAddress, amounts[1]);
 		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
 			property,
@@ -48,10 +48,10 @@ contract SwapStakeV2 {
 		view
 		returns (uint256[] memory)
 	{
-		return uniswapRouter.getAmountsOut(ethAmount, getPathForETHtoDEV());
+		return uniswapRouter.getAmountsOut(ethAmount, getPathForEthToDev());
 	}
 
-	function getPathForETHtoDEV() private view returns (address[] memory) {
+	function getPathForEthToDev() private view returns (address[] memory) {
 		address[] memory path = new address[](2);
 		path[0] = uniswapRouter.WETH();
 		path[1] = devAddress;
