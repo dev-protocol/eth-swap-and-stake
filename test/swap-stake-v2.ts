@@ -30,7 +30,7 @@ describe('SwapStakeV2 Mainnet', () => {
 	describe('swap eth for dev', () => {
 		it('should stake eth for dev', async () => {
 			await expect(
-				swapStakeContract.stakeEthforDev(propertyAddress, {
+				swapStakeContract.swapEthAndStakeDev(propertyAddress, {
 					value: ethers.utils.parseEther('1'),
 				})
 			).to.revertedWith('UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT')

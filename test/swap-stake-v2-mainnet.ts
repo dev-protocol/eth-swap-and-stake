@@ -58,7 +58,7 @@ describe('SwapStakeV2 Mainnet', () => {
 	})
 	describe('swap eth for dev', () => {
 		it('should stake eth for dev', async () => {
-			const amounts = await swapStakeContract.getEstimatedDEVforETH(
+			const amounts = await swapStakeContract.getEstimatedDevForEth(
 				ethers.utils.parseEther('1')
 			)
 
@@ -66,7 +66,7 @@ describe('SwapStakeV2 Mainnet', () => {
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 			sTokenId = sTokenId.add(1)
 			await expect(
-				swapStakeContract.stakeEthforDev(propertyAddress, {
+				swapStakeContract.swapEthAndStakeDev(propertyAddress, {
 					value: ethers.utils.parseEther('1'),
 				})
 			)

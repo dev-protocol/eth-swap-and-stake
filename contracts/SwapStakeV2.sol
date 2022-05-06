@@ -25,7 +25,7 @@ contract SwapStakeV2 {
 		sTokensAddress = _sTokensAddress;
 	}
 
-	function stakeEthforDev(address property) public payable {
+	function swapEthAndStakeDev(address property) public payable {
 		// solhint-disable-next-line not-rely-on-time
 		uint256 deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
 		uint256[] memory amounts = uniswapRouter.swapExactETHForTokens{
@@ -43,7 +43,7 @@ contract SwapStakeV2 {
 		);
 	}
 
-	function getEstimatedDEVforETH(uint256 ethAmount)
+	function getEstimatedDevForEth(uint256 ethAmount)
 		public
 		view
 		returns (uint256[] memory)

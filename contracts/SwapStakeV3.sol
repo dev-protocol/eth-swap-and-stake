@@ -35,7 +35,7 @@ contract SwapStakeV3 {
 		sTokensAddress = _sTokensAddress;
 	}
 
-	function stakeEthforDev(address property) external payable {
+	function swapEthAndStakeDev(address property) external payable {
 		require(msg.value > 0, "Must pass non 0 ETH amount");
 
 		// solhint-disable-next-line not-rely-on-time
@@ -76,7 +76,7 @@ contract SwapStakeV3 {
 	}
 
 	// do not used on-chain, gas inefficient!
-	function getEstimatedDEVforETH(uint256 ethAmount)
+	function getEstimatedDevForEth(uint256 ethAmount)
 		external
 		payable
 		returns (uint256)

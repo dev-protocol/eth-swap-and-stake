@@ -31,7 +31,7 @@ describe('SwapStakeV3 Arbitrum', () => {
 	describe('swap eth for dev', () => {
 		it('should stake eth for dev', async () => {
 			await expect(
-				swapStakeContract.stakeEthforDev(propertyAddress, {
+				swapStakeContract.swapEthAndStakeDev(propertyAddress, {
 					value: ethers.utils.parseEther('0'),
 				})
 			).to.revertedWith('Must pass non 0 ETH amount')

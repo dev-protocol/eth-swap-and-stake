@@ -63,16 +63,16 @@ describe('SwapStakeV3 Arbitrum', () => {
 	})
 	describe('swap eth for dev', () => {
 		it('should stake eth for dev', async () => {
-			// Use callStaic to execute getEstimatedDEVforETH as a read method
+			// Use callStaic to execute getEstimatedDevForEth as a read method
 			const amountOut =
-				await swapStakeContract.callStatic.getEstimatedDEVforETH(
+				await swapStakeContract.callStatic.getEstimatedDevForEth(
 					ethers.utils.parseEther('1')
 				)
 			// STokenId = currentIndex + 1 will be minted.
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 			sTokenId = sTokenId.add(1)
 			await expect(
-				swapStakeContract.stakeEthforDev(propertyAddress, {
+				swapStakeContract.swapEthAndStakeDev(propertyAddress, {
 					value: ethers.utils.parseEther('1'),
 				})
 			)
