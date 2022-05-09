@@ -10,7 +10,7 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 import "hardhat/console.sol";
 
-contract SwapStakeV3 {
+contract SwapAndStakeV3 {
 	// solhint-disable-next-line const-name-snakecase
 	ISwapRouter public constant uniswapRouter =
 		ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);

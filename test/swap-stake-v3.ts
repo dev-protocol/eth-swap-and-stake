@@ -1,15 +1,15 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { ethers } from 'hardhat'
-import { SwapStakeV3 } from '../typechain'
+import { SwapAndStakeV3 } from '../typechain'
 import * as dotenv from 'dotenv'
 
 dotenv.config()
 
 use(solidity)
 
-describe('SwapStakeV3 Arbitrum', () => {
-	let swapStakeContract: SwapStakeV3
+describe('SwapAndStakeV3 Arbitrum', () => {
+	let swapAndStakeContract: SwapAndStakeV3
 
 	// Arbitrum
 	const wethAddress = '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'
@@ -19,19 +19,19 @@ describe('SwapStakeV3 Arbitrum', () => {
 	const sTokensManagerAddress = '0x40d999931f7055F670511860e24624939e71a96a'
 
 	beforeEach(async () => {
-		const factory = await ethers.getContractFactory('SwapStakeV3')
-		swapStakeContract = (await factory.deploy(
+		const factory = await ethers.getContractFactory('SwapAndStakeV3')
+		swapAndStakeContract = (await factory.deploy(
 			wethAddress,
 			devAddress,
 			lockupAddress,
 			sTokensManagerAddress
-		)) as SwapStakeV3
-		await swapStakeContract.deployed()
+		)) as SwapAndStakeV3
+		await swapAndStakeContract.deployed()
 	})
 	describe('swap eth for dev', () => {
 		it('should stake eth for dev', async () => {
 			await expect(
-				swapStakeContract.swapEthAndStakeDev(propertyAddress, {
+				swapAndStakeContract.swapEthAndStakeDev(propertyAddress, {
 					value: ethers.utils.parseEther('0'),
 				})
 			).to.revertedWith('Must pass non 0 ETH amount')

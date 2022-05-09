@@ -1,7 +1,7 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { ethers } from 'hardhat'
-import { SwapStakeV2 } from '../typechain'
+import { SwapAndStakeV2 } from '../typechain'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract, BigNumber } from 'ethers'
 import * as dotenv from 'dotenv'
@@ -15,9 +15,9 @@ const alchemyKeyMainnet =
 
 use(solidity)
 
-describe('SwapStakeV2 Mainnet', () => {
+describe('SwapAndStakeV2 Mainnet', () => {
 	let account1: SignerWithAddress
-	let swapStakeContract: SwapStakeV2
+	let swapAndStakeContract: SwapAndStakeV2
 	let lockupContract: Contract
 	let sTokensManagerContract: Contract
 
@@ -42,14 +42,14 @@ describe('SwapStakeV2 Mainnet', () => {
 
 		account1 = accounts[0]
 
-		const factory = await ethers.getContractFactory('SwapStakeV2')
-		swapStakeContract = (await factory.deploy(
+		const factory = await ethers.getContractFactory('SwapAndStakeV2')
+		swapAndStakeContract = (await factory.deploy(
 			uniswapRouterAddress,
 			devAddress,
 			lockupAddress,
 			sTokensManagerAddress
-		)) as SwapStakeV2
-		await swapStakeContract.deployed()
+		)) as SwapAndStakeV2
+		await swapAndStakeContract.deployed()
 
 		lockupContract = await ethers.getContractAt(
 			'@devprotocol/protocol/contracts/interface/ILockup.sol:ILockup',
@@ -58,7 +58,7 @@ describe('SwapStakeV2 Mainnet', () => {
 	})
 	describe('swap eth for dev', () => {
 		it('should stake eth for dev', async () => {
-			const amounts = await swapStakeContract.getEstimatedDevForEth(
+			const amounts = await swapAndStakeContract.getEstimatedDevForEth(
 				ethers.utils.parseEther('1')
 			)
 
@@ -66,13 +66,13 @@ describe('SwapStakeV2 Mainnet', () => {
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 			sTokenId = sTokenId.add(1)
 			await expect(
-				swapStakeContract.swapEthAndStakeDev(propertyAddress, {
+				swapAndStakeContract.swapEthAndStakeDev(propertyAddress, {
 					value: ethers.utils.parseEther('1'),
 				})
 			)
 				.to.emit(lockupContract, 'Lockedup')
 				.withArgs(
-					swapStakeContract.address,
+					swapAndStakeContract.address,
 					propertyAddress,
 					amounts[1],
 					sTokenId

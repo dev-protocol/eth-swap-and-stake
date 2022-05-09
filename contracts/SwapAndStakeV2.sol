@@ -7,7 +7,7 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 import "hardhat/console.sol";
 
-contract SwapStakeV2 {
+contract SwapAndStakeV2 {
 	address public devAddress;
 	address public lockupAddress;
 	address public sTokensAddress;

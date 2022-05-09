@@ -1,15 +1,15 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { ethers } from 'hardhat'
-import { SwapStakeV2 } from '../typechain'
+import { SwapAndStakeV2 } from '../typechain'
 import * as dotenv from 'dotenv'
 
 dotenv.config()
 
 use(solidity)
 
-describe('SwapStakeV2 Mainnet', () => {
-	let swapStakeContract: SwapStakeV2
+describe('SwapAndStakeV2 Mainnet', () => {
+	let swapAndStakeContract: SwapAndStakeV2
 
 	const uniswapRouterAddress = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
 	const devAddress = '0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26'
@@ -18,19 +18,19 @@ describe('SwapStakeV2 Mainnet', () => {
 	const sTokensManagerAddress = '0x50489Ff5f879A44C87bBA85287729D663b18CeD5'
 
 	beforeEach(async () => {
-		const factory = await ethers.getContractFactory('SwapStakeV2')
-		swapStakeContract = (await factory.deploy(
+		const factory = await ethers.getContractFactory('SwapAndStakeV2')
+		swapAndStakeContract = (await factory.deploy(
 			uniswapRouterAddress,
 			devAddress,
 			lockupAddress,
 			sTokensManagerAddress
-		)) as SwapStakeV2
-		await swapStakeContract.deployed()
+		)) as SwapAndStakeV2
+		await swapAndStakeContract.deployed()
 	})
 	describe('swap eth for dev', () => {
 		it('should stake eth for dev', async () => {
 			await expect(
-				swapStakeContract.swapEthAndStakeDev(propertyAddress, {
+				swapAndStakeContract.swapEthAndStakeDev(propertyAddress, {
 					value: ethers.utils.parseEther('1'),
 				})
 			).to.revertedWith('UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT')
