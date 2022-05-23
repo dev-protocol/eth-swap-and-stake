@@ -69,9 +69,7 @@ describe('SwapAndStakeV3 Arbitrum', () => {
 					ethers.utils.parseEther('1')
 				)
 			const amountIn =
-				await swapAndStakeContract.callStatic.getEstimatedEthForDev(
-					amountOut
-				)
+				await swapAndStakeContract.callStatic.getEstimatedEthForDev(amountOut)
 			expect(amountIn).to.equal(ethers.utils.parseEther('1'))
 
 			// STokenId = currentIndex + 1 will be minted.

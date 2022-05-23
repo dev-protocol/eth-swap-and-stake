@@ -23,7 +23,7 @@ const mnemonic =
 const infuraApiKey =
 	typeof process.env.INFURA_KEY === 'undefined' ? '' : process.env.INFURA_KEY
 
-// const alchemyKeyMainnet =
+// Const alchemyKeyMainnet =
 // 	typeof process.env.ALCHEMY_KEY_MAINNET === 'undefined'
 // 		? ''
 // 		: process.env.ALCHEMY_KEY_MAINNET
@@ -69,8 +69,8 @@ module.exports = {
 			// forking: {
 			// 	url: 'https://eth-mainnet.alchemyapi.io/v2/' + alchemyKeyMainnet,
 			// 	blockNumber: 12057273,
-				// Url: 'https://arb-mainnet.g.alchemy.com/v2/' + alchemyKeyArbitrum,
-				// blockNumber: 7683813,
+			// Url: 'https://arb-mainnet.g.alchemy.com/v2/' + alchemyKeyArbitrum,
+			// blockNumber: 7683813,
 			// },
 		},
 		mainnet: createNetworkConfig('mainnet'),
