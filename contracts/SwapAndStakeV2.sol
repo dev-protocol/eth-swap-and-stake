@@ -51,6 +51,14 @@ contract SwapAndStakeV2 {
 		return uniswapRouter.getAmountsOut(ethAmount, getPathForEthToDev());
 	}
 
+	function getEstimatedEthForDev(uint256 devAmount)
+		public
+		view
+		returns (uint256[] memory)
+	{
+		return uniswapRouter.getAmountsIn(devAmount, getPathForEthToDev());
+	}
+
 	function getPathForEthToDev() private view returns (address[] memory) {
 		address[] memory path = new address[](2);
 		path[0] = uniswapRouter.WETH();

@@ -63,9 +63,13 @@ describe('SwapAndStakeV2 Quickswap', () => {
 	})
 	describe('swap eth for dev', () => {
 		it('should stake eth for dev', async () => {
-			const amounts = await swapAndStakeContract.getEstimatedDevForEth(
+			const amountsOut = await swapAndStakeContract.getEstimatedDevForEth(
 				ethers.utils.parseEther('1')
 			)
+			const amountsIn = await swapAndStakeContract.getEstimatedEthForDev(
+				amountsOut[1]
+			)
+			expect(amountsIn[0]).to.equal(amountsOut[0])
 
 			// STokenId = currentIndex + 1 will be minted.
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
@@ -79,7 +83,7 @@ describe('SwapAndStakeV2 Quickswap', () => {
 				.withArgs(
 					swapAndStakeContract.address,
 					propertyAddress,
-					amounts[1],
+					amountsOut[1],
 					sTokenId
 				)
 
@@ -88,7 +92,7 @@ describe('SwapAndStakeV2 Quickswap', () => {
 				sTokenId
 			)
 			expect(sTokenOwner).to.equal(account1.address)
-			expect(sTokenPosition[1]).to.equal(amounts[1])
+			expect(sTokenPosition[1]).to.equal(amountsOut[1])
 		})
 	})
 })

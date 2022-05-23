@@ -96,4 +96,26 @@ contract SwapAndStakeV3 {
 				sqrtPriceLimitX96
 			);
 	}
+
+	// do not used on-chain, gas inefficient!
+	function getEstimatedEthForDev(uint256 devAmount)
+		external
+		payable
+		returns (uint256)
+	{
+		address tokenIn = wethAddress;
+		address tokenOut = devAddress;
+		// V3 ETH-DEV pair fee is 1%
+		uint24 fee = 10000;
+		uint160 sqrtPriceLimitX96 = 0;
+
+		return
+			quoter.quoteExactOutputSingle(
+				tokenIn,
+				tokenOut,
+				fee,
+				devAmount,
+				sqrtPriceLimitX96
+			);
+	}
 }

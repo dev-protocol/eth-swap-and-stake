@@ -23,10 +23,10 @@ const mnemonic =
 const infuraApiKey =
 	typeof process.env.INFURA_KEY === 'undefined' ? '' : process.env.INFURA_KEY
 
-const alchemyKeyMainnet =
-	typeof process.env.ALCHEMY_KEY_MAINNET === 'undefined'
-		? ''
-		: process.env.ALCHEMY_KEY_MAINNET
+// const alchemyKeyMainnet =
+// 	typeof process.env.ALCHEMY_KEY_MAINNET === 'undefined'
+// 		? ''
+// 		: process.env.ALCHEMY_KEY_MAINNET
 // Const alchemyKeyArbitrum =
 // 	typeof process.env.ALCHEMY_KEY_ARBITRUM === 'undefined' ? '' : process.env.ALCHEMY_KEY_ARBITRUM
 
@@ -66,12 +66,12 @@ module.exports = {
 				mnemonic,
 			},
 			// ChainId: chainIds.hardhat,
-			forking: {
-				url: 'https://eth-mainnet.alchemyapi.io/v2/' + alchemyKeyMainnet,
-				blockNumber: 12057273,
+			// forking: {
+			// 	url: 'https://eth-mainnet.alchemyapi.io/v2/' + alchemyKeyMainnet,
+			// 	blockNumber: 12057273,
 				// Url: 'https://arb-mainnet.g.alchemy.com/v2/' + alchemyKeyArbitrum,
 				// blockNumber: 7683813,
-			},
+			// },
 		},
 		mainnet: createNetworkConfig('mainnet'),
 		goerli: createNetworkConfig('goerli'),
