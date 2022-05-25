@@ -8,8 +8,6 @@ import {ILockup} from "@devprotocol/protocol-v2/contracts/interface/ILockup.sol"
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-import "hardhat/console.sol";
-
 contract SwapAndStakeV3 {
 	// solhint-disable-next-line const-name-snakecase
 	ISwapRouter public constant uniswapRouter =

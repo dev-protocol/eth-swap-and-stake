@@ -5,28 +5,38 @@ import {ILockup} from "@devprotocol/protocol/contracts/interface/ILockup.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-contract SwapAndStakeV2 {
+contract SwapAndStakePolygonV2 {
+	address public wethAddresss;
 	address public devAddress;
 	address public lockupAddress;
 	address public sTokensAddress;
-	IUniswapV2Router02 public uniswapRouter = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+	IUniswapV2Router02 public uniswapRouter;
 
 	constructor(
+		address _uniswapRouterAddress,
+		address _wethAddress,
 		address _devAddress,
 		address _lockupAddress,
 		address _sTokensAddress
 	) {
+		uniswapRouter = IUniswapV2Router02(_uniswapRouterAddress);
+		wethAddresss = _wethAddress;
 		devAddress = _devAddress;
 		lockupAddress = _lockupAddress;
 		sTokensAddress = _sTokensAddress;
 	}
 
-	function swapEthAndStakeDev(address property) public payable {
+	function swapEthAndStakeDev(uint256 wethAmount, address property) public {
 		// solhint-disable-next-line not-rely-on-time
 		uint256 deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
-		uint256[] memory amounts = uniswapRouter.swapExactETHForTokens{
-			value: msg.value
-		}(1, getPathForEthToDev(), address(this), deadline);
+		IERC20(wethAddresss).approve(address(uniswapRouter), wethAmount);
+		uint256[] memory amounts = uniswapRouter.swapExactTokensForTokens(
+			wethAmount,
+			1,
+			getPathForEthToDev(),
+			address(this),
+			deadline
+		);
 		IERC20(devAddress).approve(lockupAddress, amounts[1]);
 		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
 			property,
@@ -56,9 +66,10 @@ contract SwapAndStakeV2 {
 	}
 
 	function getPathForEthToDev() private view returns (address[] memory) {
-		address[] memory path = new address[](2);
-		path[0] = uniswapRouter.WETH();
-		path[1] = devAddress;
+		address[] memory path = new address[](3);
+		path[0] = wethAddresss;
+		path[1] = uniswapRouter.WETH();
+		path[2] = devAddress;
 
 		return path;
 	}
