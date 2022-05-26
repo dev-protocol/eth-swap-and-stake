@@ -9,8 +9,7 @@ contract SwapAndStakeV2 {
 	address public devAddress;
 	address public lockupAddress;
 	address public sTokensAddress;
-	IUniswapV2Router02 public uniswapRouter =
-		IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+	IUniswapV2Router02 public uniswapRouter = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
 
 	constructor(
 		address _devAddress,

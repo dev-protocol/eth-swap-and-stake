@@ -20,7 +20,7 @@ describe('SwapAndStakePolygonV2 Quickswap', () => {
 	let swapAndStakeContract: SwapAndStakePolygonV2
 	let lockupContract: Contract
 	let sTokensManagerContract: Contract
-	// Let erc20Contract: Contract
+	// let erc20Contract: Contract
 
 	// Polygon Mainnet
 	const uniswapRouterAddress = '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff'
@@ -85,10 +85,7 @@ describe('SwapAndStakePolygonV2 Quickswap', () => {
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 			sTokenId = sTokenId.add(1)
 			await expect(
-				swapAndStakeContract.swapEthAndStakeDev(
-					ethers.utils.parseEther('1'),
-					propertyAddress
-				)
+				swapAndStakeContract.swapEthAndStakeDev(ethers.utils.parseEther('1'), propertyAddress)
 			)
 				.to.emit(lockupContract, 'Lockedup')
 				.withArgs(
