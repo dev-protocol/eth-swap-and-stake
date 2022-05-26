@@ -21,6 +21,7 @@ describe('SwapAndStakeV2 Mainnet', () => {
 	let lockupContract: Contract
 	let sTokensManagerContract: Contract
 
+	const uniswapRouterAddress = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
 	const devAddress = '0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26'
 	const lockupAddress = '0x71A25Bb05C68037B867E165c229D0c30e73f07Ad'
 	const propertyAddress = '0xac1AC9d00314aE7B4a7d6DbEE4860bECedF92309'
@@ -43,6 +44,7 @@ describe('SwapAndStakeV2 Mainnet', () => {
 
 		const factory = await ethers.getContractFactory('SwapAndStakeV2')
 		swapAndStakeContract = (await factory.deploy(
+			uniswapRouterAddress,
 			devAddress,
 			lockupAddress,
 			sTokensManagerAddress

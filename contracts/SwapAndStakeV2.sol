@@ -5,17 +5,21 @@ import {ILockup} from "@devprotocol/protocol/contracts/interface/ILockup.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
+import "hardhat/console.sol";
+
 contract SwapAndStakeV2 {
 	address public devAddress;
 	address public lockupAddress;
 	address public sTokensAddress;
-	IUniswapV2Router02 public uniswapRouter = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+	IUniswapV2Router02 public uniswapRouter;
 
 	constructor(
+		address _uniswapRouterAddress,
 		address _devAddress,
 		address _lockupAddress,
 		address _sTokensAddress
 	) {
+		uniswapRouter = IUniswapV2Router02(_uniswapRouterAddress);
 		devAddress = _devAddress;
 		lockupAddress = _lockupAddress;
 		sTokensAddress = _sTokensAddress;

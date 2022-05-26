@@ -78,7 +78,6 @@ module.exports = {
 		kovan: createNetworkConfig('kovan'),
 		rinkeby: createNetworkConfig('rinkeby'),
 		ropsten: createNetworkConfig('ropsten'),
-		polygonMainnet: createNetworkConfig('polygon-mainnet'),
 		polygonMumbai: createNetworkConfig('polygon-mumbai'),
 		arbitrumRinkeby: createNetworkConfig('arbitrum-rinkeby'),
 		bsc_testnet: {
