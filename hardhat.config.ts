@@ -80,6 +80,7 @@ module.exports = {
 		ropsten: createNetworkConfig('ropsten'),
 		polygonMumbai: createNetworkConfig('polygon-mumbai'),
 		arbitrumRinkeby: createNetworkConfig('arbitrum-rinkeby'),
+		arbitrumMainnet: createNetworkConfig('arbitrum-mainnet'),
 		bsc_testnet: {
 			url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
 			chainId: 97,
