@@ -76,7 +76,6 @@ contract SwapAndStakeV3 {
 	// do not used on-chain, gas inefficient!
 	function getEstimatedDevForEth(uint256 ethAmount)
 		external
-		payable
 		returns (uint256)
 	{
 		address tokenIn = wethAddress;
@@ -98,7 +97,6 @@ contract SwapAndStakeV3 {
 	// do not used on-chain, gas inefficient!
 	function getEstimatedEthForDev(uint256 devAmount)
 		external
-		payable
 		returns (uint256)
 	{
 		address tokenIn = wethAddress;
