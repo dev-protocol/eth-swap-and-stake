@@ -52,7 +52,7 @@ describe('SwapAndStakeV2 Mainnet', () => {
 		await swapAndStakeContract.deployed()
 
 		lockupContract = await ethers.getContractAt(
-			'@devprotocol/protocol/contracts/interface/ILockup.sol:ILockup',
+			'contracts/interfaces/ILockup.sol:ILockup',
 			lockupAddress
 		)
 		sTokensManagerContract = await ethers.getContractAt(
@@ -83,7 +83,6 @@ describe('SwapAndStakeV2 Mainnet', () => {
 					swapAndStakeContract.address,
 					propertyAddress,
 					amountsOut[1],
-					sTokenId
 				)
 
 			const sTokenOwner = await sTokensManagerContract.ownerOf(sTokenId)
@@ -92,6 +91,14 @@ describe('SwapAndStakeV2 Mainnet', () => {
 			)
 			expect(sTokenOwner).to.equal(account1.address)
 			expect(sTokenPosition[1]).to.equal(amountsOut[1])
+		})
+
+		it('should not stake eth for dev', async () => {
+			await expect(
+				swapAndStakeContract.swapEthAndStakeDev(propertyAddress, {
+					value: ethers.utils.parseEther('0'),
+				})
+			).to.revertedWith('UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT')
 		})
 	})
 })
