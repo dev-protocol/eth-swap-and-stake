@@ -1,7 +1,7 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { ethers } from 'hardhat'
-import { SwapAndStakeV2 } from '../typechain'
+import { SwapAndStakeV2Polygon } from '../typechain'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract, BigNumber } from 'ethers'
 import * as dotenv from 'dotenv'
@@ -17,7 +17,7 @@ use(solidity)
 
 describe('SwapAndStakeV2 Quickswap', () => {
 	let account1: SignerWithAddress
-	let swapAndStakeContract: SwapAndStakeV2
+	let swapAndStakeContract: SwapAndStakeV2Polygon
 	let lockupContract: Contract
 	let sTokensManagerContract: Contract
 
@@ -27,6 +27,7 @@ describe('SwapAndStakeV2 Quickswap', () => {
 	const lockupAddress = '0x42767B12d3f07bE0D951a64eE6573B40Ff165C4e'
 	const propertyAddress = '0x8c6ee1548F687A7a6fda2e233733B7e3d3CF7856'
 	const sTokensManagerAddress = '0x89904De861CDEd2567695271A511B3556659FfA2'
+	const wethAddress = '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619'
 
 	beforeEach(async () => {
 		await ethers.provider.send('hardhat_reset', [
@@ -43,13 +44,14 @@ describe('SwapAndStakeV2 Quickswap', () => {
 
 		account1 = accounts[0]
 
-		const factory = await ethers.getContractFactory('SwapAndStakeV2')
+		const factory = await ethers.getContractFactory('SwapAndStakeV2Polygon')
 		swapAndStakeContract = (await factory.deploy(
 			uniswapRouterAddress,
 			devAddress,
 			lockupAddress,
-			sTokensManagerAddress
-		)) as SwapAndStakeV2
+			sTokensManagerAddress,
+			wethAddress
+		)) as SwapAndStakeV2Polygon
 		await swapAndStakeContract.deployed()
 
 		lockupContract = await ethers.getContractAt(
@@ -66,18 +68,73 @@ describe('SwapAndStakeV2 Quickswap', () => {
 			const amountsOut = await swapAndStakeContract.getEstimatedDevForEth(
 				ethers.utils.parseEther('1')
 			)
+
+			/**
+			 * Using amountsOut[2] since we're doing WETH -> WMATIC -> DEV
+			 */
 			const amountsIn = await swapAndStakeContract.getEstimatedEthForDev(
-				amountsOut[1]
+				amountsOut[2]
 			)
 			expect(amountsIn[0]).to.equal(amountsOut[0])
+
+			const wethContract = new ethers.Contract(
+				wethAddress,
+				[
+					'function balanceOf(address owner) view returns (uint256)',
+					'function approve(address spender, uint256 amount) public returns (bool)',
+				],
+				account1
+			)
+
+			// Get some WETH
+			const router = new Contract(
+				uniswapRouterAddress,
+				[
+					'function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)',
+				],
+				account1
+			)
+
+			const block = await account1.provider?.getBlock('latest')
+
+			const deadline = block!.timestamp + 300
+
+			// Exchange MATIC for WETH
+			await router.swapExactETHForTokens(
+				1,
+				[
+					'0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270', // WMATIC
+					'0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619', // WETH
+				],
+				account1.address,
+				deadline,
+				{
+					value: ethers.utils.parseEther('5000'),
+				}
+			)
+
+			const balance = await wethContract.balanceOf(account1.address)
+
+			// Sanity check to ensure account1 has enough weth
+			expect(Number(balance)).to.be.greaterThanOrEqual(
+				Number(ethers.utils.parseEther('1'))
+			)
+
+			// Approve weth for spending
+			await wethContract.approve(
+				swapAndStakeContract.address,
+				ethers.utils.parseEther('1')
+			)
 
 			// STokenId = currentIndex + 1 will be minted.
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 			sTokenId = sTokenId.add(1)
 			await expect(
-				swapAndStakeContract.swapEthAndStakeDev(propertyAddress, {
-					value: ethers.utils.parseEther('1'),
-				})
+				// This is passed since due to function override of swapEthAndStakeDev
+				swapAndStakeContract['swapEthAndStakeDev(address,uint256)'](
+					propertyAddress,
+					ethers.utils.parseEther('1')
+				)
 			)
 				.to.emit(lockupContract, 'Lockedup')
 				.withArgs(

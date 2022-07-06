@@ -1,6 +1,7 @@
+// SPDX-License-Identifier: MPL-2.0
 pragma solidity 0.8.7;
 
-import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
+import {IUniswapV2Router02} from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import {ILockup} from "@devprotocol/protocol/contracts/interface/ILockup.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -23,12 +24,12 @@ contract SwapAndStakeV2 {
 		sTokensAddress = _sTokensAddress;
 	}
 
-	function swapEthAndStakeDev(address property) public payable {
+	function swapEthAndStakeDev(address property) external payable {
 		// solhint-disable-next-line not-rely-on-time
 		uint256 deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
 		uint256[] memory amounts = uniswapRouter.swapExactETHForTokens{
 			value: msg.value
-		}(1, getPathForEthToDev(), address(this), deadline);
+		}(1, _getPathForEthToDev(), address(this), deadline);
 		IERC20(devAddress).approve(lockupAddress, amounts[1]);
 		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
 			property,
@@ -46,7 +47,7 @@ contract SwapAndStakeV2 {
 		view
 		returns (uint256[] memory)
 	{
-		return uniswapRouter.getAmountsOut(ethAmount, getPathForEthToDev());
+		return uniswapRouter.getAmountsOut(ethAmount, _getPathForEthToDev());
 	}
 
 	function getEstimatedEthForDev(uint256 devAmount)
@@ -54,10 +55,15 @@ contract SwapAndStakeV2 {
 		view
 		returns (uint256[] memory)
 	{
-		return uniswapRouter.getAmountsIn(devAmount, getPathForEthToDev());
+		return uniswapRouter.getAmountsIn(devAmount, _getPathForEthToDev());
 	}
 
-	function getPathForEthToDev() private view returns (address[] memory) {
+	function _getPathForEthToDev()
+		internal
+		view
+		virtual
+		returns (address[] memory)
+	{
 		address[] memory path = new address[](2);
 		path[0] = uniswapRouter.WETH();
 		path[1] = devAddress;
