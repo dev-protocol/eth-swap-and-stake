@@ -79,11 +79,7 @@ describe('SwapAndStakeV2 Mainnet', () => {
 				})
 			)
 				.to.emit(lockupContract, 'Lockedup')
-				.withArgs(
-					swapAndStakeContract.address,
-					propertyAddress,
-					amountsOut[1],
-				)
+				.withArgs(swapAndStakeContract.address, propertyAddress, amountsOut[1])
 
 			const sTokenOwner = await sTokensManagerContract.ownerOf(sTokenId)
 			const sTokenPosition: number[] = await sTokensManagerContract.positions(
