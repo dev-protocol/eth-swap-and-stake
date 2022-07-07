@@ -65,8 +65,11 @@ describe('SwapAndStakeV2 Quickswap', () => {
 	})
 	describe('swap eth for dev', () => {
 		it('should stake eth for dev', async () => {
+			// Const ethAmount = ethers.utils.parseEther('1');
+			const ethAmount = '100000000'
+
 			const amountsOut = await swapAndStakeContract.getEstimatedDevForEth(
-				ethers.utils.parseEther('1')
+				ethAmount
 			)
 
 			/**
@@ -95,9 +98,8 @@ describe('SwapAndStakeV2 Quickswap', () => {
 				account1
 			)
 
-			const block = await account1.provider?.getBlock('latest')
-
-			const deadline = block!.timestamp + 300
+			let block = await account1.provider?.getBlock('latest')
+			let deadline = block!.timestamp + 300
 
 			// Exchange MATIC for WETH
 			await router.swapExactETHForTokens(
@@ -116,31 +118,29 @@ describe('SwapAndStakeV2 Quickswap', () => {
 			const balance = await wethContract.balanceOf(account1.address)
 
 			// Sanity check to ensure account1 has enough weth
-			expect(Number(balance)).to.be.greaterThanOrEqual(
-				Number(ethers.utils.parseEther('1'))
-			)
+			expect(Number(balance)).to.be.greaterThanOrEqual(Number(ethAmount))
 
-			// Approve weth for spending
-			await wethContract.approve(
-				swapAndStakeContract.address,
-				ethers.utils.parseEther('1')
-			)
+			await wethContract.approve(swapAndStakeContract.address, ethAmount)
+
+			block = await account1.provider?.getBlock('latest')
+			deadline = block!.timestamp + 300
 
 			// STokenId = currentIndex + 1 will be minted.
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 			sTokenId = sTokenId.add(1)
 			await expect(
 				// This is passed since due to function override of swapEthAndStakeDev
-				swapAndStakeContract['swapEthAndStakeDev(address,uint256)'](
+				swapAndStakeContract['swapEthAndStakeDev(address,uint256,uint256)'](
 					propertyAddress,
-					ethers.utils.parseEther('1')
+					ethAmount,
+					deadline
 				)
 			)
 				.to.emit(lockupContract, 'Lockedup')
 				.withArgs(
 					swapAndStakeContract.address,
 					propertyAddress,
-					amountsOut[1],
+					amountsOut[2],
 					sTokenId
 				)
 
