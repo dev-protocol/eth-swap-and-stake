@@ -9,6 +9,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "hardhat/console.sol";
 
+/// @title Swap ETH to DEV and stake on Polygon
 contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 	address public wethAddress;
 
@@ -29,24 +30,26 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 		wethAddress = _wethAddress;
 	}
 
-	function swapEthAndStakeDev(address property, uint256 _amount)
-		external
-		virtual
-	{
-		// solhint-disable-next-line not-rely-on-time
-		uint256 deadline = block.timestamp + 300; // using 'now' for convenience, for mainnet pass deadline from frontend!
-
+	/// @notice Swap weth -> wmatic -> dev and stake
+	/// @param _property the property to stake after swap
+	/// @param _amount the amount in weth
+	/// @param _deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	function swapEthAndStakeDev(
+		address _property,
+		uint256 _amount,
+		uint256 _deadline
+	) external virtual {
 		uint256[] memory amount = uniswapRouter.swapExactTokensForTokens(
 			_amount,
 			1,
 			_getPathForEthToDev(),
 			address(this),
-			deadline
+			_deadline
 		);
 
 		IERC20(devAddress).approve(lockupAddress, amount[2]);
 		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
-			property,
+			_property,
 			amount[2]
 		);
 		IERC721(sTokensAddress).safeTransferFrom(
@@ -56,6 +59,8 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 		);
 	}
 
+	/// @notice Get path for weth -> wmatic -> dev
+	/// @return address[]
 	function _getPathForEthToDev()
 		internal
 		view
@@ -64,7 +69,7 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 	{
 		address[] memory path = new address[](3);
 		path[0] = wethAddress;
-		path[1] = uniswapRouter.WETH(); // on Polygon this is WMATIC
+		path[1] = uniswapRouter.WETH(); // on Polygon this is WMATIC, NOT WETH
 		path[2] = devAddress;
 
 		return path;
