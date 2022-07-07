@@ -7,7 +7,6 @@ import {SwapAndStakeV2} from "./SwapAndStakeV2.sol";
 import {ILockup} from "@devprotocol/protocol/contracts/interface/ILockup.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "hardhat/console.sol";
 
 /// @title Swap ETH to DEV and stake on Polygon
 contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
@@ -39,10 +38,13 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 		uint256 _amount,
 		uint256 _deadline
 	) external virtual {
+		// Transfer the amount from the user to the contract
 		IERC20(wethAddress).transferFrom(msg.sender, address(this), _amount);
 
+		// Approve weth to be sent to Uniswap Router
 		IERC20(wethAddress).approve(address(uniswapRouter), _amount);
 
+		// Execute swap
 		uint256[] memory amount = uniswapRouter.swapExactTokensForTokens(
 			_amount,
 			1,
@@ -50,10 +52,6 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 			address(this),
 			_deadline
 		);
-
-		console.log("amount[0]: ", amount[0]);
-		console.log("amount[1]: ", amount[1]);
-		console.log("amount[2]: ", amount[2]);
 
 		IERC20(devAddress).approve(lockupAddress, amount[2]);
 		uint256 tokenId = ILockup(lockupAddress).depositToProperty(

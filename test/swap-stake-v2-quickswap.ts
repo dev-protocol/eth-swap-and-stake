@@ -65,20 +65,7 @@ describe('SwapAndStakeV2 Quickswap', () => {
 	})
 	describe('swap eth for dev', () => {
 		it('should stake eth for dev', async () => {
-			// Const ethAmount = ethers.utils.parseEther('1');
-			const ethAmount = '100000000'
-
-			const amountsOut = await swapAndStakeContract.getEstimatedDevForEth(
-				ethAmount
-			)
-
-			/**
-			 * Using amountsOut[2] since we're doing WETH -> WMATIC -> DEV
-			 */
-			const amountsIn = await swapAndStakeContract.getEstimatedEthForDev(
-				amountsOut[2]
-			)
-			expect(amountsIn[0]).to.equal(amountsOut[0])
+			const ethAmount = ethers.utils.parseEther('1')
 
 			const wethContract = new ethers.Contract(
 				wethAddress,
@@ -125,6 +112,18 @@ describe('SwapAndStakeV2 Quickswap', () => {
 			block = await account1.provider?.getBlock('latest')
 			deadline = block!.timestamp + 300
 
+			const amountsOut = await swapAndStakeContract.getEstimatedDevForEth(
+				ethAmount
+			)
+
+			/**
+			 * Using amountsOut[2] since we're doing WETH -> WMATIC -> DEV
+			 */
+			const amountsIn = await swapAndStakeContract.getEstimatedEthForDev(
+				amountsOut[2]
+			)
+			expect(amountsIn[0]).to.equal(amountsOut[0])
+
 			// STokenId = currentIndex + 1 will be minted.
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 			sTokenId = sTokenId.add(1)
@@ -149,7 +148,7 @@ describe('SwapAndStakeV2 Quickswap', () => {
 				sTokenId
 			)
 			expect(sTokenOwner).to.equal(account1.address)
-			expect(sTokenPosition[1]).to.equal(amountsOut[1])
+			expect(sTokenPosition[1]).to.equal(amountsOut[2])
 		})
 	})
 })
