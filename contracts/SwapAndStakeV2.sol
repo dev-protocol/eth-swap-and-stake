@@ -5,6 +5,7 @@ import {IUniswapV2Router02} from "@uniswap/v2-periphery/contracts/interfaces/IUn
 import {ILockup} from "@devprotocol/protocol/contracts/interface/ILockup.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "hardhat/console.sol";
 
 contract SwapAndStakeV2 {
 	address public devAddress;
@@ -47,6 +48,13 @@ contract SwapAndStakeV2 {
 		view
 		returns (uint256[] memory)
 	{
+		uint256[] memory outs = uniswapRouter.getAmountsOut(
+			ethAmount,
+			_getPathForEthToDev()
+		);
+		console.log("outs[0]", outs[0]);
+		console.log("outs[1]", outs[1]);
+		console.log("outs[2]", outs[2]);
 		return uniswapRouter.getAmountsOut(ethAmount, _getPathForEthToDev());
 	}
 
@@ -55,6 +63,13 @@ contract SwapAndStakeV2 {
 		view
 		returns (uint256[] memory)
 	{
+		uint256[] memory ins = uniswapRouter.getAmountsIn(
+			devAmount,
+			_getPathForEthToDev()
+		);
+		console.log("ins[0]", ins[0]);
+		console.log("ins[1]", ins[1]);
+		console.log("ins[2]", ins[2]);
 		return uniswapRouter.getAmountsIn(devAmount, _getPathForEthToDev());
 	}
 

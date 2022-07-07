@@ -39,6 +39,10 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 		uint256 _amount,
 		uint256 _deadline
 	) external virtual {
+		IERC20(wethAddress).transferFrom(msg.sender, address(this), _amount);
+
+		IERC20(wethAddress).approve(address(uniswapRouter), _amount);
+
 		uint256[] memory amount = uniswapRouter.swapExactTokensForTokens(
 			_amount,
 			1,
@@ -46,6 +50,10 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 			address(this),
 			_deadline
 		);
+
+		console.log("amount[0]: ", amount[0]);
+		console.log("amount[1]: ", amount[1]);
+		console.log("amount[2]: ", amount[2]);
 
 		IERC20(devAddress).approve(lockupAddress, amount[2]);
 		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
