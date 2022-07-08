@@ -24,15 +24,19 @@ contract SwapAndStakeV2 {
 		sTokensAddress = _sTokensAddress;
 	}
 
-	function swapEthAndStakeDev(address property) external payable {
-		// solhint-disable-next-line not-rely-on-time
-		uint256 deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
+	/// @notice Swap eth -> dev and stake
+	/// @param _property the property to stake after swap
+	/// @param _deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	function swapEthAndStakeDev(address _property, uint256 _deadline)
+		external
+		payable
+	{
 		uint256[] memory amounts = uniswapRouter.swapExactETHForTokens{
 			value: msg.value
-		}(1, _getPathForEthToDev(), address(this), deadline);
+		}(1, _getPathForEthToDev(), address(this), _deadline);
 		IERC20(devAddress).approve(lockupAddress, amounts[1]);
 		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
-			property,
+			_property,
 			amounts[1]
 		);
 		IERC721(sTokensAddress).safeTransferFrom(

@@ -70,11 +70,14 @@ describe('SwapAndStakeV2 Mainnet', () => {
 			)
 			expect(amountsIn[0]).to.equal(amountsOut[0])
 
+			const block = await account1.provider?.getBlock('latest')
+			const deadline = block!.timestamp + 300
+
 			// STokenId = currentIndex + 1 will be minted.
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 			sTokenId = sTokenId.add(1)
 			await expect(
-				swapAndStakeContract.swapEthAndStakeDev(propertyAddress, {
+				swapAndStakeContract.swapEthAndStakeDev(propertyAddress, deadline, {
 					value: ethers.utils.parseEther('1'),
 				})
 			)
@@ -90,8 +93,10 @@ describe('SwapAndStakeV2 Mainnet', () => {
 		})
 
 		it('should not stake eth for dev', async () => {
+			const block = await account1.provider?.getBlock('latest')
+			const deadline = block!.timestamp + 300
 			await expect(
-				swapAndStakeContract.swapEthAndStakeDev(propertyAddress, {
+				swapAndStakeContract.swapEthAndStakeDev(propertyAddress, deadline, {
 					value: ethers.utils.parseEther('0'),
 				})
 			).to.revertedWith('UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT')
