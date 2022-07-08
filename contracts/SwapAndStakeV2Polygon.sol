@@ -30,76 +30,67 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 	}
 
 	/// @notice Swap weth -> wmatic -> dev and stake
-	/// @param _property the property to stake after swap
-	/// @param _amount the amount in weth
-	/// @param _deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	/// @param property the property to stake after swap
+	/// @param amount the amount in weth
+	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
 	function swapEthAndStakeDev(
-		address _property,
-		uint256 _amount,
-		uint256 _deadline
+		address property,
+		uint256 amount,
+		uint256 deadline
 	) external {
 		// Transfer the amount from the user to the contract
-		IERC20(wethAddress).transferFrom(msg.sender, address(this), _amount);
-		_swapEthAndStakeDev(_property, _amount, _deadline);
+		IERC20(wethAddress).transferFrom(msg.sender, address(this), amount);
+		_swapEthAndStakeDev(property, amount, deadline);
 	}
 
 	/// @notice Swap weth -> wmatic -> dev and stake
-	/// @param _property the property to stake after swap
-	/// @param _amount the amount in weth
-	/// @param _deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
-	/// @param _gatewayAddress is the address to which the liquidity provider fee will be directed
-	/// @param _gatewayFee is the basis points to pass. For example 10000 is 100%
+	/// @param property the property to stake after swap
+	/// @param amount the amount in weth
+	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	/// @param gatewayAddress is the address to which the liquidity provider fee will be directed
+	/// @param gatewayFee is the basis points to pass. For example 10000 is 100%
 	function swapEthAndStakeDev(
-		address _property,
-		uint256 _amount,
-		uint256 _deadline,
-		address payable _gatewayAddress,
-		uint256 _gatewayFee
+		address property,
+		uint256 amount,
+		uint256 deadline,
+		address payable gatewayAddress,
+		uint256 gatewayFee
 	) external {
 		// Transfer the amount from the user to the contract
-		IERC20(wethAddress).transferFrom(msg.sender, address(this), _amount);
+		IERC20(wethAddress).transferFrom(msg.sender, address(this), amount);
 
 		// send fee to gateway
-		uint256 feeAmount = (_amount * _gatewayFee) / 10000;
-		IERC20(wethAddress).transferFrom(
-			address(this),
-			_gatewayAddress,
-			feeAmount
-		);
+		uint256 feeAmount = (amount * gatewayFee) / 10000;
+		_deposit(gatewayAddress, amount, wethAddress);
 
-		// _gatewayAddress.transfer(feeAmount);
-
-		_swapEthAndStakeDev(_property, (_amount - feeAmount), _deadline);
+		_swapEthAndStakeDev(property, (amount - feeAmount), deadline);
 	}
 
 	/// @notice Swap weth -> wmatic -> dev and stake
-	/// @param _property the property to stake after swap
-	/// @param _amount the amount in weth
-	/// @param _deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	/// @param property the property to stake after swap
+	/// @param amount the amount in weth
+	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
 	function _swapEthAndStakeDev(
-		address _property,
-		uint256 _amount,
-		uint256 _deadline
+		address property,
+		uint256 amount,
+		uint256 deadline
 	) private {
-		// // Transfer the amount from the user to the contract
-		// IERC20(wethAddress).transferFrom(msg.sender, address(this), _amount);
-
 		// Approve weth to be sent to Uniswap Router
-		IERC20(wethAddress).approve(address(uniswapRouter), _amount);
+		IERC20(wethAddress).approve(address(uniswapRouter), amount);
 
 		// Execute swap
-		uint256[] memory amount = uniswapRouter.swapExactTokensForTokens(
-			_amount,
+		uint256[] memory outputs = uniswapRouter.swapExactTokensForTokens(
+			amount,
 			1,
 			_getPathForEthToDev(),
 			address(this),
-			_deadline
+			deadline
 		);
 
-		IERC20(devAddress).approve(lockupAddress, amount[2]);
+		IERC20(devAddress).approve(lockupAddress, outputs[2]);
 		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
-			_property,
-			amount[2]
+			property,
+			outputs[2]
 		);
 		IERC721(sTokensAddress).safeTransferFrom(
 			address(this),
