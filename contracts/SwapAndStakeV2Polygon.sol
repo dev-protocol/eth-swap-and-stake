@@ -37,9 +37,52 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 		address _property,
 		uint256 _amount,
 		uint256 _deadline
-	) external virtual {
+	) external {
 		// Transfer the amount from the user to the contract
 		IERC20(wethAddress).transferFrom(msg.sender, address(this), _amount);
+		_swapEthAndStakeDev(_property, _amount, _deadline);
+	}
+
+	/// @notice Swap weth -> wmatic -> dev and stake
+	/// @param _property the property to stake after swap
+	/// @param _amount the amount in weth
+	/// @param _deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	/// @param _gatewayAddress is the address to which the liquidity provider fee will be directed
+	/// @param _gatewayFee is the basis points to pass. For example 10000 is 100%
+	function swapEthAndStakeDev(
+		address _property,
+		uint256 _amount,
+		uint256 _deadline,
+		address payable _gatewayAddress,
+		uint256 _gatewayFee
+	) external {
+		// Transfer the amount from the user to the contract
+		IERC20(wethAddress).transferFrom(msg.sender, address(this), _amount);
+
+		// send fee to gateway
+		uint256 feeAmount = (_amount * _gatewayFee) / 10000;
+		IERC20(wethAddress).transferFrom(
+			address(this),
+			_gatewayAddress,
+			feeAmount
+		);
+
+		// _gatewayAddress.transfer(feeAmount);
+
+		_swapEthAndStakeDev(_property, (_amount - feeAmount), _deadline);
+	}
+
+	/// @notice Swap weth -> wmatic -> dev and stake
+	/// @param _property the property to stake after swap
+	/// @param _amount the amount in weth
+	/// @param _deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	function _swapEthAndStakeDev(
+		address _property,
+		uint256 _amount,
+		uint256 _deadline
+	) private {
+		// // Transfer the amount from the user to the contract
+		// IERC20(wethAddress).transferFrom(msg.sender, address(this), _amount);
 
 		// Approve weth to be sent to Uniswap Router
 		IERC20(wethAddress).approve(address(uniswapRouter), _amount);
