@@ -1,7 +1,7 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { ethers } from 'hardhat'
-import { SwapAndStakeV2 } from '../typechain'
+import { SwapAndStakeV2L1 } from '../typechain'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract, BigNumber } from 'ethers'
 import * as dotenv from 'dotenv'
@@ -18,7 +18,7 @@ use(solidity)
 describe('SwapAndStakeV2 Mainnet', () => {
 	let account1: SignerWithAddress
 	let gateway: SignerWithAddress
-	let swapAndStakeContract: SwapAndStakeV2
+	let swapAndStakeContract: SwapAndStakeV2L1
 	let lockupContract: Contract
 	let sTokensManagerContract: Contract
 
@@ -44,13 +44,13 @@ describe('SwapAndStakeV2 Mainnet', () => {
 		account1 = accounts[0]
 		gateway = accounts[1]
 
-		const factory = await ethers.getContractFactory('SwapAndStakeV2')
+		const factory = await ethers.getContractFactory('SwapAndStakeV2L1')
 		swapAndStakeContract = (await factory.deploy(
 			uniswapRouterAddress,
 			devAddress,
 			lockupAddress,
 			sTokensManagerAddress
-		)) as SwapAndStakeV2
+		)) as SwapAndStakeV2L1
 		await swapAndStakeContract.deployed()
 
 		lockupContract = await ethers.getContractAt(
