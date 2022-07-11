@@ -29,8 +29,8 @@ describe('SwapAndStakeV2 Quickswap', () => {
 	const propertyAddress = '0x8c6ee1548F687A7a6fda2e233733B7e3d3CF7856'
 	const sTokensManagerAddress = '0x89904De861CDEd2567695271A511B3556659FfA2'
 	const wethAddress = '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619'
-	let wethContract: Contract;
-	let router: Contract;
+	let wethContract: Contract
+	let router: Contract
 
 	beforeEach(async () => {
 		await ethers.provider.send('hardhat_reset', [
@@ -83,7 +83,6 @@ describe('SwapAndStakeV2 Quickswap', () => {
 			],
 			account1
 		)
-
 	})
 	describe('swap eth for dev', () => {
 		it('should stake eth for dev', async () => {
@@ -155,7 +154,7 @@ describe('SwapAndStakeV2 Quickswap', () => {
 			expect(sTokenOwner).to.equal(account1.address)
 			expect(sTokenPosition[1]).to.equal(amountsOut[2])
 		})
-		it('should swap and stake with gateway fee', async() => {
+		it('should swap and stake with gateway fee', async () => {
 			let block = await account1.provider?.getBlock('latest')
 			let deadline = block!.timestamp + 300
 			const depositAmount = BigNumber.from('1000000000000053927')
@@ -201,7 +200,13 @@ describe('SwapAndStakeV2 Quickswap', () => {
 			await expect(
 				swapAndStakeContract[
 					'swapEthAndStakeDev(address,uint256,uint256,address,uint256)'
-				](propertyAddress, depositAmount, deadline, gateway.address, gatewayFeeBasisPoints)
+				](
+					propertyAddress,
+					depositAmount,
+					deadline,
+					gateway.address,
+					gatewayFeeBasisPoints
+				)
 			)
 				.to.emit(lockupContract, 'Lockedup')
 				.withArgs(
@@ -221,29 +226,18 @@ describe('SwapAndStakeV2 Quickswap', () => {
 
 			// Check gateway has been credited
 			expect(
-				await swapAndStakeContract.gatewayFees(
-					gateway.address,
-					wethAddress
-				)
+				await swapAndStakeContract.gatewayFees(gateway.address, wethAddress)
 			).to.eq(feeAmount)
 
 			// Withdraw credit
-			await expect(
-				swapAndStakeContract
-					.connect(gateway)
-					.claim(wethAddress)
-			)
+			await expect(swapAndStakeContract.connect(gateway).claim(wethAddress))
 				.to.emit(swapAndStakeContract, 'Withdrawn')
 				.withArgs(gateway.address, wethAddress, feeAmount)
 
 			// Check gateway credit has been deducted
 			expect(
-				await swapAndStakeContract.gatewayFees(
-					gateway.address,
-					wethAddress
-				)
+				await swapAndStakeContract.gatewayFees(gateway.address, wethAddress)
 			).to.eq(0)
-
 		})
 	})
 })
