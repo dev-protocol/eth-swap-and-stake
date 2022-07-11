@@ -26,50 +26,50 @@ contract SwapAndStakeV2 is Escrow {
 	}
 
 	/// @notice Swap eth -> dev and stake
-	/// @param _property the property to stake after swap
-	/// @param _deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
-	function swapEthAndStakeDev(address _property, uint256 _deadline)
+	/// @param property the property to stake after swap
+	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	function swapEthAndStakeDev(address property, uint256 deadline)
 		external
 		payable
 	{
-		_swapEthAndStakeDev(msg.value, _property, _deadline);
+		_swapEthAndStakeDev(msg.value, property, deadline);
 	}
 
 	/// @notice Swap eth -> dev and stake with GATEWAY FEE paid in ETH
-	/// @param _property the property to stake after swap
-	/// @param _deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
-	/// @param _gatewayAddress is the address to which the liquidity provider fee will be directed
-	/// @param _gatewayFee is the basis points to pass. For example 10000 is 100%
+	/// @param property the property to stake after swap
+	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	/// @param gatewayAddress is the address to which the liquidity provider fee will be directed
+	/// @param gatewayFee is the basis points to pass. For example 10000 is 100%
 	function swapEthAndStakeDev(
-		address _property,
-		uint256 _deadline,
-		address payable _gatewayAddress,
-		uint256 _gatewayFee
+		address property,
+		uint256 deadline,
+		address payable gatewayAddress,
+		uint256 gatewayFee
 	) external payable {
-		require(_gatewayFee <= 10000, "must be below 10000");
+		require(gatewayFee <= 10000, "must be below 10000");
 
 		// handle fee
-		uint256 feeAmount = (msg.value * _gatewayFee) / 10000;
-		_deposit(_gatewayAddress, feeAmount, address(0));
+		uint256 feeAmount = (msg.value * gatewayFee) / 10000;
+		_deposit(gatewayAddress, feeAmount, address(0));
 
-		_swapEthAndStakeDev((msg.value - feeAmount), _property, _deadline);
+		_swapEthAndStakeDev((msg.value - feeAmount), property, deadline);
 	}
 
 	/// @notice Swap eth -> dev handles transfer and stake
-	/// @param _amount in ETH
-	/// @param _property the property to stake after swap
-	/// @param _deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	/// @param amount in ETH
+	/// @param property the property to stake after swap
+	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
 	function _swapEthAndStakeDev(
-		uint256 _amount,
-		address _property,
-		uint256 _deadline
-	) private {
+		uint256 amount,
+		address property,
+		uint256 deadline
+	) internal virtual {
 		uint256[] memory amounts = uniswapRouter.swapExactETHForTokens{
-			value: _amount
-		}(1, _getPathForEthToDev(), address(this), _deadline);
+			value: amount
+		}(1, _getPathForEthToDev(), address(this), deadline);
 		IERC20(devAddress).approve(lockupAddress, amounts[1]);
 		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
-			_property,
+			property,
 			amounts[1]
 		);
 		IERC721(sTokensAddress).safeTransferFrom(

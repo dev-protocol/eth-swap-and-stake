@@ -40,7 +40,7 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 	) external {
 		// Transfer the amount from the user to the contract
 		IERC20(wethAddress).transferFrom(msg.sender, address(this), amount);
-		_swapEthAndStakeDev(property, amount, deadline);
+		_swapEthAndStakeDev(amount, property, deadline);
 	}
 
 	/// @notice Swap weth -> wmatic -> dev and stake
@@ -61,20 +61,20 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 
 		// send fee to gateway
 		uint256 feeAmount = (amount * gatewayFee) / 10000;
-		_deposit(gatewayAddress, amount, wethAddress);
+		_deposit(gatewayAddress, feeAmount, wethAddress);
 
-		_swapEthAndStakeDev(property, (amount - feeAmount), deadline);
+		_swapEthAndStakeDev((amount - feeAmount), property, deadline);
 	}
 
 	/// @notice Swap weth -> wmatic -> dev and stake
-	/// @param property the property to stake after swap
 	/// @param amount the amount in weth
+	/// @param property the property to stake after swap
 	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
 	function _swapEthAndStakeDev(
-		address property,
 		uint256 amount,
+		address property,
 		uint256 deadline
-	) private {
+	) internal override {
 		// Approve weth to be sent to Uniswap Router
 		IERC20(wethAddress).approve(address(uniswapRouter), amount);
 

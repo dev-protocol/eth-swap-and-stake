@@ -17,6 +17,7 @@ use(solidity)
 
 describe('SwapAndStakeV2 Quickswap', () => {
 	let account1: SignerWithAddress
+	let gateway: SignerWithAddress
 	let swapAndStakeContract: SwapAndStakeV2Polygon
 	let lockupContract: Contract
 	let sTokensManagerContract: Contract
@@ -28,6 +29,8 @@ describe('SwapAndStakeV2 Quickswap', () => {
 	const propertyAddress = '0x8c6ee1548F687A7a6fda2e233733B7e3d3CF7856'
 	const sTokensManagerAddress = '0x89904De861CDEd2567695271A511B3556659FfA2'
 	const wethAddress = '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619'
+	let wethContract: Contract;
+	let router: Contract;
 
 	beforeEach(async () => {
 		await ethers.provider.send('hardhat_reset', [
@@ -43,6 +46,7 @@ describe('SwapAndStakeV2 Quickswap', () => {
 		const accounts = await ethers.getSigners()
 
 		account1 = accounts[0]
+		gateway = accounts[1]
 
 		const factory = await ethers.getContractFactory('SwapAndStakeV2Polygon')
 		swapAndStakeContract = (await factory.deploy(
@@ -62,29 +66,30 @@ describe('SwapAndStakeV2 Quickswap', () => {
 			'ISTokensManager',
 			sTokensManagerAddress
 		)
+
+		wethContract = new ethers.Contract(
+			wethAddress,
+			[
+				'function balanceOf(address owner) view returns (uint256)',
+				'function approve(address spender, uint256 amount) public returns (bool)',
+			],
+			account1
+		)
+
+		router = new Contract(
+			uniswapRouterAddress,
+			[
+				'function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)',
+			],
+			account1
+		)
+
 	})
 	describe('swap eth for dev', () => {
 		it('should stake eth for dev', async () => {
 			const ethAmount = ethers.utils.parseEther('1')
 
-			const wethContract = new ethers.Contract(
-				wethAddress,
-				[
-					'function balanceOf(address owner) view returns (uint256)',
-					'function approve(address spender, uint256 amount) public returns (bool)',
-				],
-				account1
-			)
-
 			// Get some WETH
-			const router = new Contract(
-				uniswapRouterAddress,
-				[
-					'function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)',
-				],
-				account1
-			)
-
 			let block = await account1.provider?.getBlock('latest')
 			let deadline = block!.timestamp + 300
 
@@ -149,6 +154,96 @@ describe('SwapAndStakeV2 Quickswap', () => {
 			)
 			expect(sTokenOwner).to.equal(account1.address)
 			expect(sTokenPosition[1]).to.equal(amountsOut[2])
+		})
+		it('should swap and stake with gateway fee', async() => {
+			let block = await account1.provider?.getBlock('latest')
+			let deadline = block!.timestamp + 300
+			const depositAmount = BigNumber.from('1000000000000053927')
+
+			// Exchange MATIC for WETH
+			await router.swapExactETHForTokens(
+				1,
+				[
+					'0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270', // WMATIC
+					'0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619', // WETH
+				],
+				account1.address,
+				deadline,
+				{
+					value: ethers.utils.parseEther('5000'),
+				}
+			)
+
+			const balance = await wethContract.balanceOf(account1.address)
+
+			// Sanity check to ensure account1 has enough weth
+			expect(Number(balance)).to.be.greaterThanOrEqual(Number(depositAmount))
+
+			await wethContract.approve(swapAndStakeContract.address, depositAmount)
+
+			const gatewayFeeBasisPoints = 333 // In basis points, so 3.33%
+			const feeAmount = depositAmount.mul(gatewayFeeBasisPoints).div(10000)
+
+			const amountsOut = await swapAndStakeContract.getEstimatedDevForEth(
+				depositAmount.sub(feeAmount)
+			)
+			const amountsIn = await swapAndStakeContract.getEstimatedEthForDev(
+				amountsOut[2]
+			)
+			expect(amountsIn[0]).to.equal(amountsOut[0])
+
+			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
+
+			block = await account1.provider?.getBlock('latest')
+			deadline = block!.timestamp + 300
+
+			sTokenId = sTokenId.add(1)
+			await expect(
+				swapAndStakeContract[
+					'swapEthAndStakeDev(address,uint256,uint256,address,uint256)'
+				](propertyAddress, depositAmount, deadline, gateway.address, gatewayFeeBasisPoints)
+			)
+				.to.emit(lockupContract, 'Lockedup')
+				.withArgs(
+					swapAndStakeContract.address,
+					propertyAddress,
+					amountsOut[2],
+					sTokenId
+				)
+
+			const sTokenOwner = await sTokensManagerContract.ownerOf(sTokenId)
+			const sTokenPosition: number[] = await sTokensManagerContract.positions(
+				sTokenId
+			)
+
+			expect(sTokenOwner).to.equal(account1.address)
+			expect(sTokenPosition[1]).to.equal(amountsOut[2])
+
+			// Check gateway has been credited
+			expect(
+				await swapAndStakeContract.gatewayFees(
+					gateway.address,
+					wethAddress
+				)
+			).to.eq(feeAmount)
+
+			// Withdraw credit
+			await expect(
+				swapAndStakeContract
+					.connect(gateway)
+					.claim(wethAddress)
+			)
+				.to.emit(swapAndStakeContract, 'Withdrawn')
+				.withArgs(gateway.address, wethAddress, feeAmount)
+
+			// Check gateway credit has been deducted
+			expect(
+				await swapAndStakeContract.gatewayFees(
+					gateway.address,
+					wethAddress
+				)
+			).to.eq(0)
+
 		})
 	})
 })
