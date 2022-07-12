@@ -33,14 +33,16 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 	/// @param property the property to stake after swap
 	/// @param amount the amount in weth
 	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	/// @param payload allows for additional data when minting SToken
 	function swapEthAndStakeDev(
 		address property,
 		uint256 amount,
-		uint256 deadline
+		uint256 deadline,
+		bytes32 payload
 	) external {
 		// Transfer the amount from the user to the contract
 		IERC20(wethAddress).transferFrom(msg.sender, address(this), amount);
-		_swapEthAndStakeDev(amount, property, deadline);
+		_swapEthAndStakeDev(amount, property, deadline, payload);
 	}
 
 	/// @notice Swap weth -> wmatic -> dev and stake
@@ -49,10 +51,12 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
 	/// @param gatewayAddress is the address to which the liquidity provider fee will be directed
 	/// @param gatewayFee is the basis points to pass. For example 10000 is 100%
+	/// @param payload allows for additional data when minting SToken
 	function swapEthAndStakeDev(
 		address property,
 		uint256 amount,
 		uint256 deadline,
+		bytes32 payload,
 		address payable gatewayAddress,
 		uint256 gatewayFee
 	) external {
@@ -63,7 +67,7 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 		uint256 feeAmount = (amount * gatewayFee) / 10000;
 		_deposit(gatewayAddress, feeAmount, wethAddress);
 
-		_swapEthAndStakeDev((amount - feeAmount), property, deadline);
+		_swapEthAndStakeDev((amount - feeAmount), property, deadline, payload);
 	}
 
 	/// @notice get estimated DEV output from ETH input
@@ -98,43 +102,6 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 		path[2] = devAddress;
 
 		return path;
-	}
-
-	/// @notice Swap weth -> wmatic -> dev and stake
-	/// @param amount the amount in weth
-	/// @param property the property to stake after swap
-	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
-	function _swapEthAndStakeDev(
-		uint256 amount,
-		address property,
-		uint256 deadline
-	) internal {
-		// Approve weth to be sent to Uniswap Router
-		IERC20(wethAddress).approve(address(uniswapRouter), amount);
-
-		// Execute swap
-		uint256[] memory outputs = uniswapRouter.swapExactTokensForTokens(
-			amount,
-			1,
-			_getPathForEthToDev(),
-			address(this),
-			deadline
-		);
-
-		IERC20(devAddress).approve(lockupAddress, outputs[2]);
-
-		// deposit to property
-		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
-			property,
-			outputs[2]
-		);
-
-		// transfer the sToken to the user
-		IERC721(sTokensAddress).safeTransferFrom(
-			address(this),
-			msg.sender,
-			tokenId
-		);
 	}
 
 	/// @notice Swap weth -> wmatic -> dev and stake

@@ -26,16 +26,6 @@ contract SwapAndStakeV2L1 is SwapAndStakeV2 {
 	/// @notice Swap eth -> dev and stake
 	/// @param property the property to stake after swap
 	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
-	function swapEthAndStakeDev(address property, uint256 deadline)
-		external
-		payable
-	{
-		_swapEthAndStakeDev(msg.value, property, deadline);
-	}
-
-	/// @notice Swap eth -> dev and stake
-	/// @param property the property to stake after swap
-	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
 	/// @param payload allows for additional data when minting SToken
 	function swapEthAndStakeDev(
 		address property,
@@ -43,26 +33,6 @@ contract SwapAndStakeV2L1 is SwapAndStakeV2 {
 		bytes32 payload
 	) external payable {
 		_swapEthAndStakeDev(msg.value, property, deadline, payload);
-	}
-
-	/// @notice Swap eth -> dev and stake with GATEWAY FEE paid in ETH
-	/// @param property the property to stake after swap
-	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
-	/// @param gatewayAddress is the address to which the liquidity provider fee will be directed
-	/// @param gatewayFee is the basis points to pass. For example 10000 is 100%
-	function swapEthAndStakeDev(
-		address property,
-		uint256 deadline,
-		address payable gatewayAddress,
-		uint256 gatewayFee
-	) external payable {
-		require(gatewayFee <= 10000, "must be below 10000");
-
-		// handle fee
-		uint256 feeAmount = (msg.value * gatewayFee) / 10000;
-		_deposit(gatewayAddress, feeAmount, address(0));
-
-		_swapEthAndStakeDev((msg.value - feeAmount), property, deadline);
 	}
 
 	/// @notice Swap eth -> dev and stake with GATEWAY FEE (paid in ETH) and payload
@@ -74,9 +44,9 @@ contract SwapAndStakeV2L1 is SwapAndStakeV2 {
 	function swapEthAndStakeDev(
 		address property,
 		uint256 deadline,
+		bytes32 payload,
 		address payable gatewayAddress,
-		uint256 gatewayFee,
-		bytes32 payload
+		uint256 gatewayFee
 	) external payable {
 		require(gatewayFee <= 10000, "must be below 10000");
 
@@ -128,30 +98,6 @@ contract SwapAndStakeV2L1 is SwapAndStakeV2 {
 		path[1] = devAddress;
 
 		return path;
-	}
-
-	/// @notice Swap eth -> dev handles transfer and stake
-	/// @param amount in ETH
-	/// @param property the property to stake after swap
-	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
-	function _swapEthAndStakeDev(
-		uint256 amount,
-		address property,
-		uint256 deadline
-	) internal virtual {
-		uint256[] memory amounts = uniswapRouter.swapExactETHForTokens{
-			value: amount
-		}(1, _getPathForEthToDev(), address(this), deadline);
-		IERC20(devAddress).approve(lockupAddress, amounts[1]);
-		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
-			property,
-			amounts[1]
-		);
-		IERC721(sTokensAddress).safeTransferFrom(
-			address(this),
-			msg.sender,
-			tokenId
-		);
 	}
 
 	/// @notice Swap eth -> dev handles transfer and stake with payload

@@ -24,7 +24,7 @@ describe('SwapAndStakeV2 Mainnet', () => {
 
 	const uniswapRouterAddress = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
 	const devAddress = '0x5cAf454Ba92e6F2c929DF14667Ee360eD9fD5b26'
-	const lockupAddress = '0xBD2a75e11De78Af8D58595FB16181d505777804F'
+	const lockupAddress = '0x093ec4e2f80f8860a635ca6b4768a9d81911805e'
 	const propertyAddress = '0xac1AC9d00314aE7B4a7d6DbEE4860bECedF92309'
 	const sTokensManagerAddress = '0x50489Ff5f879A44C87bBA85287729D663b18CeD5'
 
@@ -34,7 +34,7 @@ describe('SwapAndStakeV2 Mainnet', () => {
 				forking: {
 					jsonRpcUrl:
 						'https://eth-mainnet.alchemyapi.io/v2/' + alchemyKeyMainnet,
-					blockNumber: 15000000,
+					blockNumber: 15125490,
 				},
 			},
 		])
@@ -79,9 +79,10 @@ describe('SwapAndStakeV2 Mainnet', () => {
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 			sTokenId = sTokenId.add(1)
 			await expect(
-				swapAndStakeContract['swapEthAndStakeDev(address,uint256)'](
+				swapAndStakeContract['swapEthAndStakeDev(address,uint256,bytes32)'](
 					propertyAddress,
 					deadline,
+					ethers.constants.HashZero,
 					{
 						value: ethers.utils.parseEther('1'),
 					}
@@ -119,8 +120,8 @@ describe('SwapAndStakeV2 Mainnet', () => {
 			sTokenId = sTokenId.add(1)
 			await expect(
 				swapAndStakeContract[
-					'swapEthAndStakeDev(address,uint256,address,uint256)'
-				](propertyAddress, deadline, gateway.address, gatewayFeeBasisPoints, {
+					'swapEthAndStakeDev(address,uint256,bytes32,address,uint256)'
+				](propertyAddress, deadline, ethers.constants.HashZero, gateway.address, gatewayFeeBasisPoints, {
 					value: depositAmount,
 				})
 			)
@@ -164,9 +165,10 @@ describe('SwapAndStakeV2 Mainnet', () => {
 			const block = await account1.provider?.getBlock('latest')
 			const deadline = block!.timestamp + 300
 			await expect(
-				swapAndStakeContract['swapEthAndStakeDev(address,uint256)'](
+				swapAndStakeContract['swapEthAndStakeDev(address,uint256,bytes32)'](
 					propertyAddress,
 					deadline,
+					ethers.constants.HashZero,
 					{
 						value: ethers.utils.parseEther('0'),
 					}
