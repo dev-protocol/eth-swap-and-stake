@@ -121,9 +121,16 @@ describe('SwapAndStakeV2 Mainnet', () => {
 			await expect(
 				swapAndStakeContract[
 					'swapEthAndStakeDev(address,uint256,bytes32,address,uint256)'
-				](propertyAddress, deadline, ethers.constants.HashZero, gateway.address, gatewayFeeBasisPoints, {
-					value: depositAmount,
-				})
+				](
+					propertyAddress,
+					deadline,
+					ethers.constants.HashZero,
+					gateway.address,
+					gatewayFeeBasisPoints,
+					{
+						value: depositAmount,
+					}
+				)
 			)
 				.to.emit(lockupContract, 'Lockedup')
 				.withArgs(swapAndStakeContract.address, propertyAddress, amountsOut[1])

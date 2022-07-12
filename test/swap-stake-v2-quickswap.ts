@@ -133,12 +133,9 @@ describe('SwapAndStakeV2 Quickswap', () => {
 			sTokenId = sTokenId.add(1)
 			await expect(
 				// This is passed since due to function override of swapEthAndStakeDev
-				swapAndStakeContract['swapEthAndStakeDev(address,uint256,uint256,bytes32)'](
-					propertyAddress,
-					ethAmount,
-					deadline,
-					ethers.constants.HashZero
-				)
+				swapAndStakeContract[
+					'swapEthAndStakeDev(address,uint256,uint256,bytes32)'
+				](propertyAddress, ethAmount, deadline, ethers.constants.HashZero)
 			)
 				.to.emit(lockupContract, 'Lockedup')
 				.withArgs(
