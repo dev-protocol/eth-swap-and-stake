@@ -4,7 +4,7 @@ pragma solidity 0.8.7;
 import {IUniswapV2Router02} from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
 import {SwapAndStakeV2} from "./SwapAndStakeV2.sol";
-import {ILockup} from "@devprotocol/protocol/contracts/interface/ILockup.sol";
+import {ILockup} from "./interfaces/ILockup.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
@@ -122,10 +122,55 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 		);
 
 		IERC20(devAddress).approve(lockupAddress, outputs[2]);
+
+		// deposit to property
 		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
 			property,
 			outputs[2]
 		);
+
+		// transfer the sToken to the user
+		IERC721(sTokensAddress).safeTransferFrom(
+			address(this),
+			msg.sender,
+			tokenId
+		);
+	}
+
+	/// @notice Swap weth -> wmatic -> dev and stake
+	/// @param amount the amount in weth
+	/// @param property the property to stake after swap
+	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	/// @param payload allows for additional data when minting SToken
+	function _swapEthAndStakeDev(
+		uint256 amount,
+		address property,
+		uint256 deadline,
+		bytes32 payload
+	) internal {
+		// Approve weth to be sent to Uniswap Router
+		IERC20(wethAddress).approve(address(uniswapRouter), amount);
+
+		// Execute swap
+		uint256[] memory outputs = uniswapRouter.swapExactTokensForTokens(
+			amount,
+			1,
+			_getPathForEthToDev(),
+			address(this),
+			deadline
+		);
+
+		// approve contract
+		IERC20(devAddress).approve(lockupAddress, outputs[2]);
+
+		// deposit to property
+		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
+			property,
+			outputs[2],
+			payload
+		);
+
+		// transfer the sToken to the user
 		IERC721(sTokensAddress).safeTransferFrom(
 			address(this),
 			msg.sender,
