@@ -34,7 +34,7 @@ describe('SwapAndStakeV2 Mainnet', () => {
 				forking: {
 					jsonRpcUrl:
 						'https://eth-mainnet.alchemyapi.io/v2/' + alchemyKeyMainnet,
-					blockNumber: 15125490,
+					blockNumber: 15126211,
 				},
 			},
 		])
