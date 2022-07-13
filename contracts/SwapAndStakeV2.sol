@@ -5,8 +5,9 @@ import {IUniswapV2Router02} from "@uniswap/v2-periphery/contracts/interfaces/IUn
 import {ILockup} from "@devprotocol/protocol/contracts/interface/ILockup.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "./Escrow.sol";
 
-contract SwapAndStakeV2 {
+contract SwapAndStakeV2 is Escrow {
 	address public devAddress;
 	address public lockupAddress;
 	address public sTokensAddress;
@@ -24,54 +25,25 @@ contract SwapAndStakeV2 {
 		sTokensAddress = _sTokensAddress;
 	}
 
-	/// @notice Swap eth -> dev and stake
-	/// @param _property the property to stake after swap
-	/// @param _deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
-	function swapEthAndStakeDev(address _property, uint256 _deadline)
-		external
-		payable
-	{
-		uint256[] memory amounts = uniswapRouter.swapExactETHForTokens{
-			value: msg.value
-		}(1, _getPathForEthToDev(), address(this), _deadline);
-		IERC20(devAddress).approve(lockupAddress, amounts[1]);
-		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
-			_property,
-			amounts[1]
-		);
-		IERC721(sTokensAddress).safeTransferFrom(
-			address(this),
-			msg.sender,
-			tokenId
-		);
+	/// @notice get estimated Dev output from ETH input
+	/// @param ethAmount input amount in ETH
+	/// @param getPathForEthToDev passes in function that fetches path for Uniswap Router
+	/// @return outputs UniSwap Router Outputs
+	function _getEstimatedDevForEth(
+		uint256 ethAmount,
+		function() internal view returns (address[] memory) getPathForEthToDev
+	) internal view returns (uint256[] memory) {
+		return uniswapRouter.getAmountsOut(ethAmount, getPathForEthToDev());
 	}
 
-	function getEstimatedDevForEth(uint256 ethAmount)
-		public
-		view
-		returns (uint256[] memory)
-	{
-		return uniswapRouter.getAmountsOut(ethAmount, _getPathForEthToDev());
-	}
-
-	function getEstimatedEthForDev(uint256 devAmount)
-		public
-		view
-		returns (uint256[] memory)
-	{
-		return uniswapRouter.getAmountsIn(devAmount, _getPathForEthToDev());
-	}
-
-	function _getPathForEthToDev()
-		internal
-		view
-		virtual
-		returns (address[] memory)
-	{
-		address[] memory path = new address[](2);
-		path[0] = uniswapRouter.WETH();
-		path[1] = devAddress;
-
-		return path;
+	/// @notice get estimated ETH output from DEV input
+	/// @param devAmount input amount in DEV
+	/// @param getPathForEthToDev passes in function that fetches path for Uniswap Router
+	/// @return outputs UniSwap Router Outputs
+	function _getEstimatedEthForDev(
+		uint256 devAmount,
+		function() internal view returns (address[] memory) getPathForEthToDev
+	) internal view returns (uint256[] memory) {
+		return uniswapRouter.getAmountsIn(devAmount, getPathForEthToDev());
 	}
 }
