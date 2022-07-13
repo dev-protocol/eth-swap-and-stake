@@ -38,7 +38,7 @@ describe('SwapAndStakeV2 Quickswap', () => {
 				forking: {
 					jsonRpcUrl:
 						'https://polygon-mainnet.g.alchemy.com/v2/' + alchemyKeyPolygon,
-					blockNumber: 27390338,
+					blockNumber: 30632152,
 				},
 			},
 		])
@@ -133,11 +133,9 @@ describe('SwapAndStakeV2 Quickswap', () => {
 			sTokenId = sTokenId.add(1)
 			await expect(
 				// This is passed since due to function override of swapEthAndStakeDev
-				swapAndStakeContract['swapEthAndStakeDev(address,uint256,uint256)'](
-					propertyAddress,
-					ethAmount,
-					deadline
-				)
+				swapAndStakeContract[
+					'swapEthAndStakeDev(address,uint256,uint256,bytes32)'
+				](propertyAddress, ethAmount, deadline, ethers.constants.HashZero)
 			)
 				.to.emit(lockupContract, 'Lockedup')
 				.withArgs(
@@ -199,11 +197,12 @@ describe('SwapAndStakeV2 Quickswap', () => {
 			sTokenId = sTokenId.add(1)
 			await expect(
 				swapAndStakeContract[
-					'swapEthAndStakeDev(address,uint256,uint256,address,uint256)'
+					'swapEthAndStakeDev(address,uint256,uint256,bytes32,address,uint256)'
 				](
 					propertyAddress,
 					depositAmount,
 					deadline,
+					ethers.constants.HashZero,
 					gateway.address,
 					gatewayFeeBasisPoints
 				)
