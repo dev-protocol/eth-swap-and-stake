@@ -1,5 +1,5 @@
 import { ethers } from 'hardhat'
-import { SwapAndStakeV2 } from '../typechain'
+import { SwapAndStakeV2Polygon } from '../typechain'
 
 async function main() {
 	const uniswapRouterAddress = '0x8954AfA98594b838bda56FE4C12a09D7739D179b'
@@ -7,13 +7,13 @@ async function main() {
 	const lockupAddress = '0xfDC5FF1F07871A247eafE14eEB134eeFcbCf1ceA'
 	const sTokensManagerAddress = '0xe0af15141ABd0B31Fb15e250971936Fe8837230a'
 
-	const factory = await ethers.getContractFactory('SwapAndStakeV2')
+	const factory = await ethers.getContractFactory('SwapAndStakeV2Polygon')
 	const swapAndStakeContract = (await factory.deploy(
 		uniswapRouterAddress,
 		devAddress,
 		lockupAddress,
 		sTokensManagerAddress
-	)) as SwapAndStakeV2
+	)) as SwapAndStakeV2Polygon
 	await swapAndStakeContract.deployed()
 
 	console.log('Swap address:', swapAndStakeContract.address)
