@@ -11,6 +11,7 @@ contract SwapAndStakeV2 is Escrow {
 	address public devAddress;
 	address public lockupAddress;
 	address public sTokensAddress;
+	mapping(bytes32 => bool) public isExecuting;
 	IUniswapV2Router02 public uniswapRouter;
 
 	constructor(

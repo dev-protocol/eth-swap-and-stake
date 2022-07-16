@@ -115,6 +115,9 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 		uint256 deadline,
 		bytes32 payload
 	) internal {
+		bytes32 txData = keccak256(msg.data);
+		isExecuting[txData] = true;
+
 		// Approve weth to be sent to Uniswap Router
 		IERC20(wethAddress).approve(address(uniswapRouter), amount);
 
@@ -143,5 +146,7 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 			msg.sender,
 			tokenId
 		);
+
+		delete isExecuting[txData];
 	}
 }

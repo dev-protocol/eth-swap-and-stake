@@ -111,6 +111,9 @@ contract SwapAndStakeV2L1 is SwapAndStakeV2 {
 		uint256 deadline,
 		bytes32 payload
 	) internal virtual {
+		bytes32 txData = keccak256(msg.data);
+		isExecuting[txData] = true;
+
 		uint256[] memory amounts = uniswapRouter.swapExactETHForTokens{
 			value: amount
 		}(1, _getPathForEthToDev(), address(this), deadline);
@@ -125,5 +128,7 @@ contract SwapAndStakeV2L1 is SwapAndStakeV2 {
 			msg.sender,
 			tokenId
 		);
+
+		delete isExecuting[txData];
 	}
 }

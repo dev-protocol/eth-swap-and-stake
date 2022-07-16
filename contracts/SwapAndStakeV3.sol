@@ -20,6 +20,7 @@ contract SwapAndStakeV3 {
 	address public devAddress;
 	address public lockupAddress;
 	address public sTokensAddress;
+	mapping(bytes32 => bool) public isExecuting;
 
 	constructor(
 		address _wethAddress,
@@ -35,6 +36,9 @@ contract SwapAndStakeV3 {
 
 	function swapEthAndStakeDev(address property) external payable {
 		require(msg.value > 0, "Must pass non 0 ETH amount");
+
+		bytes32 txData = keccak256(msg.data);
+		isExecuting[txData] = true;
 
 		// solhint-disable-next-line not-rely-on-time
 		uint256 deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
@@ -71,6 +75,8 @@ contract SwapAndStakeV3 {
 			msg.sender,
 			tokenId
 		);
+
+		delete isExecuting[txData];
 	}
 
 	// do not used on-chain, gas inefficient!
