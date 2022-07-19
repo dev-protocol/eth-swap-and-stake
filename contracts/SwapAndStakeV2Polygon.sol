@@ -42,7 +42,12 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 	) external {
 		// Transfer the amount from the user to the contract
 		IERC20(wethAddress).transferFrom(msg.sender, address(this), amount);
+
+		gatewayOf[address(0)] = Amounts(amount, 0);
+
 		_swapEthAndStakeDev(amount, property, deadline, payload);
+
+		delete gatewayOf[address(0)];
 	}
 
 	/// @notice Swap weth -> wmatic -> dev and stake
@@ -67,7 +72,11 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 		uint256 feeAmount = (amount * gatewayFee) / 10000;
 		_deposit(gatewayAddress, feeAmount, wethAddress);
 
+		gatewayOf[gatewayAddress] = Amounts(amount, feeAmount);
+
 		_swapEthAndStakeDev((amount - feeAmount), property, deadline, payload);
+
+		delete gatewayOf[gatewayAddress];
 	}
 
 	/// @notice get estimated DEV output from ETH input

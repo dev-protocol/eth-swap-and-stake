@@ -20,6 +20,11 @@ contract SwapAndStakeV3 {
 	address public devAddress;
 	address public lockupAddress;
 	address public sTokensAddress;
+	struct Amounts {
+		uint256 input;
+		uint256 fee;
+	}
+	mapping(address => Amounts) public gatewayOf;
 
 	constructor(
 		address _wethAddress,
@@ -35,6 +40,8 @@ contract SwapAndStakeV3 {
 
 	function swapEthAndStakeDev(address property) external payable {
 		require(msg.value > 0, "Must pass non 0 ETH amount");
+
+		gatewayOf[address(0)] = Amounts(msg.value, 0);
 
 		// solhint-disable-next-line not-rely-on-time
 		uint256 deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
@@ -71,6 +78,8 @@ contract SwapAndStakeV3 {
 			msg.sender,
 			tokenId
 		);
+
+		delete gatewayOf[address(0)];
 	}
 
 	// do not used on-chain, gas inefficient!

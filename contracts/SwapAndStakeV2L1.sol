@@ -32,7 +32,11 @@ contract SwapAndStakeV2L1 is SwapAndStakeV2 {
 		uint256 deadline,
 		bytes32 payload
 	) external payable {
+		gatewayOf[address(0)] = Amounts(msg.value, 0);
+
 		_swapEthAndStakeDev(msg.value, property, deadline, payload);
+
+		delete gatewayOf[address(0)];
 	}
 
 	/// @notice Swap eth -> dev and stake with GATEWAY FEE (paid in ETH) and payload
@@ -54,12 +58,16 @@ contract SwapAndStakeV2L1 is SwapAndStakeV2 {
 		uint256 feeAmount = (msg.value * gatewayFee) / 10000;
 		_deposit(gatewayAddress, feeAmount, address(0));
 
+		gatewayOf[gatewayAddress] = Amounts(msg.value, feeAmount);
+
 		_swapEthAndStakeDev(
 			(msg.value - feeAmount),
 			property,
 			deadline,
 			payload
 		);
+
+		delete gatewayOf[gatewayAddress];
 	}
 
 	/// @notice get estimated DEV output from ETH input

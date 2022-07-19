@@ -11,6 +11,11 @@ contract SwapAndStakeV2 is Escrow {
 	address public devAddress;
 	address public lockupAddress;
 	address public sTokensAddress;
+	struct Amounts {
+		uint256 input;
+		uint256 fee;
+	}
+	mapping(address => Amounts) public gatewayOf;
 	IUniswapV2Router02 public uniswapRouter;
 
 	constructor(
