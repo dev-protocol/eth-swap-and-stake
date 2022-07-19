@@ -1,6 +1,6 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
-import { ethers } from 'hardhat'
+import { ethers, waffle } from 'hardhat'
 import { SwapAndStakeV3 } from '../typechain'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract, BigNumber } from 'ethers'
@@ -17,6 +17,7 @@ use(solidity)
 
 describe('SwapAndStakeV3 Arbitrum', () => {
 	let account1: SignerWithAddress
+	let gateway: SignerWithAddress
 	let swapAndStakeContract: SwapAndStakeV3
 	let lockupContract: Contract
 	let sTokensManagerContract: Contract
@@ -34,7 +35,7 @@ describe('SwapAndStakeV3 Arbitrum', () => {
 				forking: {
 					jsonRpcUrl:
 						'https://arb-mainnet.g.alchemy.com/v2/' + alchemyKeyArbitrum,
-					blockNumber: 10243775,
+					blockNumber: 17999611,
 				},
 			},
 		])
@@ -42,6 +43,7 @@ describe('SwapAndStakeV3 Arbitrum', () => {
 		const accounts = await ethers.getSigners()
 
 		account1 = accounts[0]
+		gateway = accounts[1]
 
 		const factory = await ethers.getContractFactory('SwapAndStakeV3')
 		swapAndStakeContract = (await factory.deploy(
@@ -75,8 +77,12 @@ describe('SwapAndStakeV3 Arbitrum', () => {
 			// STokenId = currentIndex + 1 will be minted.
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 			sTokenId = sTokenId.add(1)
+
+			const block = await waffle.provider.getBlock('latest')
+			let deadline = block!.timestamp + 300
+
 			await expect(
-				swapAndStakeContract.swapEthAndStakeDev(propertyAddress, {
+				swapAndStakeContract['swapEthAndStakeDev(address,uint256,bytes32)'](propertyAddress, deadline, ethers.constants.HashZero, {
 					value: ethers.utils.parseEther('1'),
 				})
 			)
@@ -95,5 +101,80 @@ describe('SwapAndStakeV3 Arbitrum', () => {
 			expect(sTokenOwner).to.equal(account1.address)
 			expect(sTokenPosition[1]).to.equal(amountOut)
 		})
+
+		it('should stake eth for dev and deduct gateway fee', async () => {
+			const gatewayFeeBasisPoints = 333 // In basis points, so 3.33%
+			const depositAmount = BigNumber.from('1000000000000053927')
+			const feeAmount = depositAmount.mul(gatewayFeeBasisPoints).div(10000)
+
+			const amountOut =
+				await swapAndStakeContract.callStatic.getEstimatedDevForEth(
+					depositAmount.sub(feeAmount)
+				)
+			const amountIn =
+				await swapAndStakeContract.callStatic.getEstimatedEthForDev(amountOut)
+			expect(amountIn).to.equal(depositAmount.sub(feeAmount))
+
+			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
+
+			const block = await account1.provider?.getBlock('latest')
+			const deadline = block!.timestamp + 300
+
+			sTokenId = sTokenId.add(1)
+			await expect(
+				swapAndStakeContract[
+					'swapEthAndStakeDev(address,uint256,bytes32,address,uint256)'
+				](
+					propertyAddress,
+					deadline,
+					ethers.constants.HashZero,
+					gateway.address,
+					gatewayFeeBasisPoints,
+					{
+						value: depositAmount,
+					}
+				)
+			)
+				.to.emit(lockupContract, 'Lockedup')
+				.withArgs(
+					swapAndStakeContract.address,
+					propertyAddress,
+					amountOut,
+					sTokenId
+				)
+
+			const sTokenOwner = await sTokensManagerContract.ownerOf(sTokenId)
+			const sTokenPosition: number[] = await sTokensManagerContract.positions(
+				sTokenId
+			)
+			expect(sTokenOwner).to.equal(account1.address)
+			expect(sTokenPosition[1]).to.equal(amountOut)
+
+			// Check gateway has been credited
+			expect(
+				await swapAndStakeContract.gatewayFees(
+					gateway.address,
+					ethers.constants.AddressZero
+				)
+			).to.eq(feeAmount)
+
+			// Withdraw credit
+			await expect(
+				swapAndStakeContract
+					.connect(gateway)
+					.claim(ethers.constants.AddressZero)
+			)
+				.to.emit(swapAndStakeContract, 'Withdrawn')
+				.withArgs(gateway.address, ethers.constants.AddressZero, feeAmount)
+
+			// Check gateway credit has been deducted
+			expect(
+				await swapAndStakeContract.gatewayFees(
+					gateway.address,
+					ethers.constants.AddressZero
+				)
+			).to.eq(0)
+		})
+
 	})
 })

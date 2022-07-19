@@ -1,6 +1,6 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
-import { ethers } from 'hardhat'
+import { ethers, waffle } from 'hardhat'
 import { SwapAndStakeV3 } from '../typechain'
 import * as dotenv from 'dotenv'
 
@@ -29,9 +29,13 @@ describe('SwapAndStakeV3 Arbitrum', () => {
 		await swapAndStakeContract.deployed()
 	})
 	describe('swap eth for dev', () => {
-		it('should stake eth for dev', async () => {
+		it('should revert when sending 0 ETH', async () => {
+
+			const block = await waffle.provider.getBlock('latest')
+			let deadline = block!.timestamp + 300
+
 			await expect(
-				swapAndStakeContract.swapEthAndStakeDev(propertyAddress, {
+				swapAndStakeContract['swapEthAndStakeDev(address,uint256,bytes32)'](propertyAddress, deadline, ethers.constants.HashZero, {
 					value: ethers.utils.parseEther('0'),
 				})
 			).to.revertedWith('Must pass non 0 ETH amount')
