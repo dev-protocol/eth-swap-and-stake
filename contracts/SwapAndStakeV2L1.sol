@@ -42,9 +42,9 @@ contract SwapAndStakeV2L1 is SwapAndStakeV2 {
 	/// @notice Swap eth -> dev and stake with GATEWAY FEE (paid in ETH) and payload
 	/// @param property the property to stake after swap
 	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	/// @param payload allows for additional data when minting SToken
 	/// @param gatewayAddress is the address to which the liquidity provider fee will be directed
 	/// @param gatewayFee is the basis points to pass. For example 10000 is 100%
-	/// @param payload allows for additional data when minting SToken
 	function swapEthAndStakeDev(
 		address property,
 		uint256 deadline,
