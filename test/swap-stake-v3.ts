@@ -30,14 +30,18 @@ describe('SwapAndStakeV3 Arbitrum', () => {
 	})
 	describe('swap eth for dev', () => {
 		it('should revert when sending 0 ETH', async () => {
-
 			const block = await waffle.provider.getBlock('latest')
-			let deadline = block!.timestamp + 300
+			const deadline = block.timestamp + 300
 
 			await expect(
-				swapAndStakeContract['swapEthAndStakeDev(address,uint256,bytes32)'](propertyAddress, deadline, ethers.constants.HashZero, {
-					value: ethers.utils.parseEther('0'),
-				})
+				swapAndStakeContract['swapEthAndStakeDev(address,uint256,bytes32)'](
+					propertyAddress,
+					deadline,
+					ethers.constants.HashZero,
+					{
+						value: ethers.utils.parseEther('0'),
+					}
+				)
 			).to.revertedWith('Must pass non 0 ETH amount')
 		})
 	})

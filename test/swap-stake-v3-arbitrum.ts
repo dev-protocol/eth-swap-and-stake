@@ -79,12 +79,17 @@ describe('SwapAndStakeV3 Arbitrum', () => {
 			sTokenId = sTokenId.add(1)
 
 			const block = await waffle.provider.getBlock('latest')
-			let deadline = block!.timestamp + 300
+			const deadline = block.timestamp + 300
 
 			await expect(
-				swapAndStakeContract['swapEthAndStakeDev(address,uint256,bytes32)'](propertyAddress, deadline, ethers.constants.HashZero, {
-					value: ethers.utils.parseEther('1'),
-				})
+				swapAndStakeContract['swapEthAndStakeDev(address,uint256,bytes32)'](
+					propertyAddress,
+					deadline,
+					ethers.constants.HashZero,
+					{
+						value: ethers.utils.parseEther('1'),
+					}
+				)
 			)
 				.to.emit(lockupContract, 'Lockedup')
 				.withArgs(
@@ -106,7 +111,6 @@ describe('SwapAndStakeV3 Arbitrum', () => {
 			const gatewayFeeBasisPoints = 333 // In basis points, so 3.33%
 			const depositAmount = BigNumber.from('1000000000000053927')
 			const feeAmount = depositAmount.mul(gatewayFeeBasisPoints).div(10000)
-
 			const amountOut =
 				await swapAndStakeContract.callStatic.getEstimatedDevForEth(
 					depositAmount.sub(feeAmount)
@@ -175,6 +179,5 @@ describe('SwapAndStakeV3 Arbitrum', () => {
 				)
 			).to.eq(0)
 		})
-
 	})
 })
