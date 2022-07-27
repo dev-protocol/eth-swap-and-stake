@@ -15,6 +15,8 @@ const chainIds: Record<string, number> = {
 	mainnet: 1,
 	rinkeby: 4,
 	ropsten: 3,
+	'polygon-mumbai': 80001,
+	'polygon-mainnet': 137,
 }
 
 const mnemonic =
@@ -41,10 +43,8 @@ function createNetworkConfig(network: string) {
 		},
 		chainId: chainIds[network],
 		url,
-		// Gas: 'auto',
-		// gasPrice: 1000000000
-		gas: 4712388,
-		gasPrice: 50000000000,
+		gas: 6700000, // Gas sent with each transaction (default: ~6700000)
+		gasPrice: 35000000000, // 7 gwei (in wei) (default: 100 gwei)
 	}
 }
 
@@ -78,6 +78,7 @@ module.exports = {
 		kovan: createNetworkConfig('kovan'),
 		rinkeby: createNetworkConfig('rinkeby'),
 		ropsten: createNetworkConfig('ropsten'),
+		polygon: createNetworkConfig('polygon-mainnet'),
 		polygonMumbai: createNetworkConfig('polygon-mumbai'),
 		arbitrumRinkeby: createNetworkConfig('arbitrum-rinkeby'),
 		arbitrumMainnet: createNetworkConfig('arbitrum-mainnet'),
