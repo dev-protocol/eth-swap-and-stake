@@ -174,4 +174,6 @@ interface ISTokensManager {
 	 * @return uint256 current token id
 	 */
 	function currentIndex() external view returns (uint256);
+
+	function ownerOf(uint256 tokenId) external view returns (address owner);
 }
