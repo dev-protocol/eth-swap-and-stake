@@ -155,8 +155,12 @@ contract SwapAndStakeV3Polygon is Escrow {
 		uint256 amountOutMinimum = 1;
 		uint160 sqrtPriceLimitX96 = 0;
 
-        // Approve the router to spend the WETH amount
-        TransferHelper.safeApprove(wethAddress, address(uniswapRouter), amountIn);
+		// Approve the router to spend the WETH amount
+		TransferHelper.safeApprove(
+			wethAddress,
+			address(uniswapRouter),
+			amountIn
+		);
 
 		ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
 			.ExactInputSingleParams(
