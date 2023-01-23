@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { ethers, waffle } from 'hardhat'
-import { SwapAndStakeV3 } from '../typechain'
+import { SwapAndStakeV3Polygon, ISwapRouter } from '../typechain'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract, BigNumber } from 'ethers'
 import * as dotenv from 'dotenv'
@@ -18,7 +19,7 @@ use(solidity)
 describe('SwapAndStakeV3 Polygon', () => {
 	let account1: SignerWithAddress
 	let gateway: SignerWithAddress
-	let swapAndStakeContract: SwapAndStakeV3
+	let swapAndStakeContract: SwapAndStakeV3Polygon
 	let lockupContract: Contract
 	let sTokensManagerContract: Contract
 
@@ -28,23 +29,23 @@ describe('SwapAndStakeV3 Polygon', () => {
 	const lockupAddress = '0x42767B12d3f07bE0D951a64eE6573B40Ff165C4e'
 	const propertyAddress = '0x803854e0676cd5892f6100eb452551D22e9c38ec'
 	const sTokensManagerAddress = '0x89904De861CDEd2567695271A511B3556659FfA2'
+	const SwapRouterAddress = '0xE592427A0AEce92De3Edee1F18E0157C05861564'
+	const WMATICAddress = '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'
+	let wethContract: Contract
+	let swapRouter: ISwapRouter
 
 	beforeEach(async () => {
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {
 					jsonRpcUrl:
-						'https://arb-mainnet.g.alchemy.com/v2/' + alchemyKeyPolygon,
-					blockNumber: 38312540,
+						'https://polygon-mainnet.g.alchemy.com/v2/' + alchemyKeyPolygon,
+					blockNumber: 38383175,
 				},
 			},
 		])
 
 		const accounts = await ethers.getSigners()
-
-		// WETH Maxi
-		// const impersonatedSigner1 = await ethers.getImpersonatedSigner("0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619");
-
 		account1 = accounts[0]
 		gateway = accounts[1]
 
@@ -54,47 +55,93 @@ describe('SwapAndStakeV3 Polygon', () => {
 			devAddress,
 			lockupAddress,
 			sTokensManagerAddress
-		)) as SwapAndStakeV3
+		)) as SwapAndStakeV3Polygon
+
 		await swapAndStakeContract.deployed()
+
+		wethContract = new ethers.Contract(
+			wethAddress,
+			[
+				'function balanceOf(address owner) view returns (uint256)',
+				'function approve(address spender, uint256 amount) public returns (bool)',
+				'function transfer(address to, uint256 amount) external returns (bool)',
+			],
+			ethers.provider
+		)
+		swapRouter = (await ethers.getContractAt(
+			'@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol:ISwapRouter',
+			SwapRouterAddress
+		)) as ISwapRouter
 
 		lockupContract = await ethers.getContractAt(
 			'contracts/interfaces/ILockup.sol:ILockup',
 			lockupAddress
 		)
 		sTokensManagerContract = await ethers.getContractAt(
-			'ISTokensManager',
+			'contracts/interfaces/ISTokensManager.sol:ISTokensManager',
 			sTokensManagerAddress
 		)
 	})
 	describe('swap eth for dev', () => {
 		it('should stake eth for dev', async () => {
+			// Get latest block
+			const block = await waffle.provider.getBlock('latest')
+			const deadline = block.timestamp + 300
+
+			// Get WETH via MATIC(Native Token) -> wMATIC -> WETH
+			await swapRouter.connect(account1).exactInputSingle(
+				{
+					tokenIn: WMATICAddress,
+					tokenOut: wethAddress,
+					fee: 3000,
+					recipient: account1.address,
+					deadline,
+					amountIn: ethers.utils.parseEther('1700'),
+					amountOutMinimum: 0,
+					sqrtPriceLimitX96: 0,
+				},
+				{
+					value: ethers.utils.parseEther('1700'),
+				}
+			)
+
+			// Approve WETH to SwapAndStakeV3
+			await wethContract
+				.connect(account1)
+				.approve(swapAndStakeContract.address, ethers.utils.parseEther('1'))
+
 			// Use callStaic to execute getEstimatedDevForEth as a read method
 			const amountOut =
 				await swapAndStakeContract.callStatic.getEstimatedDevForEth(
-					ethers.utils.parseUnits('1000', 'gwei')
+					ethers.utils.parseEther('0.00001')
 				)
 			const amountIn =
 				await swapAndStakeContract.callStatic.getEstimatedEthForDev(amountOut)
-			expect(amountIn).to.equal(ethers.utils.parseUnits('1000', 'gwei'))
-
-			console.log('amount Out', amountOut)
+			expect(amountIn).to.equal(ethers.utils.parseEther('0.00001'))
 
 			// STokenId = currentIndex + 1 will be minted.
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 			sTokenId = sTokenId.add(1)
 
-			const block = await waffle.provider.getBlock('latest')
-			const deadline = block.timestamp + 300
-
+			const tx = await swapAndStakeContract[
+				'swapEthAndStakeDev(address,uint256,uint256,bytes32)'
+			](
+				propertyAddress,
+				ethers.utils.parseEther('0.00001'),
+				deadline,
+				ethers.utils.formatBytes32String('payload'),
+				{
+					gasLimit: 8000000,
+				}
+			)
+			await tx.wait()
+			const receipt = await tx.wait()
+			const event = receipt.events?.find(
+				(e) => e.address === lockupContract.address,
+			);
+			console.log("events", event)
 			await expect(
-				swapAndStakeContract['swapEthAndStakeDev(address,uint256,bytes32)'](
-					propertyAddress,
-					deadline,
-					ethers.constants.HashZero,
-					{
-						value: ethers.utils.parseEther('0.00001'),
-					}
-				)
+				receipt
 			)
 				.to.emit(lockupContract, 'Lockedup')
 				.withArgs(
@@ -113,6 +160,31 @@ describe('SwapAndStakeV3 Polygon', () => {
 		})
 
 		it('should stake eth for dev and deduct gateway fee', async () => {
+			// Get latest block
+			const block = await waffle.provider.getBlock('latest')
+			const deadline = block.timestamp + 300
+			// Get WETH via MATIC(Native Token) -> wMATIC -> WETH
+			await swapRouter.connect(account1).exactInputSingle(
+				{
+					tokenIn: WMATICAddress,
+					tokenOut: wethAddress,
+					fee: 3000,
+					recipient: account1.address,
+					deadline,
+					amountIn: ethers.utils.parseEther('1700'),
+					amountOutMinimum: 0,
+					sqrtPriceLimitX96: 0,
+				},
+				{
+					value: ethers.utils.parseEther('1700'),
+				}
+			)
+
+			// Approve WETH to SwapAndStakeV3
+			await wethContract
+				.connect(account1)
+				.approve(swapAndStakeContract.address, ethers.utils.parseEther('1'))
+
 			const gatewayFeeBasisPoints = 333 // In basis points, so 3.33%
 			const depositAmount = BigNumber.from('400000000000000')
 			const feeAmount = depositAmount.mul(gatewayFeeBasisPoints).div(10000)
@@ -126,22 +198,17 @@ describe('SwapAndStakeV3 Polygon', () => {
 
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 
-			const block = await account1.provider?.getBlock('latest')
-			const deadline = block!.timestamp + 300
-
 			sTokenId = sTokenId.add(1)
 			await expect(
 				swapAndStakeContract[
-					'swapEthAndStakeDev(address,uint256,bytes32,address,uint256)'
+					'swapEthAndStakeDev(address,uint256,uint256,bytes32,address,uint256)'
 				](
 					propertyAddress,
+					ethers.utils.parseEther('0.00001'),
 					deadline,
 					ethers.constants.HashZero,
 					gateway.address,
-					gatewayFeeBasisPoints,
-					{
-						value: depositAmount,
-					}
+					gatewayFeeBasisPoints
 				)
 			)
 				.to.emit(lockupContract, 'Lockedup')
