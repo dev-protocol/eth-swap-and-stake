@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { ethers, waffle } from 'hardhat'
@@ -135,14 +134,12 @@ describe('SwapAndStakeV3 Polygon', () => {
 				}
 			)
 			await tx.wait()
-			const receipt = await tx.wait()
-			const event = receipt.events?.find(
-				(e) => e.address === lockupContract.address,
-			);
-			console.log("events", event)
-			await expect(
-				receipt
-			)
+			// Const receipt = await tx.wait()
+			// const event = receipt.events?.find(
+			// 	(e) => e.address === lockupContract.address
+			// )
+			// Console.log('events', event)
+			await expect(tx)
 				.to.emit(lockupContract, 'Lockedup')
 				.withArgs(
 					swapAndStakeContract.address,
