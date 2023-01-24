@@ -118,8 +118,6 @@ describe('SwapAndStakeV3 Polygon', () => {
 				await swapAndStakeContract.callStatic.getEstimatedEthForDev(amountOut)
 			expect(amountIn).to.equal(ethers.utils.parseEther('0.00001'))
 
-			console.log('amountOut :=> ', amountOut.toString())
-
 			// STokenId = currentIndex + 1 will be minted.
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 			sTokenId = sTokenId.add(1)
