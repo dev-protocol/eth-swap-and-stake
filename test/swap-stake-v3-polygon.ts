@@ -218,18 +218,11 @@ describe('SwapAndStakeV3 Polygon', () => {
 
 			// Check gateway has been credited
 			expect(
-				await swapAndStakeContract.gatewayFees(
-					gateway.address,
-					wethAddress
-				)
+				await swapAndStakeContract.gatewayFees(gateway.address, wethAddress)
 			).to.eq(feeAmount)
 
 			// Withdraw credit
-			await expect(
-				swapAndStakeContract
-					.connect(gateway)
-					.claim(wethAddress)
-			)
+			await expect(swapAndStakeContract.connect(gateway).claim(wethAddress))
 				.to.emit(swapAndStakeContract, 'Withdrawn')
 				.withArgs(gateway.address, wethAddress, feeAmount)
 
