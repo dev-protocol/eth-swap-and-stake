@@ -2,8 +2,6 @@
 pragma solidity >=0.8.7;
 
 interface ILockup {
-	event Lockedup(address _from, address _property, uint256 _value);
-
 	function depositToProperty(address _property, uint256 _amount)
 		external
 		returns (uint256);
@@ -87,4 +85,11 @@ interface ILockup {
 	function sTokensManager() external view returns (address);
 
 	function migrateToSTokens(address _property) external returns (uint256);
+
+	event Lockedup(
+		address indexed _from,
+		address indexed _property,
+		uint256 _value,
+		uint256 _tokenId
+	);
 }

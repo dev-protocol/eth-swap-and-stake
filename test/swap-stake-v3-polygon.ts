@@ -118,28 +118,21 @@ describe('SwapAndStakeV3 Polygon', () => {
 				await swapAndStakeContract.callStatic.getEstimatedEthForDev(amountOut)
 			expect(amountIn).to.equal(ethers.utils.parseEther('0.00001'))
 
+			console.log('amountOut :=> ', amountOut.toString())
+
 			// STokenId = currentIndex + 1 will be minted.
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 			sTokenId = sTokenId.add(1)
-
-			const tx = await swapAndStakeContract[
-				'swapEthAndStakeDev(address,uint256,uint256,bytes32)'
-			](
-				propertyAddress,
-				ethers.utils.parseEther('0.00001'),
-				deadline,
-				ethers.utils.formatBytes32String('payload'),
-				{
-					gasLimit: 8000000,
-				}
+			await expect(
+				await swapAndStakeContract[
+					'swapEthAndStakeDev(address,uint256,uint256,bytes32)'
+				](
+					propertyAddress,
+					ethers.utils.parseEther('0.00001'),
+					deadline,
+					ethers.utils.formatBytes32String('payload')
+				)
 			)
-			await tx.wait()
-			// Const receipt = await tx.wait()
-			// const event = receipt.events?.find(
-			// 	(e) => e.address === lockupContract.address
-			// )
-			// Console.log('events', event)
-			await expect(tx)
 				.to.emit(lockupContract, 'Lockedup')
 				.withArgs(
 					swapAndStakeContract.address,
@@ -183,7 +176,7 @@ describe('SwapAndStakeV3 Polygon', () => {
 				.approve(swapAndStakeContract.address, ethers.utils.parseEther('1'))
 
 			const gatewayFeeBasisPoints = 333 // In basis points, so 3.33%
-			const depositAmount = BigNumber.from('400000000000000')
+			const depositAmount = ethers.utils.parseEther('0.00001')
 			const feeAmount = depositAmount.mul(gatewayFeeBasisPoints).div(10000)
 			const amountOut =
 				await swapAndStakeContract.callStatic.getEstimatedDevForEth(
@@ -201,7 +194,7 @@ describe('SwapAndStakeV3 Polygon', () => {
 					'swapEthAndStakeDev(address,uint256,uint256,bytes32,address,uint256)'
 				](
 					propertyAddress,
-					ethers.utils.parseEther('0.00001'),
+					depositAmount,
 					deadline,
 					ethers.constants.HashZero,
 					gateway.address,
@@ -227,7 +220,7 @@ describe('SwapAndStakeV3 Polygon', () => {
 			expect(
 				await swapAndStakeContract.gatewayFees(
 					gateway.address,
-					ethers.constants.AddressZero
+					wethAddress
 				)
 			).to.eq(feeAmount)
 
@@ -235,10 +228,10 @@ describe('SwapAndStakeV3 Polygon', () => {
 			await expect(
 				swapAndStakeContract
 					.connect(gateway)
-					.claim(ethers.constants.AddressZero)
+					.claim(wethAddress)
 			)
 				.to.emit(swapAndStakeContract, 'Withdrawn')
-				.withArgs(gateway.address, ethers.constants.AddressZero, feeAmount)
+				.withArgs(gateway.address, wethAddress, feeAmount)
 
 			// Check gateway credit has been deducted
 			expect(
