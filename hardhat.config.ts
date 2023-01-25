@@ -15,6 +15,8 @@ const chainIds: Record<string, number> = {
 	mainnet: 1,
 	rinkeby: 4,
 	ropsten: 3,
+	'polygon-mumbai': 80001,
+	'polygon-mainnet': 137,
 }
 
 const mnemonic =
@@ -23,10 +25,10 @@ const mnemonic =
 const infuraApiKey =
 	typeof process.env.INFURA_KEY === 'undefined' ? '' : process.env.INFURA_KEY
 
-const alchemyKeyMainnet =
-	typeof process.env.ALCHEMY_KEY_MAINNET === 'undefined'
-		? ''
-		: process.env.ALCHEMY_KEY_MAINNET
+// Const alchemyKeyMainnet =
+// 	typeof process.env.ALCHEMY_KEY_MAINNET === 'undefined'
+// 		? ''
+// 		: process.env.ALCHEMY_KEY_MAINNET
 // Const alchemyKeyArbitrum =
 // 	typeof process.env.ALCHEMY_KEY_ARBITRUM === 'undefined' ? '' : process.env.ALCHEMY_KEY_ARBITRUM
 
@@ -41,10 +43,8 @@ function createNetworkConfig(network: string) {
 		},
 		chainId: chainIds[network],
 		url,
-		// Gas: 'auto',
-		// gasPrice: 1000000000
-		gas: 4712388,
-		gasPrice: 50000000000,
+		gas: 6700000, // Gas sent with each transaction (default: ~6700000)
+		gasPrice: 35000000000, // 7 gwei (in wei) (default: 100 gwei)
 	}
 }
 
@@ -66,20 +66,22 @@ module.exports = {
 				mnemonic,
 			},
 			// ChainId: chainIds.hardhat,
-			forking: {
-				url: 'https://eth-mainnet.alchemyapi.io/v2/' + alchemyKeyMainnet,
-				blockNumber: 12057273,
-				// Url: 'https://arb-mainnet.g.alchemy.com/v2/' + alchemyKeyArbitrum,
-				// blockNumber: 7683813,
-			},
+			// forking: {
+			// 	url: 'https://eth-mainnet.alchemyapi.io/v2/' + alchemyKeyMainnet,
+			// 	blockNumber: 12057273,
+			// Url: 'https://arb-mainnet.g.alchemy.com/v2/' + alchemyKeyArbitrum,
+			// blockNumber: 7683813,
+			// },
 		},
 		mainnet: createNetworkConfig('mainnet'),
 		goerli: createNetworkConfig('goerli'),
 		kovan: createNetworkConfig('kovan'),
 		rinkeby: createNetworkConfig('rinkeby'),
 		ropsten: createNetworkConfig('ropsten'),
+		polygon: createNetworkConfig('polygon-mainnet'),
 		polygonMumbai: createNetworkConfig('polygon-mumbai'),
 		arbitrumRinkeby: createNetworkConfig('arbitrum-rinkeby'),
+		arbitrumMainnet: createNetworkConfig('arbitrum-mainnet'),
 		bsc_testnet: {
 			url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
 			chainId: 97,
