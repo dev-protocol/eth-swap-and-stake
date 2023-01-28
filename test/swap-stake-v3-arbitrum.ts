@@ -35,7 +35,7 @@ describe('SwapAndStakeV3 Arbitrum', () => {
 				forking: {
 					jsonRpcUrl:
 						'https://arb-mainnet.g.alchemy.com/v2/' + alchemyKeyArbitrum,
-					blockNumber: 17999611,
+					blockNumber: 54992509,
 				},
 			},
 		])
@@ -55,7 +55,7 @@ describe('SwapAndStakeV3 Arbitrum', () => {
 		await swapAndStakeContract.deployed()
 
 		lockupContract = await ethers.getContractAt(
-			'@devprotocol/protocol-v2/contracts/interface/ILockup.sol:ILockup',
+			'contracts/interfaces/ILockup.sol:ILockup',
 			lockupAddress
 		)
 		sTokensManagerContract = await ethers.getContractAt(

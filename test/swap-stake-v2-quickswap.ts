@@ -59,7 +59,7 @@ describe('SwapAndStakeV2 Quickswap', () => {
 		await swapAndStakeContract.deployed()
 
 		lockupContract = await ethers.getContractAt(
-			'@devprotocol/protocol-v2/contracts/interface/ILockup.sol:ILockup',
+			'contracts/interfaces/ILockup.sol:ILockup',
 			lockupAddress
 		)
 		sTokensManagerContract = await ethers.getContractAt(
