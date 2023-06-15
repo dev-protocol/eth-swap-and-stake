@@ -18,7 +18,7 @@ contract SwapAndStakeV3Polygon is Escrow {
 	IQuoter public constant quoter =
 		IQuoter(0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6);
 
-    address public usdcAddress;
+	address public usdcAddress;
 	address public wethAddress;
 	address public devAddress;
 	address public lockupAddress;
@@ -30,13 +30,13 @@ contract SwapAndStakeV3Polygon is Escrow {
 	mapping(address => Amounts) public gatewayOf;
 
 	constructor(
-        address _usdcAddress,
+		address _usdcAddress,
 		address _wethAddress,
 		address _devAddress,
 		address _lockupAddress,
 		address _sTokensAddress
 	) {
-        usdcAddress = _usdcAddress;
+		usdcAddress = _usdcAddress;
 		wethAddress = _wethAddress;
 		devAddress = _devAddress;
 		lockupAddress = _lockupAddress;
@@ -106,7 +106,13 @@ contract SwapAndStakeV3Polygon is Escrow {
 		// using checking from multi path USDC -> WETH -> DEV
 		return
 			quoter.quoteExactInput(
-				abi.encodePacked(usdcAddress, fee, wethAddress, fee, devAddress),
+				abi.encodePacked(
+					usdcAddress,
+					fee,
+					wethAddress,
+					fee,
+					devAddress
+				),
 				usdcAmount
 			);
 	}
@@ -121,7 +127,13 @@ contract SwapAndStakeV3Polygon is Escrow {
 		// using checking from multi path DEV -> WETH -> USDC
 		return
 			quoter.quoteExactInput(
-				abi.encodePacked(devAddress, fee, wethAddress, fee, usdcAddress),
+				abi.encodePacked(
+					devAddress,
+					fee,
+					wethAddress,
+					fee,
+					usdcAddress
+				),
 				devAmount
 			);
 	}
@@ -152,15 +164,21 @@ contract SwapAndStakeV3Polygon is Escrow {
 		);
 
 		// Multiple pool swaps are encoded through bytes called a `path`. A path is a sequence of token addresses and poolFees that define the pools used in the swaps.
-        // The format for pool encoding is (tokenIn, fee, tokenOut/tokenIn, fee, tokenOut) where tokenIn/tokenOut parameter is the shared token across the pools.
-		ISwapRouter.ExactInputParams memory params =
-            ISwapRouter.ExactInputParams({
-                path: abi.encodePacked(usdcAddress, fee, wethAddress, fee, devAddress),
-                recipient: recipient,
-                deadline: deadline,
-                amountIn: amountIn,
-                amountOutMinimum: amountOutMinimum
-            });
+		// The format for pool encoding is (tokenIn, fee, tokenOut/tokenIn, fee, tokenOut) where tokenIn/tokenOut parameter is the shared token across the pools.
+		ISwapRouter.ExactInputParams memory params = ISwapRouter
+			.ExactInputParams({
+				path: abi.encodePacked(
+					usdcAddress,
+					fee,
+					wethAddress,
+					fee,
+					devAddress
+				),
+				recipient: recipient,
+				deadline: deadline,
+				amountIn: amountIn,
+				amountOutMinimum: amountOutMinimum
+			});
 		uint256 amountOut = uniswapRouter.exactInput(params);
 		IERC20(devAddress).approve(lockupAddress, amountOut);
 		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
