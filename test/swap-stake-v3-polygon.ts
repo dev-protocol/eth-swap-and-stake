@@ -226,10 +226,7 @@ describe('SwapAndStakeV3 Polygon', () => {
 
 			// Check gateway credit has been deducted
 			expect(
-				await swapAndStakeContract.gatewayFees(
-					gateway.address,
-					wethAddress
-				)
+				await swapAndStakeContract.gatewayFees(gateway.address, wethAddress)
 			).to.eq(0)
 		})
 	})

@@ -92,7 +92,13 @@ contract SwapUsdcAndStakeV3Polygon is Escrow {
 
 		gatewayOf[gatewayAddress] = Amounts(amount, feeAmount);
 
-		_swapUsdcAndStakeDev((amount - feeAmount), _amountOut,property, deadline, payload);
+		_swapUsdcAndStakeDev(
+			(amount - feeAmount),
+			_amountOut,
+			property,
+			deadline,
+			payload
+		);
 
 		delete gatewayOf[gatewayAddress];
 	}

@@ -23,7 +23,7 @@ describe('SwapUsdcAndStakeV3 Polygon', () => {
 	let sTokensManagerContract: Contract
 
 	// Polygon
-    const usdcAddress = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
+	const usdcAddress = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
 	const wethAddress = '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619'
 	const devAddress = '0xA5577D1cec2583058A6Bd6d5DEAC44797c205701'
 	const lockupAddress = '0x42767B12d3f07bE0D951a64eE6573B40Ff165C4e'
@@ -51,13 +51,12 @@ describe('SwapUsdcAndStakeV3 Polygon', () => {
 
 		const factory = await ethers.getContractFactory('SwapUsdcAndStakeV3Polygon')
 		swapUsdcAndStakeContract = (await factory.deploy(
-            usdcAddress,
+			usdcAddress,
 			wethAddress,
 			devAddress,
 			lockupAddress,
 			sTokensManagerAddress
 		)) as SwapUsdcAndStakeV3Polygon
-
 
 		await swapUsdcAndStakeContract.deployed()
 
@@ -110,7 +109,10 @@ describe('SwapUsdcAndStakeV3 Polygon', () => {
 			// Approve USDC to SwapAndStakeV3
 			await usdcContract
 				.connect(account1)
-				.approve(swapUsdcAndStakeContract.address, ethers.utils.parseUnits('100', 6))
+				.approve(
+					swapUsdcAndStakeContract.address,
+					ethers.utils.parseUnits('100', 6)
+				)
 
 			// Use callStaic to execute getEstimatedDevForUsdc as a read method
 			const amountOut =
@@ -119,25 +121,27 @@ describe('SwapUsdcAndStakeV3 Polygon', () => {
 				)
 			console.log('amountOut', amountOut.toString())
 			const amountIn =
-				await swapUsdcAndStakeContract.callStatic.getEstimatedUsdcForDev(amountOut)
+				await swapUsdcAndStakeContract.callStatic.getEstimatedUsdcForDev(
+					amountOut
+				)
 			console.log('amountIn', amountIn.toString())
 			// Assuming only 1% slippage, it can be dynamic so need to make more better assertion
 			const expected = ethers.utils.parseUnits('1', 6)
-			expect(amountIn).to.lte((expected.sub(expected.mul(1).div(100))))
-			
+			expect(amountIn).to.lte(expected.sub(expected.mul(1).div(100)))
+
 			// STokenId = currentIndex + 1 will be minted.
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 			sTokenId = sTokenId.add(1)
 			await expect(
-				await swapUsdcAndStakeContract.connect(account1)[
-					'swapUsdcAndStakeDev(address,uint256,uint256,uint256,bytes32)'
-				](
-					propertyAddress,
-					ethers.utils.parseUnits('1', 6),
-					amountOut,
-					deadline,
-					ethers.utils.formatBytes32String('payload')
-				)
+				await swapUsdcAndStakeContract
+					.connect(account1)
+					['swapUsdcAndStakeDev(address,uint256,uint256,uint256,bytes32)'](
+						propertyAddress,
+						ethers.utils.parseUnits('1', 6),
+						amountOut,
+						deadline,
+						ethers.utils.formatBytes32String('payload')
+					)
 			)
 				.to.emit(lockupContract, 'Lockedup')
 				.withArgs(
@@ -190,10 +194,12 @@ describe('SwapUsdcAndStakeV3 Polygon', () => {
 					depositAmount.sub(feeAmount)
 				)
 			const amountIn =
-				await swapUsdcAndStakeContract.callStatic.getEstimatedUsdcForDev(amountOut)
+				await swapUsdcAndStakeContract.callStatic.getEstimatedUsdcForDev(
+					amountOut
+				)
 			const expected = ethers.utils.parseUnits('1', 6)
 			// Assuming only 1% slippage, it can be dynamic so need to make more better assertion
-			expect(amountIn).to.lte((expected.sub(expected.mul(1).div(100))))
+			expect(amountIn).to.lte(expected.sub(expected.mul(1).div(100)))
 
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 
@@ -238,10 +244,7 @@ describe('SwapUsdcAndStakeV3 Polygon', () => {
 
 			// Check gateway credit has been deducted
 			expect(
-				await swapUsdcAndStakeContract.gatewayFees(
-					gateway.address,
-					usdcAddress
-				)
+				await swapUsdcAndStakeContract.gatewayFees(gateway.address, usdcAddress)
 			).to.eq(0)
 		})
 	})
