@@ -10,7 +10,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./Escrow.sol";
 
-contract SwapAndStakeV3Polygon is Escrow {
+contract SwapUsdcAndStakeV3Polygon is Escrow {
 	// solhint-disable-next-line const-name-snakecase
 	ISwapRouter public constant uniswapRouter =
 		ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
@@ -47,9 +47,10 @@ contract SwapAndStakeV3Polygon is Escrow {
 	/// @param property the property to stake after swap
 	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
 	/// @param payload allows for additional data when minting SToken
-	function swapEthAndStakeDev(
+	function swapUsdcAndStakeDev(
 		address property,
 		uint256 amount,
+		uint256 _amountOut,
 		uint256 deadline,
 		bytes32 payload
 	) external {
@@ -62,7 +63,7 @@ contract SwapAndStakeV3Polygon is Escrow {
 
 		gatewayOf[address(0)] = Amounts(amount, 0);
 
-		_swapUsdcAndStakeDev(amount, property, deadline, payload);
+		_swapUsdcAndStakeDev(amount, _amountOut, property, deadline, payload);
 
 		delete gatewayOf[address(0)];
 	}
@@ -76,6 +77,7 @@ contract SwapAndStakeV3Polygon is Escrow {
 	function swapUsdcAndStakeDev(
 		address property,
 		uint256 amount,
+		uint256 _amountOut,
 		uint256 deadline,
 		bytes32 payload,
 		address payable gatewayAddress,
@@ -90,7 +92,7 @@ contract SwapAndStakeV3Polygon is Escrow {
 
 		gatewayOf[gatewayAddress] = Amounts(amount, feeAmount);
 
-		_swapUsdcAndStakeDev((amount - feeAmount), property, deadline, payload);
+		_swapUsdcAndStakeDev((amount - feeAmount), _amountOut,property, deadline, payload);
 
 		delete gatewayOf[gatewayAddress];
 	}
@@ -102,13 +104,14 @@ contract SwapAndStakeV3Polygon is Escrow {
 	{
 		// V3 ETH-DEV pair fee is 1%
 		uint24 fee = 10000;
+		uint24 fee2 = 500;
 
 		// using checking from multi path USDC -> WETH -> DEV
 		return
 			quoter.quoteExactInput(
 				abi.encodePacked(
 					usdcAddress,
-					fee,
+					fee2,
 					wethAddress,
 					fee,
 					devAddress
@@ -124,6 +127,7 @@ contract SwapAndStakeV3Polygon is Escrow {
 	{
 		// V3 ETH-DEV pair fee is 1%
 		uint24 fee = 10000;
+		uint24 fee2 = 500;
 		// using checking from multi path DEV -> WETH -> USDC
 		return
 			quoter.quoteExactInput(
@@ -131,7 +135,7 @@ contract SwapAndStakeV3Polygon is Escrow {
 					devAddress,
 					fee,
 					wethAddress,
-					fee,
+					fee2,
 					usdcAddress
 				),
 				devAmount
@@ -146,19 +150,20 @@ contract SwapAndStakeV3Polygon is Escrow {
 	/// @param payload allows for additional data when minting SToken
 	function _swapUsdcAndStakeDev(
 		uint256 amount,
+		uint256 _amountOut,
 		address property,
 		uint256 deadline,
 		bytes32 payload
 	) private {
 		// V3 ETH-DEV pair fee is 1%
 		uint24 fee = 10000;
+		uint24 fee2 = 500;
 		address recipient = address(this);
 		uint256 amountIn = amount;
-		uint256 amountOutMinimum = 1;
 
 		// Approve the router to spend the WETH amount
 		TransferHelper.safeApprove(
-			wethAddress,
+			usdcAddress,
 			address(uniswapRouter),
 			amountIn
 		);
@@ -169,7 +174,7 @@ contract SwapAndStakeV3Polygon is Escrow {
 			.ExactInputParams({
 				path: abi.encodePacked(
 					usdcAddress,
-					fee,
+					fee2,
 					wethAddress,
 					fee,
 					devAddress
@@ -177,7 +182,7 @@ contract SwapAndStakeV3Polygon is Escrow {
 				recipient: recipient,
 				deadline: deadline,
 				amountIn: amountIn,
-				amountOutMinimum: amountOutMinimum
+				amountOutMinimum: _amountOut
 			});
 		uint256 amountOut = uniswapRouter.exactInput(params);
 		IERC20(devAddress).approve(lockupAddress, amountOut);
