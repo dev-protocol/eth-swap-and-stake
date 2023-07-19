@@ -9,6 +9,7 @@ import {ILockup} from "./interfaces/ILockup.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./Escrow.sol";
+import "hardhat/console.sol";
 
 contract SwapTokensAndStakeDev is Escrow {
 	// solhint-disable-next-line const-name-snakecase
@@ -49,7 +50,7 @@ contract SwapTokensAndStakeDev is Escrow {
 		uint256 gatewayFee
 	) external payable {
 		require(msg.value > 0, "Must pass non-zero amount");
-		require(gatewayFee <= 10000, "must be below 10000");
+		require(gatewayFee < 10000, "must be below 10000");
 		// handle fee
 		uint256 feeAmount = (msg.value * gatewayFee) / 10000;
 		_deposit(gatewayAddress, feeAmount, address(0));
@@ -79,11 +80,12 @@ contract SwapTokensAndStakeDev is Escrow {
 		address payable gatewayAddress,
 		uint256 gatewayFee
 	) external {
-		require(gatewayFee <= 10000, "must be below 10000");
+		require(gatewayFee < 10000, "must be below 10000");
 		require(
 			token.allowance(msg.sender, address(this)) >= amount,
 			"insufficient allowance"
 		);
+		require(token.balanceOf(msg.sender) >= amount, "insufficient balance");
 		// Transfer the amount from the user to the contract
 		TransferHelper.safeTransferFrom(
 			address(token),
@@ -155,7 +157,6 @@ contract SwapTokensAndStakeDev is Escrow {
 				amountIn: amountIn,
 				amountOutMinimum: _amountOut
 			});
-
 		uint256 amountOut = uniswapRouter.exactInput(params);
 		IERC20(devAddress).approve(lockupAddress, amountOut);
 		uint256 tokenId = ILockup(lockupAddress).depositToProperty(

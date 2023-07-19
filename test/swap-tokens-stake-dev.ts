@@ -171,7 +171,7 @@ describe('SwapTokensAndStakeDev', () => {
 						deadline,
 						ethers.utils.formatBytes32String(''),
 						gateway.address,
-						10000
+						0
 					)
 			)
 				.to.emit(lockupContract, 'Lockedup')
