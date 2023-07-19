@@ -10,27 +10,25 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./Escrow.sol";
 
-
 contract SwapTokensAndStakeDev is Escrow {
-    // solhint-disable-next-line const-name-snakecase
+	// solhint-disable-next-line const-name-snakecase
 	ISwapRouter public constant uniswapRouter =
 		ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 	// solhint-disable-next-line const-name-snakecase
 	IQuoter public constant quoter =
 		IQuoter(0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6);
 
-    address public devAddress;
+	address public devAddress;
 	address public lockupAddress;
 	address public sTokensAddress;
 
-    
-    struct Amounts {
+	struct Amounts {
 		uint256 input;
 		uint256 fee;
 	}
 	mapping(address => Amounts) public gatewayOf;
 
-    constructor(
+	constructor(
 		address _devAddress,
 		address _lockupAddress,
 		address _sTokensAddress
@@ -77,7 +75,7 @@ contract SwapTokensAndStakeDev is Escrow {
 		uint256 amount,
 		uint256 _amountOut,
 		uint256 deadline,
-		bytes32 payload,		
+		bytes32 payload,
 		address payable gatewayAddress,
 		uint256 gatewayFee
 	) external {
@@ -110,36 +108,33 @@ contract SwapTokensAndStakeDev is Escrow {
 		);
 		delete gatewayOf[gatewayAddress];
 	}
-	
+
 	// do not use on-chain, gas inefficient!
 	function getEstimatedTokensForDev(uint256 devAmount, bytes memory path)
 		external
 		returns (uint256)
 	{
-		return
-			quoter.quoteExactInput(path, devAmount);
+		return quoter.quoteExactInput(path, devAmount);
 	}
 
 	// do not use on-chain, gas inefficient!
-	function getEstimatedDevForTokens(
-		uint256 tokenAmount,
-		bytes memory path
-	) external returns (uint256) {
-		return
-		quoter.quoteExactInput(path, tokenAmount);
+	function getEstimatedDevForTokens(uint256 tokenAmount, bytes memory path)
+		external
+		returns (uint256)
+	{
+		return quoter.quoteExactInput(path, tokenAmount);
 	}
 
 	// erc20
 	function _swapTokensAndStakeDev(
 		IERC20 token,
-		bytes memory path,
+		bytes memory _path,
 		address property,
 		uint256 amount,
 		uint256 _amountOut,
 		uint256 deadline,
 		bytes32 payload
 	) private {
-
 		address recipient = address(this);
 		uint256 amountIn = amount;
 
@@ -149,18 +144,18 @@ contract SwapTokensAndStakeDev is Escrow {
 			address(uniswapRouter),
 			amount
 		);
-		
+
 		// Multiple pool swaps are encoded through bytes called a `path`. A path is a sequence of token addresses and poolFees that define the pools used in the swaps.
 		// The format for pool encoding is (tokenIn, fee, tokenOut/tokenIn, fee, tokenOut) where tokenIn/tokenOut parameter is the shared token across the pools.
 		ISwapRouter.ExactInputParams memory params = ISwapRouter
 			.ExactInputParams({
-				path: path,
+				path: _path,
 				recipient: recipient,
 				deadline: deadline,
 				amountIn: amountIn,
 				amountOutMinimum: _amountOut
 			});
-		
+
 		uint256 amountOut = uniswapRouter.exactInput(params);
 		IERC20(devAddress).approve(lockupAddress, amountOut);
 		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
@@ -177,7 +172,7 @@ contract SwapTokensAndStakeDev is Escrow {
 
 	// native token
 	function _swapTokensAndStakeDev(
-		bytes memory path,
+		bytes memory _path,
 		address property,
 		uint256 amount,
 		uint256 _amountOut,
@@ -191,16 +186,14 @@ contract SwapTokensAndStakeDev is Escrow {
 		// The format for pool encoding is (tokenIn, fee, tokenOut/tokenIn, fee, tokenOut) where tokenIn/tokenOut parameter is the shared token across the pools.
 		ISwapRouter.ExactInputParams memory params = ISwapRouter
 			.ExactInputParams({
-				path: path,
+				path: _path,
 				recipient: recipient,
 				deadline: deadline,
 				amountIn: amountIn,
 				amountOutMinimum: _amountOut
 			});
-		uint256 amountOut = uniswapRouter.exactInput{value:amount}(
-			params
-		);
-		
+		uint256 amountOut = uniswapRouter.exactInput{value: amount}(params);
+
 		IERC20(devAddress).approve(lockupAddress, amountOut);
 		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
 			property,

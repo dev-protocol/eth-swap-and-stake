@@ -16,22 +16,21 @@ const alchemyKeyPolygon =
 use(solidity)
 
 type Path = {
-    token1: string
-    fee1: BigNumber
-    token2: string
-    fee2: BigNumber
-    token3: string
+	token1: string
+	fee1: number
+	token2: string
+	fee2: number
+	token3: string
 }
 
 describe('SwapTokensAndStakeDev', () => {
-    let account1: SignerWithAddress
+	let account1: SignerWithAddress
 	let gateway: SignerWithAddress
-    let swapTokensAndStakeContract: SwapTokensAndStakeDev
-    let lockupContract: Contract
-    let sTokensManagerContract: Contract
+	let swapTokensAndStakeContract: SwapTokensAndStakeDev
+	let lockupContract: Contract
+	let sTokensManagerContract: Contract
 
-
-    // Polygon
+	// Polygon
 	const usdcAddress = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
 	const wethAddress = '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619'
 	const weth9 = '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'
@@ -43,31 +42,31 @@ describe('SwapTokensAndStakeDev', () => {
 	let usdcContract: Contract
 	let swapRouter: ISwapRouter
 
-    beforeEach(async () => {
-        await ethers.provider.send('hardhat_reset', [
-            {
-                forking: {
-                    jsonRpcUrl:
-                        'https://polygon-mainnet.g.alchemy.com/v2/' + alchemyKeyPolygon,
-                    blockNumber: 45237517,
-                },
-            },
-        ])
+	beforeEach(async () => {
+		await ethers.provider.send('hardhat_reset', [
+			{
+				forking: {
+					jsonRpcUrl:
+						'https://polygon-mainnet.g.alchemy.com/v2/' + alchemyKeyPolygon,
+					blockNumber: 45237517,
+				},
+			},
+		])
 
-        const accounts = await ethers.getSigners()
+		const accounts = await ethers.getSigners()
 		account1 = accounts[0]
 		gateway = accounts[1]
 
-        const factory = await ethers.getContractFactory('SwapTokensAndStakeDev')
-        swapTokensAndStakeContract = (await factory.deploy(
-            devAddress,
-            lockupAddress,
-            sTokensManagerAddress
-        )) as SwapTokensAndStakeDev
+		const factory = await ethers.getContractFactory('SwapTokensAndStakeDev')
+		swapTokensAndStakeContract = (await factory.deploy(
+			devAddress,
+			lockupAddress,
+			sTokensManagerAddress
+		)) as SwapTokensAndStakeDev
 
-        await swapTokensAndStakeContract.deployed()
+		await swapTokensAndStakeContract.deployed()
 
-        usdcContract = new ethers.Contract(
+		usdcContract = new ethers.Contract(
 			usdcAddress,
 			[
 				'function balanceOf(address owner) view returns (uint256)',
@@ -89,14 +88,14 @@ describe('SwapTokensAndStakeDev', () => {
 			'contracts/interfaces/ISTokensManager.sol:ISTokensManager',
 			sTokensManagerAddress
 		)
-    })
-    describe('SwapTokensAndStakeDev', () => {
-        it('should swap tokens and stake dev', async () => {
-            // Get latest block
+	})
+	describe('SwapTokensAndStakeDev', () => {
+		it('should swap tokens and stake dev', async () => {
+			// Get latest block
 			const block = await waffle.provider.getBlock('latest')
 			const deadline = block.timestamp + 300
 
-            // Get USDC via MATIC(Native Token) -> wMATIC -> USDC
+			// Get USDC via MATIC(Native Token) -> wMATIC -> USDC
 			await swapRouter.connect(account1).exactInputSingle(
 				{
 					tokenIn: weth9,
@@ -113,63 +112,66 @@ describe('SwapTokensAndStakeDev', () => {
 				}
 			)
 
-            // Approve USDC
-            await usdcContract.connect(account1).approve(
-                swapTokensAndStakeContract.address,
-                ethers.utils.parseUnits('1900', 6)
-            )
+			// Approve USDC
+			await usdcContract
+				.connect(account1)
+				.approve(
+					swapTokensAndStakeContract.address,
+					ethers.utils.parseUnits('1900', 6)
+				)
 
-            const path:Path = 
-            {
-                token1: usdcAddress,
-                fee1: BigNumber.from(10000),
-                token2: wethAddress,
-                fee2: BigNumber.from(10000),
-                token3: devAddress,
-            }
+			const path: Path = {
+				token1: usdcAddress,
+				fee1: 500,
+				token2: wethAddress,
+				fee2: 10000,
+				token3: devAddress,
+			}
 
-            // Use callStaic to execute getEstimatedDevForUsdc as a read method
+			// Use callStaic to execute getEstimatedDevForUsdc as a read method
 			const amountOut =
-            await swapTokensAndStakeContract.callStatic.getEstimatedDevForTokens(
-                ethers.utils.parseUnits('1', 6),
-                ethers.utils.solidityPack(
-                    ['address', 'uint24', 'address', 'uint24', 'address'],
-                    [path.token1, path.fee1, path.token2, path.fee2, path.token3]
-                )
-            )
-            console.log('amountOut', amountOut.toString())
-            const amountIn =
-            await swapTokensAndStakeContract.callStatic.getEstimatedTokensForDev(
-                amountOut,
-                ethers.utils.solidityPack(
-                    ['address', 'uint24', 'address', 'uint24', 'address'],
-                    [path.token3, path.fee2, path.token2, path.fee1, path.token1]
-                )
-            )
-            console.log('amountIn', amountIn.toString())
-            // Assuming only 1% slippage, it can be dynamic so need to make more better assertion
-            const expected = ethers.utils.parseUnits('1', 6)
-            expect(amountIn).to.lte(expected.sub(expected.mul(1).div(100)))
-            // STokenId = currentIndex + 1 will be minted.
+				await swapTokensAndStakeContract.callStatic.getEstimatedDevForTokens(
+					ethers.utils.parseUnits('1', 6),
+					ethers.utils.solidityPack(
+						['address', 'uint24', 'address', 'uint24', 'address'],
+						[path.token1, path.fee1, path.token2, path.fee2, path.token3]
+					)
+				)
+			console.log('amountOut', amountOut.toString())
+			const amountIn =
+				await swapTokensAndStakeContract.callStatic.getEstimatedTokensForDev(
+					amountOut,
+					ethers.utils.solidityPack(
+						['address', 'uint24', 'address', 'uint24', 'address'],
+						[path.token3, path.fee2, path.token2, path.fee1, path.token1]
+					)
+				)
+			console.log('amountIn', amountIn.toString())
+			// Assuming only 1% slippage, it can be dynamic so need to make more better assertion
+			const expected = ethers.utils.parseUnits('1', 6)
+			expect(amountIn).to.lte(expected.sub(expected.mul(1).div(100)))
+			// STokenId = currentIndex + 1 will be minted.
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 			sTokenId = sTokenId.add(1)
 
 			await expect(
 				await swapTokensAndStakeContract
 					.connect(account1)
-					['swapTokensAndStakeDev(address,bytes,address,uint256,uint256,uint256,bytes32,address,uint256)'](
-                        usdcAddress,
-                        ethers.utils.solidityPack(
-                            ['address', 'uint24', 'address', 'uint24', 'address'],
-                            [path.token1, path.fee1, path.token2, path.fee2, path.token3]
-                        ),
-                        propertyAddress,
-                        ethers.utils.parseUnits('900', 6),
-                        amountOut,
-                        deadline,
-                        ethers.utils.formatBytes32String(''),
-                        gateway.address,
-                        10000,
+					[
+						'swapTokensAndStakeDev(address,bytes,address,uint256,uint256,uint256,bytes32,address,uint256)'
+					](
+						usdcAddress,
+						ethers.utils.solidityPack(
+							['address', 'uint24', 'address', 'uint24', 'address'],
+							[path.token1, path.fee1, path.token2, path.fee2, path.token3]
+						),
+						propertyAddress,
+						ethers.utils.parseUnits('1', 6),
+						amountOut,
+						deadline,
+						ethers.utils.formatBytes32String(''),
+						gateway.address,
+						10000
 					)
 			)
 				.to.emit(lockupContract, 'Lockedup')
@@ -186,6 +188,6 @@ describe('SwapTokensAndStakeDev', () => {
 			)
 			expect(sTokenOwner).to.equal(account1.address)
 			expect(sTokenPosition[1]).to.equal(amountOut)
-        })
-    })
+		})
+	})
 })
