@@ -38,7 +38,13 @@ contract SwapTokensAndStakeDev is Escrow {
 		sTokensAddress = _sTokensAddress;
 	}
 
+	/// @notice Protection for path should be made at front-end such that dev is final output token
 	// External function for native token
+	/// @notice Swap native token -> dev and stake
+	/// @param path the path to swap
+	/// @param property the property to stake after swap
+	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	/// @param payload allows for additional data when minting SToken
 	function swapTokensAndStakeDev(
 		bytes memory path,
 		address property,
@@ -62,7 +68,16 @@ contract SwapTokensAndStakeDev is Escrow {
 		delete gatewayOf[address(0)];
 	}
 
+	/// @notice Protection for path should be made at front-end such that dev is final output token
 	// External function for native token
+	/// @notice Swap native token -> dev and stake
+	/// @param path the path to swap
+	/// @param property the property to stake after swap
+	/// @param _amountOut the min amount of dev to stake to prevent slippage
+	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	/// @param payload allows for additional data when minting SToken
+	/// @param gatewayAddress is the address to which the liquidity provider fee will be directed
+	/// @param gatewayFee is the basis points to pass. For example 10000 is 100%
 	function swapTokensAndStakeDev(
 		bytes memory path,
 		address property,
@@ -91,7 +106,15 @@ contract SwapTokensAndStakeDev is Escrow {
 		delete gatewayOf[gatewayAddress];
 	}
 
+	/// @notice Protection for path should be made at front-end such that dev is final output token
 	// External Function For ERC20
+	/// @notice Swap token -> dev and stake
+	/// @param token the initial token to swap by user
+	/// @param path the path to swap
+	/// @param property the property to stake after swap
+	/// @param _amountOut the min amount of dev to stake to prevent slippage
+	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	/// @param payload allows for additional data when minting SToken
 	function swapTokensAndStakeDev(
 		IERC20 token,
 		bytes memory path,
@@ -129,7 +152,17 @@ contract SwapTokensAndStakeDev is Escrow {
 		delete gatewayOf[address(0)];
 	}
 
+	/// @notice Protection for path should be made at front-end such that dev is final output token
 	// External Function For ERC20
+	/// @notice Swap token -> dev and stake
+	/// @param token the initial token to swap by user
+	/// @param path the path to swap
+	/// @param property the property to stake after swap
+	/// @param _amountOut the min amount of dev to stake to prevent slippage
+	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	/// @param payload allows for additional data when minting SToken
+	/// @param gatewayAddress is the address to which the liquidity provider fee will be directed
+	/// @param gatewayFee is the basis points to pass. For example 10000 is 100%
 	function swapTokensAndStakeDev(
 		IERC20 token,
 		bytes memory path,
@@ -173,7 +206,7 @@ contract SwapTokensAndStakeDev is Escrow {
 	}
 
 	// do not use on-chain, gas inefficient!
-	function getEstimatedTokensForDev(uint256 devAmount, bytes memory path)
+	function getEstimatedTokensForDev(bytes memory path, uint256 devAmount)
 		external
 		returns (uint256)
 	{
@@ -181,14 +214,14 @@ contract SwapTokensAndStakeDev is Escrow {
 	}
 
 	// do not use on-chain, gas inefficient!
-	function getEstimatedDevForTokens(uint256 tokenAmount, bytes memory path)
+	function getEstimatedDevForTokens(bytes memory path, uint256 tokenAmount)
 		external
 		returns (uint256)
 	{
 		return quoter.quoteExactInput(path, tokenAmount);
 	}
 
-	// erc20
+	// Internal function for erc20 token
 	function _swapTokensAndStakeDev(
 		IERC20 token,
 		bytes memory _path,
@@ -232,7 +265,7 @@ contract SwapTokensAndStakeDev is Escrow {
 		);
 	}
 
-	// native token
+	// Internal function for native token
 	function _swapTokensAndStakeDev(
 		bytes memory _path,
 		address property,

@@ -132,22 +132,22 @@ describe('SwapTokensAndStakeDev', () => {
 				// Use callStaic to execute getEstimatedDevForUsdc as a read method
 				const amountOut =
 					await swapTokensAndStakeContract.callStatic.getEstimatedDevForTokens(
-						ethers.utils.parseUnits('1', 6),
 						ethers.utils.solidityPack(
 							['address', 'uint24', 'address', 'uint24', 'address'],
 							[path.token1, path.fee1, path.token2, path.fee2, path.token3]
-						)
+						),
+						ethers.utils.parseUnits('1', 6),
 					)
-				console.log('amountOut', amountOut.toString())
+
 				const amountIn =
 					await swapTokensAndStakeContract.callStatic.getEstimatedTokensForDev(
-						amountOut,
 						ethers.utils.solidityPack(
 							['address', 'uint24', 'address', 'uint24', 'address'],
 							[path.token3, path.fee2, path.token2, path.fee1, path.token1]
-						)
+						),
+						amountOut
 					)
-				console.log('amountIn', amountIn.toString())
+
 				// Assuming only 1% slippage, it can be dynamic so need to make more better assertion
 				const expected = ethers.utils.parseUnits('1', 6)
 				expect(amountIn).to.lte(expected.sub(expected.mul(1).div(100)))
@@ -233,22 +233,22 @@ describe('SwapTokensAndStakeDev', () => {
 				// Use callStaic to execute getEstimatedDevForUsdc as a read method
 				const amountOut =
 					await swapTokensAndStakeContract.callStatic.getEstimatedDevForTokens(
-						depositAmount.sub(feeAmount),
 						ethers.utils.solidityPack(
 							['address', 'uint24', 'address', 'uint24', 'address'],
 							[path.token1, path.fee1, path.token2, path.fee2, path.token3]
-						)
+						),
+						depositAmount.sub(feeAmount)
 					)
-				console.log('amountOut', amountOut.toString())
+
 				const amountIn =
 					await swapTokensAndStakeContract.callStatic.getEstimatedTokensForDev(
-						amountOut,
 						ethers.utils.solidityPack(
 							['address', 'uint24', 'address', 'uint24', 'address'],
 							[path.token3, path.fee2, path.token2, path.fee1, path.token1]
-						)
+						),
+						amountOut
 					)
-				console.log('amountIn', amountIn.toString())
+				
 				// Assuming only 1% slippage, it can be dynamic so need to make more better assertion
 				const expected = ethers.utils.parseUnits('1', 6)
 				expect(amountIn).to.lte(expected.sub(expected.mul(1).div(100)))
@@ -332,22 +332,22 @@ describe('SwapTokensAndStakeDev', () => {
 				// Use callStaic to execute getEstimatedDevForUsdc as a read method
 				const amountOut =
 					await swapTokensAndStakeContract.callStatic.getEstimatedDevForTokens(
-						ethers.utils.parseEther('1'),
 						ethers.utils.solidityPack(
 							['address', 'uint24', 'address', 'uint24', 'address'],
 							[path.token1, path.fee1, path.token2, path.fee2, path.token3]
-						)
+						),
+						ethers.utils.parseEther('1')
 					)
-				console.log('amountOut', amountOut.toString())
+				
 				const amountIn =
 					await swapTokensAndStakeContract.callStatic.getEstimatedTokensForDev(
-						amountOut,
 						ethers.utils.solidityPack(
 							['address', 'uint24', 'address', 'uint24', 'address'],
 							[path.token3, path.fee2, path.token2, path.fee1, path.token1]
-						)
+						),
+						amountOut,
 					)
-				console.log('amountIn', amountIn.toString())
+				
 
 				// Assuming only 1% slippage, it can be dynamic so need to make more better assertion
 				const expected = ethers.utils.parseEther('1')
@@ -401,22 +401,22 @@ describe('SwapTokensAndStakeDev', () => {
 				// Use callStaic to execute getEstimatedDevForUsdc as a read method
 				const amountOut =
 					await swapTokensAndStakeContract.callStatic.getEstimatedDevForTokens(
-						depositAmount.sub(feeAmount),
 						ethers.utils.solidityPack(
 							['address', 'uint24', 'address', 'uint24', 'address'],
 							[path.token1, path.fee1, path.token2, path.fee2, path.token3]
-						)
+						),
+						depositAmount.sub(feeAmount)
 					)
-				console.log('amountOut', amountOut.toString())
+
 				const amountIn =
 					await swapTokensAndStakeContract.callStatic.getEstimatedTokensForDev(
-						amountOut,
 						ethers.utils.solidityPack(
 							['address', 'uint24', 'address', 'uint24', 'address'],
 							[path.token3, path.fee2, path.token2, path.fee1, path.token1]
-						)
+						),
+						amountOut
 					)
-				console.log('amountIn', amountIn.toString())
+
 
 				// Assuming only 1% slippage, it can be dynamic so need to make more better assertion
 				const expected = ethers.utils.parseEther('1')
