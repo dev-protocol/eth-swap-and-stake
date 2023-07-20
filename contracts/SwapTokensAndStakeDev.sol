@@ -9,7 +9,6 @@ import {ILockup} from "./interfaces/ILockup.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./Escrow.sol";
-import "hardhat/console.sol";
 
 contract SwapTokensAndStakeDev is Escrow {
 	// solhint-disable-next-line const-name-snakecase
@@ -39,7 +38,30 @@ contract SwapTokensAndStakeDev is Escrow {
 		sTokensAddress = _sTokensAddress;
 	}
 
-	// For native token
+	// External function for native token
+	function swapTokensAndStakeDev(
+		bytes memory path,
+		address property,
+		uint256 _amountOut,
+		uint256 deadline,
+		bytes32 payload
+		) external payable {
+		require(msg.value > 0, "Must pass non-zero amount");
+		
+		gatewayOf[address(0)] = Amounts(msg.value, 0);
+
+		_swapTokensAndStakeDev(
+			path,
+			property,
+			msg.value,
+			_amountOut,
+			deadline,
+			payload
+		);
+
+		delete gatewayOf[address(0)];
+	}
+	// External function for native token
 	function swapTokensAndStakeDev(
 		bytes memory path,
 		address property,
@@ -68,7 +90,44 @@ contract SwapTokensAndStakeDev is Escrow {
 		delete gatewayOf[gatewayAddress];
 	}
 
-	// For ERC20
+	// External Function For ERC20
+	function swapTokensAndStakeDev(
+		IERC20 token,
+		bytes memory path,
+		address property,
+		uint256 amount,
+		uint256 _amountOut,
+		uint256 deadline,
+		bytes32 payload
+	) external {
+		require(
+			token.allowance(msg.sender, address(this)) >= amount,
+			"insufficient allowance"
+		);
+		require(token.balanceOf(msg.sender) >= amount, "insufficient balance");
+		// Transfer the amount from the user to the contract
+		TransferHelper.safeTransferFrom(
+			address(token),
+			msg.sender,
+			address(this),
+			amount
+		);
+
+		gatewayOf[address(0)] = Amounts(amount, 0);
+
+		_swapTokensAndStakeDev(
+			token,
+			path,
+			property,
+			amount,
+			_amountOut,
+			deadline,
+			payload
+		);
+
+		delete gatewayOf[address(0)];
+	}
+	// External Function For ERC20
 	function swapTokensAndStakeDev(
 		IERC20 token,
 		bytes memory path,
