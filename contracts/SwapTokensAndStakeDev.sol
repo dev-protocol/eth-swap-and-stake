@@ -45,9 +45,9 @@ contract SwapTokensAndStakeDev is Escrow {
 		uint256 _amountOut,
 		uint256 deadline,
 		bytes32 payload
-		) external payable {
+	) external payable {
 		require(msg.value > 0, "Must pass non-zero amount");
-		
+
 		gatewayOf[address(0)] = Amounts(msg.value, 0);
 
 		_swapTokensAndStakeDev(
@@ -61,6 +61,7 @@ contract SwapTokensAndStakeDev is Escrow {
 
 		delete gatewayOf[address(0)];
 	}
+
 	// External function for native token
 	function swapTokensAndStakeDev(
 		bytes memory path,
@@ -127,6 +128,7 @@ contract SwapTokensAndStakeDev is Escrow {
 
 		delete gatewayOf[address(0)];
 	}
+
 	// External Function For ERC20
 	function swapTokensAndStakeDev(
 		IERC20 token,
