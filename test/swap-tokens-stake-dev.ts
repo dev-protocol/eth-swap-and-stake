@@ -136,7 +136,7 @@ describe('SwapTokensAndStakeDev', () => {
 							['address', 'uint24', 'address', 'uint24', 'address'],
 							[path.token1, path.fee1, path.token2, path.fee2, path.token3]
 						),
-						ethers.utils.parseUnits('1', 6),
+						ethers.utils.parseUnits('1', 6)
 					)
 
 				const amountIn =
@@ -248,7 +248,7 @@ describe('SwapTokensAndStakeDev', () => {
 						),
 						amountOut
 					)
-				
+
 				// Assuming only 1% slippage, it can be dynamic so need to make more better assertion
 				const expected = ethers.utils.parseUnits('1', 6)
 				expect(amountIn).to.lte(expected.sub(expected.mul(1).div(100)))
@@ -338,16 +338,15 @@ describe('SwapTokensAndStakeDev', () => {
 						),
 						ethers.utils.parseEther('1')
 					)
-				
+
 				const amountIn =
 					await swapTokensAndStakeContract.callStatic.getEstimatedTokensForDev(
 						ethers.utils.solidityPack(
 							['address', 'uint24', 'address', 'uint24', 'address'],
 							[path.token3, path.fee2, path.token2, path.fee1, path.token1]
 						),
-						amountOut,
+						amountOut
 					)
-				
 
 				// Assuming only 1% slippage, it can be dynamic so need to make more better assertion
 				const expected = ethers.utils.parseEther('1')
@@ -416,7 +415,6 @@ describe('SwapTokensAndStakeDev', () => {
 						),
 						amountOut
 					)
-
 
 				// Assuming only 1% slippage, it can be dynamic so need to make more better assertion
 				const expected = ethers.utils.parseEther('1')
