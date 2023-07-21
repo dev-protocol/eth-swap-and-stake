@@ -23,6 +23,7 @@ contract SwapTokensAndStakeDev is Escrow {
 	address public sTokensAddress;
 
 	struct Amounts {
+		address token;
 		uint256 input;
 		uint256 fee;
 	}
@@ -54,7 +55,7 @@ contract SwapTokensAndStakeDev is Escrow {
 	) external payable {
 		require(msg.value > 0, "Must pass non-zero amount");
 
-		gatewayOf[address(0)] = Amounts(msg.value, 0);
+		gatewayOf[address(0)] = Amounts(address(0), msg.value, 0);
 
 		_swapTokensAndStakeDev(
 			path,
@@ -93,7 +94,7 @@ contract SwapTokensAndStakeDev is Escrow {
 		uint256 feeAmount = (msg.value * gatewayFee) / 10000;
 		_deposit(gatewayAddress, feeAmount, address(0));
 
-		gatewayOf[gatewayAddress] = Amounts(msg.value, feeAmount);
+		gatewayOf[gatewayAddress] = Amounts(address(0), msg.value, feeAmount);
 
 		_swapTokensAndStakeDev(
 			path,
@@ -137,7 +138,7 @@ contract SwapTokensAndStakeDev is Escrow {
 			amount
 		);
 
-		gatewayOf[address(0)] = Amounts(amount, 0);
+		gatewayOf[address(0)] = Amounts(address(token), amount, 0);
 
 		_swapTokensAndStakeDev(
 			token,
@@ -191,7 +192,7 @@ contract SwapTokensAndStakeDev is Escrow {
 		uint256 feeAmount = (amount * gatewayFee) / 10000;
 		_deposit(gatewayAddress, feeAmount, address(token));
 
-		gatewayOf[gatewayAddress] = Amounts(amount, feeAmount);
+		gatewayOf[gatewayAddress] = Amounts(address(token), amount, feeAmount);
 
 		_swapTokensAndStakeDev(
 			token,
