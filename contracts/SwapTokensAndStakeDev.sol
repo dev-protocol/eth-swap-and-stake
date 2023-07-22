@@ -47,6 +47,7 @@ contract SwapTokensAndStakeDev is Escrow {
 	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
 	/// @param payload allows for additional data when minting SToken
 	function swapTokensAndStakeDev(
+		address _to,
 		bytes memory path,
 		address property,
 		uint256 _amountOut,
@@ -58,6 +59,7 @@ contract SwapTokensAndStakeDev is Escrow {
 		gatewayOf[address(0)] = Amounts(address(0), msg.value, 0);
 
 		_swapTokensAndStakeDev(
+			_to,
 			path,
 			property,
 			msg.value,
@@ -80,6 +82,7 @@ contract SwapTokensAndStakeDev is Escrow {
 	/// @param gatewayAddress is the address to which the liquidity provider fee will be directed
 	/// @param gatewayFee is the basis points to pass. For example 10000 is 100%
 	function swapTokensAndStakeDev(
+		address _to,
 		bytes memory path,
 		address property,
 		uint256 _amountOut,
@@ -97,6 +100,7 @@ contract SwapTokensAndStakeDev is Escrow {
 		gatewayOf[gatewayAddress] = Amounts(address(0), msg.value, feeAmount);
 
 		_swapTokensAndStakeDev(
+			_to,
 			path,
 			property,
 			(msg.value - feeAmount),
@@ -117,6 +121,7 @@ contract SwapTokensAndStakeDev is Escrow {
 	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
 	/// @param payload allows for additional data when minting SToken
 	function swapTokensAndStakeDev(
+		address _to,
 		IERC20 token,
 		bytes memory path,
 		address property,
@@ -141,6 +146,7 @@ contract SwapTokensAndStakeDev is Escrow {
 		gatewayOf[address(0)] = Amounts(address(token), amount, 0);
 
 		_swapTokensAndStakeDev(
+			_to,
 			token,
 			path,
 			property,
@@ -165,6 +171,7 @@ contract SwapTokensAndStakeDev is Escrow {
 	/// @param gatewayAddress is the address to which the liquidity provider fee will be directed
 	/// @param gatewayFee is the basis points to pass. For example 10000 is 100%
 	function swapTokensAndStakeDev(
+		address _to,
 		IERC20 token,
 		bytes memory path,
 		address property,
@@ -195,6 +202,7 @@ contract SwapTokensAndStakeDev is Escrow {
 		gatewayOf[gatewayAddress] = Amounts(address(token), amount, feeAmount);
 
 		_swapTokensAndStakeDev(
+			_to,
 			token,
 			path,
 			property,
@@ -224,6 +232,7 @@ contract SwapTokensAndStakeDev is Escrow {
 
 	// Internal function for erc20 token
 	function _swapTokensAndStakeDev(
+		address _to,
 		IERC20 token,
 		bytes memory _path,
 		address property,
@@ -261,13 +270,14 @@ contract SwapTokensAndStakeDev is Escrow {
 		);
 		IERC721(sTokensAddress).safeTransferFrom(
 			address(this),
-			msg.sender,
+			_to,
 			tokenId
 		);
 	}
 
 	// Internal function for native token
 	function _swapTokensAndStakeDev(
+		address _to,
 		bytes memory _path,
 		address property,
 		uint256 amount,
@@ -298,7 +308,7 @@ contract SwapTokensAndStakeDev is Escrow {
 		);
 		IERC721(sTokensAddress).safeTransferFrom(
 			address(this),
-			msg.sender,
+			_to,
 			tokenId
 		);
 	}

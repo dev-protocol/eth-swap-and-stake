@@ -159,8 +159,9 @@ describe('SwapTokensAndStakeDev', () => {
 					await swapTokensAndStakeContract
 						.connect(account1)
 						[
-							'swapTokensAndStakeDev(address,bytes,address,uint256,uint256,uint256,bytes32)'
+							'swapTokensAndStakeDev(address,address,bytes,address,uint256,uint256,uint256,bytes32)'
 						](
+							account1.address,
 							usdcAddress,
 							ethers.utils.solidityPack(
 								['address', 'uint24', 'address', 'uint24', 'address'],
@@ -260,8 +261,9 @@ describe('SwapTokensAndStakeDev', () => {
 					await swapTokensAndStakeContract
 						.connect(account1)
 						[
-							'swapTokensAndStakeDev(address,bytes,address,uint256,uint256,uint256,bytes32,address,uint256)'
+							'swapTokensAndStakeDev(address,address,bytes,address,uint256,uint256,uint256,bytes32,address,uint256)'
 						](
+							account1.address,
 							usdcAddress,
 							ethers.utils.solidityPack(
 								['address', 'uint24', 'address', 'uint24', 'address'],
@@ -358,7 +360,8 @@ describe('SwapTokensAndStakeDev', () => {
 				await expect(
 					await swapTokensAndStakeContract
 						.connect(account1)
-						['swapTokensAndStakeDev(bytes,address,uint256,uint256,bytes32)'](
+						['swapTokensAndStakeDev(address,bytes,address,uint256,uint256,bytes32)'](
+							account1.address,
 							ethers.utils.solidityPack(
 								['address', 'uint24', 'address', 'uint24', 'address'],
 								[path.token1, path.fee1, path.token2, path.fee2, path.token3]
@@ -427,8 +430,9 @@ describe('SwapTokensAndStakeDev', () => {
 					await swapTokensAndStakeContract
 						.connect(account1)
 						[
-							'swapTokensAndStakeDev(bytes,address,uint256,uint256,bytes32,address,uint256)'
+							'swapTokensAndStakeDev(address,bytes,address,uint256,uint256,bytes32,address,uint256)'
 						](
+							account1.address,
 							ethers.utils.solidityPack(
 								['address', 'uint24', 'address', 'uint24', 'address'],
 								[path.token1, path.fee1, path.token2, path.fee2, path.token3]
