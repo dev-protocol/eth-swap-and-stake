@@ -268,11 +268,7 @@ contract SwapTokensAndStakeDev is Escrow {
 			amountOut,
 			payload
 		);
-		IERC721(sTokensAddress).safeTransferFrom(
-			address(this),
-			_to,
-			tokenId
-		);
+		IERC721(sTokensAddress).safeTransferFrom(address(this), _to, tokenId);
 	}
 
 	// Internal function for native token
@@ -306,10 +302,6 @@ contract SwapTokensAndStakeDev is Escrow {
 			amountOut,
 			payload
 		);
-		IERC721(sTokensAddress).safeTransferFrom(
-			address(this),
-			_to,
-			tokenId
-		);
+		IERC721(sTokensAddress).safeTransferFrom(address(this), _to, tokenId);
 	}
 }

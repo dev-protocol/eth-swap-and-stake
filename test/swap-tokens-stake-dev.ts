@@ -360,7 +360,9 @@ describe('SwapTokensAndStakeDev', () => {
 				await expect(
 					await swapTokensAndStakeContract
 						.connect(account1)
-						['swapTokensAndStakeDev(address,bytes,address,uint256,uint256,bytes32)'](
+						[
+							'swapTokensAndStakeDev(address,bytes,address,uint256,uint256,bytes32)'
+						](
 							account1.address,
 							ethers.utils.solidityPack(
 								['address', 'uint24', 'address', 'uint24', 'address'],
