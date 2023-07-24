@@ -21,7 +21,7 @@
 	},
 	"overrides": [
 		{
-			"files": ["test/**/*.ts"],
+			"files": ["test/**/*.ts", "scripts/**/*.ts"],
 			"rules": {
 				"@typescript-eslint/no-unsafe-call": "off",
 				"@typescript-eslint/no-unsafe-assignment": "off"
