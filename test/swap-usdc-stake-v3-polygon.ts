@@ -1,7 +1,7 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { ethers, waffle } from 'hardhat'
-import { SwapAndStakeV3Polygon, ISwapRouter } from '../typechain'
+import { SwapUsdcAndStakeV3Polygon, ISwapRouter } from '../typechain'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract, BigNumber } from 'ethers'
 import * as dotenv from 'dotenv'
@@ -15,14 +15,15 @@ const alchemyKeyPolygon =
 
 use(solidity)
 
-describe('SwapAndStakeV3 Polygon', () => {
+describe('SwapUsdcAndStakeV3 Polygon', () => {
 	let account1: SignerWithAddress
 	let gateway: SignerWithAddress
-	let swapAndStakeContract: SwapAndStakeV3Polygon
+	let swapUsdcAndStakeContract: SwapUsdcAndStakeV3Polygon
 	let lockupContract: Contract
 	let sTokensManagerContract: Contract
 
 	// Polygon
+	const usdcAddress = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
 	const wethAddress = '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619'
 	const devAddress = '0xA5577D1cec2583058A6Bd6d5DEAC44797c205701'
 	const lockupAddress = '0x42767B12d3f07bE0D951a64eE6573B40Ff165C4e'
@@ -30,7 +31,7 @@ describe('SwapAndStakeV3 Polygon', () => {
 	const sTokensManagerAddress = '0x89904De861CDEd2567695271A511B3556659FfA2'
 	const SwapRouterAddress = '0xE592427A0AEce92De3Edee1F18E0157C05861564'
 	const WMATICAddress = '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'
-	let wethContract: Contract
+	let usdcContract: Contract
 	let swapRouter: ISwapRouter
 
 	beforeEach(async () => {
@@ -39,7 +40,7 @@ describe('SwapAndStakeV3 Polygon', () => {
 				forking: {
 					jsonRpcUrl:
 						'https://polygon-mainnet.g.alchemy.com/v2/' + alchemyKeyPolygon,
-					blockNumber: 38383175,
+					blockNumber: 44358690,
 				},
 			},
 		])
@@ -48,18 +49,19 @@ describe('SwapAndStakeV3 Polygon', () => {
 		account1 = accounts[0]
 		gateway = accounts[1]
 
-		const factory = await ethers.getContractFactory('SwapAndStakeV3Polygon')
-		swapAndStakeContract = (await factory.deploy(
+		const factory = await ethers.getContractFactory('SwapUsdcAndStakeV3Polygon')
+		swapUsdcAndStakeContract = (await factory.deploy(
+			usdcAddress,
 			wethAddress,
 			devAddress,
 			lockupAddress,
 			sTokensManagerAddress
-		)) as SwapAndStakeV3Polygon
+		)) as SwapUsdcAndStakeV3Polygon
 
-		await swapAndStakeContract.deployed()
+		await swapUsdcAndStakeContract.deployed()
 
-		wethContract = new ethers.Contract(
-			wethAddress,
+		usdcContract = new ethers.Contract(
+			usdcAddress,
 			[
 				'function balanceOf(address owner) view returns (uint256)',
 				'function approve(address spender, uint256 amount) public returns (bool)',
@@ -81,17 +83,17 @@ describe('SwapAndStakeV3 Polygon', () => {
 			sTokensManagerAddress
 		)
 	})
-	describe('swap eth for dev', () => {
-		it('should stake eth for dev', async () => {
+	describe('swap usdc for dev', () => {
+		it('should stake dev for usdc', async () => {
 			// Get latest block
 			const block = await waffle.provider.getBlock('latest')
 			const deadline = block.timestamp + 300
 
-			// Get WETH via MATIC(Native Token) -> wMATIC -> WETH
+			// Get USDC via MATIC(Native Token) -> wMATIC -> USDC
 			await swapRouter.connect(account1).exactInputSingle(
 				{
 					tokenIn: WMATICAddress,
-					tokenOut: wethAddress,
+					tokenOut: usdcAddress,
 					fee: 3000,
 					recipient: account1.address,
 					deadline,
@@ -104,36 +106,46 @@ describe('SwapAndStakeV3 Polygon', () => {
 				}
 			)
 
-			// Approve WETH to SwapAndStakeV3
-			await wethContract
+			// Approve USDC to SwapAndStakeV3
+			await usdcContract
 				.connect(account1)
-				.approve(swapAndStakeContract.address, ethers.utils.parseEther('1'))
-
-			// Use callStaic to execute getEstimatedDevForEth as a read method
-			const amountOut =
-				await swapAndStakeContract.callStatic.getEstimatedDevForEth(
-					ethers.utils.parseEther('0.00001')
+				.approve(
+					swapUsdcAndStakeContract.address,
+					ethers.utils.parseUnits('100', 6)
 				)
+
+			// Use callStaic to execute getEstimatedDevForUsdc as a read method
+			const amountOut =
+				await swapUsdcAndStakeContract.callStatic.getEstimatedDevForUsdc(
+					ethers.utils.parseUnits('1', 6)
+				)
+			console.log('amountOut', amountOut.toString())
 			const amountIn =
-				await swapAndStakeContract.callStatic.getEstimatedEthForDev(amountOut)
-			expect(amountIn).to.equal(ethers.utils.parseEther('0.00001'))
+				await swapUsdcAndStakeContract.callStatic.getEstimatedUsdcForDev(
+					amountOut
+				)
+			console.log('amountIn', amountIn.toString())
+			// Assuming only 1% slippage, it can be dynamic so need to make more better assertion
+			const expected = ethers.utils.parseUnits('1', 6)
+			expect(amountIn).to.lte(expected.sub(expected.mul(1).div(100)))
 
 			// STokenId = currentIndex + 1 will be minted.
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 			sTokenId = sTokenId.add(1)
 			await expect(
-				await swapAndStakeContract[
-					'swapEthAndStakeDev(address,uint256,uint256,bytes32)'
-				](
-					propertyAddress,
-					ethers.utils.parseEther('0.00001'),
-					deadline,
-					ethers.utils.formatBytes32String('payload')
-				)
+				await swapUsdcAndStakeContract
+					.connect(account1)
+					['swapUsdcAndStakeDev(address,uint256,uint256,uint256,bytes32)'](
+						propertyAddress,
+						ethers.utils.parseUnits('1', 6),
+						amountOut,
+						deadline,
+						ethers.utils.formatBytes32String('payload')
+					)
 			)
 				.to.emit(lockupContract, 'Lockedup')
 				.withArgs(
-					swapAndStakeContract.address,
+					swapUsdcAndStakeContract.address,
 					propertyAddress,
 					amountOut,
 					sTokenId
@@ -147,15 +159,16 @@ describe('SwapAndStakeV3 Polygon', () => {
 			expect(sTokenPosition[1]).to.equal(amountOut)
 		})
 
-		it('should stake eth for dev and deduct gateway fee', async () => {
+		it('should stake usdc for dev and deduct gateway fee', async () => {
 			// Get latest block
 			const block = await waffle.provider.getBlock('latest')
 			const deadline = block.timestamp + 300
-			// Get WETH via MATIC(Native Token) -> wMATIC -> WETH
+
+			// Get USDC via MATIC(Native Token) -> wMATIC -> USDC
 			await swapRouter.connect(account1).exactInputSingle(
 				{
 					tokenIn: WMATICAddress,
-					tokenOut: wethAddress,
+					tokenOut: usdcAddress,
 					fee: 3000,
 					recipient: account1.address,
 					deadline,
@@ -168,31 +181,36 @@ describe('SwapAndStakeV3 Polygon', () => {
 				}
 			)
 
-			// Approve WETH to SwapAndStakeV3
-			await wethContract
+			// Approve USDC to SwapAndStakeV3
+			await usdcContract
 				.connect(account1)
-				.approve(swapAndStakeContract.address, ethers.utils.parseEther('1'))
+				.approve(swapUsdcAndStakeContract.address, ethers.utils.parseEther('1'))
 
 			const gatewayFeeBasisPoints = 333 // In basis points, so 3.33%
-			const depositAmount = ethers.utils.parseEther('0.00001')
+			const depositAmount = ethers.utils.parseUnits('1', 6)
 			const feeAmount = depositAmount.mul(gatewayFeeBasisPoints).div(10000)
 			const amountOut =
-				await swapAndStakeContract.callStatic.getEstimatedDevForEth(
+				await swapUsdcAndStakeContract.callStatic.getEstimatedDevForUsdc(
 					depositAmount.sub(feeAmount)
 				)
 			const amountIn =
-				await swapAndStakeContract.callStatic.getEstimatedEthForDev(amountOut)
-			expect(amountIn).to.equal(depositAmount.sub(feeAmount))
+				await swapUsdcAndStakeContract.callStatic.getEstimatedUsdcForDev(
+					amountOut
+				)
+			const expected = ethers.utils.parseUnits('1', 6)
+			// Assuming only 1% slippage, it can be dynamic so need to make more better assertion
+			expect(amountIn).to.lte(expected.sub(expected.mul(1).div(100)))
 
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 
 			sTokenId = sTokenId.add(1)
 			await expect(
-				swapAndStakeContract[
-					'swapEthAndStakeDev(address,uint256,uint256,bytes32,address,uint256)'
+				swapUsdcAndStakeContract[
+					'swapUsdcAndStakeDev(address,uint256,uint256,uint256,bytes32,address,uint256)'
 				](
 					propertyAddress,
 					depositAmount,
+					amountOut,
 					deadline,
 					ethers.constants.HashZero,
 					gateway.address,
@@ -201,7 +219,7 @@ describe('SwapAndStakeV3 Polygon', () => {
 			)
 				.to.emit(lockupContract, 'Lockedup')
 				.withArgs(
-					swapAndStakeContract.address,
+					swapUsdcAndStakeContract.address,
 					propertyAddress,
 					amountOut,
 					sTokenId
@@ -216,17 +234,17 @@ describe('SwapAndStakeV3 Polygon', () => {
 
 			// Check gateway has been credited
 			expect(
-				await swapAndStakeContract.gatewayFees(gateway.address, wethAddress)
+				await swapUsdcAndStakeContract.gatewayFees(gateway.address, usdcAddress)
 			).to.eq(feeAmount)
 
 			// Withdraw credit
-			await expect(swapAndStakeContract.connect(gateway).claim(wethAddress))
-				.to.emit(swapAndStakeContract, 'Withdrawn')
-				.withArgs(gateway.address, wethAddress, feeAmount)
+			await expect(swapUsdcAndStakeContract.connect(gateway).claim(usdcAddress))
+				.to.emit(swapUsdcAndStakeContract, 'Withdrawn')
+				.withArgs(gateway.address, usdcAddress, feeAmount)
 
 			// Check gateway credit has been deducted
 			expect(
-				await swapAndStakeContract.gatewayFees(gateway.address, wethAddress)
+				await swapUsdcAndStakeContract.gatewayFees(gateway.address, usdcAddress)
 			).to.eq(0)
 		})
 	})
