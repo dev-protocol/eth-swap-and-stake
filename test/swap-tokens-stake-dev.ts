@@ -57,7 +57,6 @@ describe('SwapTokensAndStakeDev', () => {
 		account1 = accounts[0]
 		gateway = accounts[1]
 
-
 		usdcContract = new ethers.Contract(
 			usdcAddress,
 			[
@@ -83,39 +82,35 @@ describe('SwapTokensAndStakeDev', () => {
 	})
 	describe('SwapTokensAndStakeDev', () => {
 		describe('initialize', () => {
-				it('success:initializing', async () => {
-					const [cont, admin] = await deployWithProxy<SwapTokensAndStakeDev>('SwapTokensAndStakeDev')
-					const [addr1] = await ethers.getSigners()
-					await cont.initialize(devAddress,
-						lockupAddress,
-						sTokensManagerAddress)
-					expect(admin).to.equal(addr1.address)
-				})
+			it('success:initializing', async () => {
+				const [cont, admin] = await deployWithProxy<SwapTokensAndStakeDev>(
+					'SwapTokensAndStakeDev'
+				)
+				const [addr1] = await ethers.getSigners()
+				await cont.initialize(devAddress, lockupAddress, sTokensManagerAddress)
+				expect(admin).to.equal(addr1.address)
+			})
 
-				it('fail:should fail to initialize when already initialized', async () => {
-					const [cont, ] = await deployWithProxy<SwapTokensAndStakeDev>('SwapTokensAndStakeDev')
-					await cont.initialize(devAddress,
-						lockupAddress,
-						sTokensManagerAddress)
-	
-					await expect(cont.initialize(devAddress,
-						lockupAddress,
-						sTokensManagerAddress)).to.be.revertedWith(
-						'Initializable: contract is already initialized'
-					)
-				})
+			it('fail:should fail to initialize when already initialized', async () => {
+				const [cont] = await deployWithProxy<SwapTokensAndStakeDev>(
+					'SwapTokensAndStakeDev'
+				)
+				await cont.initialize(devAddress, lockupAddress, sTokensManagerAddress)
+
+				await expect(
+					cont.initialize(devAddress, lockupAddress, sTokensManagerAddress)
+				).to.be.revertedWith('Initializable: contract is already initialized')
+			})
 		})
 		describe('ERC-20 swapping', () => {
 			it('should swap token and stake dev', async () => {
 				// Get latest block
 				const block = await waffle.provider.getBlock('latest')
 				const deadline = block.timestamp + 300
-				const [cont, ] = await deployWithProxy<SwapTokensAndStakeDev>('SwapTokensAndStakeDev')
-				await cont.initialize(
-					devAddress,
-					lockupAddress,
-					sTokensManagerAddress
+				const [cont] = await deployWithProxy<SwapTokensAndStakeDev>(
+					'SwapTokensAndStakeDev'
 				)
+				await cont.initialize(devAddress, lockupAddress, sTokensManagerAddress)
 
 				// Get USDC via MATIC(Native Token) -> wMATIC -> USDC
 				await swapRouter.connect(account1).exactInputSingle(
@@ -137,10 +132,7 @@ describe('SwapTokensAndStakeDev', () => {
 				// Approve USDC
 				await usdcContract
 					.connect(account1)
-					.approve(
-						cont.address,
-						ethers.utils.parseUnits('1900', 6)
-					)
+					.approve(cont.address, ethers.utils.parseUnits('1900', 6))
 
 				const path: Path = {
 					token1: usdcAddress,
@@ -151,23 +143,21 @@ describe('SwapTokensAndStakeDev', () => {
 				}
 
 				// Use callStaic to execute getEstimatedDevForUsdc as a read method
-				const amountOut =
-					await cont.callStatic.getEstimatedDevForTokens(
-						ethers.utils.solidityPack(
-							['address', 'uint24', 'address', 'uint24', 'address'],
-							[path.token1, path.fee1, path.token2, path.fee2, path.token3]
-						),
-						ethers.utils.parseUnits('1', 6)
-					)
+				const amountOut = await cont.callStatic.getEstimatedDevForTokens(
+					ethers.utils.solidityPack(
+						['address', 'uint24', 'address', 'uint24', 'address'],
+						[path.token1, path.fee1, path.token2, path.fee2, path.token3]
+					),
+					ethers.utils.parseUnits('1', 6)
+				)
 
-				const amountIn =
-					await cont.callStatic.getEstimatedTokensForDev(
-						ethers.utils.solidityPack(
-							['address', 'uint24', 'address', 'uint24', 'address'],
-							[path.token3, path.fee2, path.token2, path.fee1, path.token1]
-						),
-						amountOut
-					)
+				const amountIn = await cont.callStatic.getEstimatedTokensForDev(
+					ethers.utils.solidityPack(
+						['address', 'uint24', 'address', 'uint24', 'address'],
+						[path.token3, path.fee2, path.token2, path.fee1, path.token1]
+					),
+					amountOut
+				)
 
 				// Assuming only 1% slippage, it can be dynamic so need to make more better assertion
 				const expected = ethers.utils.parseUnits('1', 6)
@@ -196,12 +186,7 @@ describe('SwapTokensAndStakeDev', () => {
 						)
 				)
 					.to.emit(lockupContract, 'Lockedup')
-					.withArgs(
-						cont.address,
-						propertyAddress,
-						amountOut,
-						sTokenId
-					)
+					.withArgs(cont.address, propertyAddress, amountOut, sTokenId)
 
 				const sTokenOwner = await sTokensManagerContract.ownerOf(sTokenId)
 				const sTokenPosition: number[] = await sTokensManagerContract.positions(
@@ -215,12 +200,10 @@ describe('SwapTokensAndStakeDev', () => {
 				const block = await waffle.provider.getBlock('latest')
 				const deadline = block.timestamp + 300
 
-				const [cont, ] = await deployWithProxy<SwapTokensAndStakeDev>('SwapTokensAndStakeDev')
-				await cont.initialize(
-					devAddress,
-					lockupAddress,
-					sTokensManagerAddress
+				const [cont] = await deployWithProxy<SwapTokensAndStakeDev>(
+					'SwapTokensAndStakeDev'
 				)
+				await cont.initialize(devAddress, lockupAddress, sTokensManagerAddress)
 
 				// Get USDC via MATIC(Native Token) -> wMATIC -> USDC
 				await swapRouter.connect(account1).exactInputSingle(
@@ -242,10 +225,7 @@ describe('SwapTokensAndStakeDev', () => {
 				// Approve USDC
 				await usdcContract
 					.connect(account1)
-					.approve(
-						cont.address,
-						ethers.utils.parseUnits('1900', 6)
-					)
+					.approve(cont.address, ethers.utils.parseUnits('1900', 6))
 
 				const gatewayFeeBasisPoints = 333 // In basis points, so 3.33%
 				const depositAmount = ethers.utils.parseUnits('1', 6)
@@ -260,23 +240,21 @@ describe('SwapTokensAndStakeDev', () => {
 				}
 
 				// Use callStaic to execute getEstimatedDevForUsdc as a read method
-				const amountOut =
-					await cont.callStatic.getEstimatedDevForTokens(
-						ethers.utils.solidityPack(
-							['address', 'uint24', 'address', 'uint24', 'address'],
-							[path.token1, path.fee1, path.token2, path.fee2, path.token3]
-						),
-						depositAmount.sub(feeAmount)
-					)
+				const amountOut = await cont.callStatic.getEstimatedDevForTokens(
+					ethers.utils.solidityPack(
+						['address', 'uint24', 'address', 'uint24', 'address'],
+						[path.token1, path.fee1, path.token2, path.fee2, path.token3]
+					),
+					depositAmount.sub(feeAmount)
+				)
 
-				const amountIn =
-					await cont.callStatic.getEstimatedTokensForDev(
-						ethers.utils.solidityPack(
-							['address', 'uint24', 'address', 'uint24', 'address'],
-							[path.token3, path.fee2, path.token2, path.fee1, path.token1]
-						),
-						amountOut
-					)
+				const amountIn = await cont.callStatic.getEstimatedTokensForDev(
+					ethers.utils.solidityPack(
+						['address', 'uint24', 'address', 'uint24', 'address'],
+						[path.token3, path.fee2, path.token2, path.fee1, path.token1]
+					),
+					amountOut
+				)
 
 				// Assuming only 1% slippage, it can be dynamic so need to make more better assertion
 				const expected = ethers.utils.parseUnits('1', 6)
@@ -307,12 +285,7 @@ describe('SwapTokensAndStakeDev', () => {
 						)
 				)
 					.to.emit(lockupContract, 'Lockedup')
-					.withArgs(
-						cont.address,
-						propertyAddress,
-						amountOut,
-						sTokenId
-					)
+					.withArgs(cont.address, propertyAddress, amountOut, sTokenId)
 
 				const sTokenOwner = await sTokensManagerContract.ownerOf(sTokenId)
 				const sTokenPosition: number[] = await sTokensManagerContract.positions(
@@ -322,27 +295,17 @@ describe('SwapTokensAndStakeDev', () => {
 				expect(sTokenPosition[1]).to.equal(amountOut)
 
 				// Check gateway has been credited
-				expect(
-					await cont.gatewayFees(
-						gateway.address,
-						usdcAddress
-					)
-				).to.eq(feeAmount)
+				expect(await cont.gatewayFees(gateway.address, usdcAddress)).to.eq(
+					feeAmount
+				)
 
 				// Withdraw credit
-				await expect(
-					cont.connect(gateway).claim(usdcAddress)
-				)
+				await expect(cont.connect(gateway).claim(usdcAddress))
 					.to.emit(cont, 'Withdrawn')
 					.withArgs(gateway.address, usdcAddress, feeAmount)
 
 				// Check gateway credit has been deducted
-				expect(
-					await cont.gatewayFees(
-						gateway.address,
-						usdcAddress
-					)
-				).to.eq(0)
+				expect(await cont.gatewayFees(gateway.address, usdcAddress)).to.eq(0)
 			})
 		})
 		describe('Native token swapping', () => {
@@ -350,10 +313,10 @@ describe('SwapTokensAndStakeDev', () => {
 				// Get latest block
 				const block = await waffle.provider.getBlock('latest')
 				const deadline = block.timestamp + 300
-				const [cont, ] = await deployWithProxy<SwapTokensAndStakeDev>('SwapTokensAndStakeDev')
-				await cont.initialize(devAddress,
-					lockupAddress,
-					sTokensManagerAddress)
+				const [cont] = await deployWithProxy<SwapTokensAndStakeDev>(
+					'SwapTokensAndStakeDev'
+				)
+				await cont.initialize(devAddress, lockupAddress, sTokensManagerAddress)
 
 				const path: Path = {
 					token1: weth9,
@@ -364,23 +327,21 @@ describe('SwapTokensAndStakeDev', () => {
 				}
 
 				// Use callStaic to execute getEstimatedDevForUsdc as a read method
-				const amountOut =
-					await cont.callStatic.getEstimatedDevForTokens(
-						ethers.utils.solidityPack(
-							['address', 'uint24', 'address', 'uint24', 'address'],
-							[path.token1, path.fee1, path.token2, path.fee2, path.token3]
-						),
-						ethers.utils.parseEther('1')
-					)
+				const amountOut = await cont.callStatic.getEstimatedDevForTokens(
+					ethers.utils.solidityPack(
+						['address', 'uint24', 'address', 'uint24', 'address'],
+						[path.token1, path.fee1, path.token2, path.fee2, path.token3]
+					),
+					ethers.utils.parseEther('1')
+				)
 
-				const amountIn =
-					await cont.callStatic.getEstimatedTokensForDev(
-						ethers.utils.solidityPack(
-							['address', 'uint24', 'address', 'uint24', 'address'],
-							[path.token3, path.fee2, path.token2, path.fee1, path.token1]
-						),
-						amountOut
-					)
+				const amountIn = await cont.callStatic.getEstimatedTokensForDev(
+					ethers.utils.solidityPack(
+						['address', 'uint24', 'address', 'uint24', 'address'],
+						[path.token3, path.fee2, path.token2, path.fee1, path.token1]
+					),
+					amountOut
+				)
 
 				// Assuming only 1% slippage, it can be dynamic so need to make more better assertion
 				const expected = ethers.utils.parseEther('1')
@@ -410,12 +371,7 @@ describe('SwapTokensAndStakeDev', () => {
 						)
 				)
 					.to.emit(lockupContract, 'Lockedup')
-					.withArgs(
-						cont.address,
-						propertyAddress,
-						amountOut,
-						sTokenId
-					)
+					.withArgs(cont.address, propertyAddress, amountOut, sTokenId)
 			})
 			it('should stake dev by swapping native token and deduct gateway fee', async () => {
 				// Get latest block
@@ -426,10 +382,10 @@ describe('SwapTokensAndStakeDev', () => {
 				const depositAmount = ethers.utils.parseEther('1')
 				const feeAmount = depositAmount.mul(gatewayFeeBasisPoints).div(10000)
 
-				const [cont, ] = await deployWithProxy<SwapTokensAndStakeDev>('SwapTokensAndStakeDev')
-				await cont.initialize(devAddress,
-					lockupAddress,
-					sTokensManagerAddress)
+				const [cont] = await deployWithProxy<SwapTokensAndStakeDev>(
+					'SwapTokensAndStakeDev'
+				)
+				await cont.initialize(devAddress, lockupAddress, sTokensManagerAddress)
 
 				const path: Path = {
 					token1: weth9,
@@ -440,23 +396,21 @@ describe('SwapTokensAndStakeDev', () => {
 				}
 
 				// Use callStaic to execute getEstimatedDevForUsdc as a read method
-				const amountOut =
-					await cont.callStatic.getEstimatedDevForTokens(
-						ethers.utils.solidityPack(
-							['address', 'uint24', 'address', 'uint24', 'address'],
-							[path.token1, path.fee1, path.token2, path.fee2, path.token3]
-						),
-						depositAmount.sub(feeAmount)
-					)
+				const amountOut = await cont.callStatic.getEstimatedDevForTokens(
+					ethers.utils.solidityPack(
+						['address', 'uint24', 'address', 'uint24', 'address'],
+						[path.token1, path.fee1, path.token2, path.fee2, path.token3]
+					),
+					depositAmount.sub(feeAmount)
+				)
 
-				const amountIn =
-					await cont.callStatic.getEstimatedTokensForDev(
-						ethers.utils.solidityPack(
-							['address', 'uint24', 'address', 'uint24', 'address'],
-							[path.token3, path.fee2, path.token2, path.fee1, path.token1]
-						),
-						amountOut
-					)
+				const amountIn = await cont.callStatic.getEstimatedTokensForDev(
+					ethers.utils.solidityPack(
+						['address', 'uint24', 'address', 'uint24', 'address'],
+						[path.token3, path.fee2, path.token2, path.fee1, path.token1]
+					),
+					amountOut
+				)
 
 				// Assuming only 1% slippage, it can be dynamic so need to make more better assertion
 				const expected = ethers.utils.parseEther('1')
@@ -488,12 +442,7 @@ describe('SwapTokensAndStakeDev', () => {
 						)
 				)
 					.to.emit(lockupContract, 'Lockedup')
-					.withArgs(
-						cont.address,
-						propertyAddress,
-						amountOut,
-						sTokenId
-					)
+					.withArgs(cont.address, propertyAddress, amountOut, sTokenId)
 				const sTokenOwner = await sTokensManagerContract.ownerOf(sTokenId)
 				const sTokenPosition: number[] = await sTokensManagerContract.positions(
 					sTokenId
@@ -502,26 +451,16 @@ describe('SwapTokensAndStakeDev', () => {
 				expect(sTokenPosition[1]).to.equal(amountOut)
 				// Check gateway has been credited
 				expect(
-					await cont.gatewayFees(
-						gateway.address,
-						ethers.constants.AddressZero
-					)
+					await cont.gatewayFees(gateway.address, ethers.constants.AddressZero)
 				).to.eq(feeAmount)
 
 				// Withdraw credit
-				await expect(
-					cont
-						.connect(gateway)
-						.claim(ethers.constants.AddressZero)
-				)
+				await expect(cont.connect(gateway).claim(ethers.constants.AddressZero))
 					.to.emit(cont, 'Withdrawn')
 					.withArgs(gateway.address, ethers.constants.AddressZero, feeAmount)
 				// Check gateway credit has been deducted
 				expect(
-					await cont.gatewayFees(
-						gateway.address,
-						ethers.constants.AddressZero
-					)
+					await cont.gatewayFees(gateway.address, ethers.constants.AddressZero)
 				).to.eq(0)
 			})
 		})

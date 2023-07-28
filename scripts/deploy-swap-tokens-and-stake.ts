@@ -1,4 +1,3 @@
-
 import { ethers, upgrades } from 'hardhat'
 import type { SwapTokensAndStakeDev__factory } from '../typechain'
 
@@ -7,10 +6,10 @@ const lockupAddress = '0xfDC5FF1F07871A247eafE14eEB134eeFcbCf1ceA'
 const sTokensManagerAddress = '0xe0af15141ABd0B31Fb15e250971936Fe8837230a'
 
 async function main() {
-    const contract = (await ethers.getContractFactory(
-        'SwapTokensAndStakeDev'
-    )) as SwapTokensAndStakeDev__factory
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+	const contract = (await ethers.getContractFactory(
+		'SwapTokensAndStakeDev'
+	)) as SwapTokensAndStakeDev__factory
+
 	const impl = await upgrades.deployImplementation(contract)
 	const admin = await upgrades.deployProxyAdmin()
 	const deployedContract = await upgrades.deployProxy(
@@ -24,7 +23,6 @@ async function main() {
 	console.log('Implementation address:', impl)
 	console.log('Admin address:', admin)
 	console.log('UpgradeableProxy address:', deployedContract.address)
-
 }
 
 main()
