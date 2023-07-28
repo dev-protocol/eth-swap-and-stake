@@ -135,7 +135,10 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 			_token.allowance(msg.sender, address(this)) >= _amount,
 			"insufficient allowance"
 		);
-		require(_token.balanceOf(msg.sender) >= _amount, "insufficient balance");
+		require(
+			_token.balanceOf(msg.sender) >= _amount,
+			"insufficient balance"
+		);
 		// Transfer the amount from the user to the contract
 		TransferHelper.safeTransferFrom(
 			address(_token),
@@ -188,7 +191,10 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 			_token.allowance(msg.sender, address(this)) >= _amount,
 			"insufficient allowance"
 		);
-		require(_token.balanceOf(msg.sender) >= _amount, "insufficient balance");
+		require(
+			_token.balanceOf(msg.sender) >= _amount,
+			"insufficient balance"
+		);
 		// Transfer the amount from the user to the contract
 		TransferHelper.safeTransferFrom(
 			address(_token),
@@ -200,7 +206,11 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 		uint256 feeAmount = (_amount * _gatewayFee) / 10000;
 		_deposit(_gatewayAddress, feeAmount, address(_token));
 
-		gatewayOf[_gatewayAddress] = Amounts(address(_token), _amount, feeAmount);
+		gatewayOf[_gatewayAddress] = Amounts(
+			address(_token),
+			_amount,
+			feeAmount
+		);
 
 		_swapTokensAndStakeDev(
 			_to,
