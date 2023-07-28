@@ -8,9 +8,10 @@ import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import {ILockup} from "./interfaces/ILockup.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./Escrow.sol";
 
-contract SwapTokensAndStakeDev is Escrow {
+contract SwapTokensAndStakeDev is Escrow, Initializable {
 	// solhint-disable-next-line const-name-snakecase
 	ISwapRouter public constant uniswapRouter =
 		ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
@@ -29,11 +30,11 @@ contract SwapTokensAndStakeDev is Escrow {
 	}
 	mapping(address => Amounts) public gatewayOf;
 
-	constructor(
+	function initialize(
 		address _devAddress,
 		address _lockupAddress,
 		address _sTokensAddress
-	) {
+	) public initializer {
 		devAddress = _devAddress;
 		lockupAddress = _lockupAddress;
 		sTokensAddress = _sTokensAddress;

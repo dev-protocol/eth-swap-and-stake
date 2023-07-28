@@ -3,6 +3,7 @@ import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-ethers'
 import '@typechain/hardhat'
 import 'solidity-coverage'
+import '@openzeppelin/hardhat-upgrades'
 import * as dotenv from 'dotenv'
 
 dotenv.config()

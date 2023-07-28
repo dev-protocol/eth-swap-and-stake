@@ -3,6 +3,7 @@ import { solidity } from 'ethereum-waffle'
 import { ethers, waffle } from 'hardhat'
 import { SwapTokensAndStakeDev, ISwapRouter } from '../typechain'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { deployWithProxy } from './utils'
 import { Contract, BigNumber } from 'ethers'
 import * as dotenv from 'dotenv'
 
@@ -26,7 +27,6 @@ type Path = {
 describe('SwapTokensAndStakeDev', () => {
 	let account1: SignerWithAddress
 	let gateway: SignerWithAddress
-	let swapTokensAndStakeContract: SwapTokensAndStakeDev
 	let lockupContract: Contract
 	let sTokensManagerContract: Contract
 
@@ -57,14 +57,6 @@ describe('SwapTokensAndStakeDev', () => {
 		account1 = accounts[0]
 		gateway = accounts[1]
 
-		const factory = await ethers.getContractFactory('SwapTokensAndStakeDev')
-		swapTokensAndStakeContract = (await factory.deploy(
-			devAddress,
-			lockupAddress,
-			sTokensManagerAddress
-		)) as SwapTokensAndStakeDev
-
-		await swapTokensAndStakeContract.deployed()
 
 		usdcContract = new ethers.Contract(
 			usdcAddress,
@@ -90,11 +82,40 @@ describe('SwapTokensAndStakeDev', () => {
 		)
 	})
 	describe('SwapTokensAndStakeDev', () => {
+		describe('initialize', () => {
+				it('success:initializing', async () => {
+					const [cont, admin] = await deployWithProxy<SwapTokensAndStakeDev>('SwapTokensAndStakeDev')
+					const [addr1] = await ethers.getSigners()
+					await cont.initialize(devAddress,
+						lockupAddress,
+						sTokensManagerAddress)
+					expect(admin).to.equal(addr1.address)
+				})
+
+				it('fail:should fail to initialize when already initialized', async () => {
+					const [cont, ] = await deployWithProxy<SwapTokensAndStakeDev>('SwapTokensAndStakeDev')
+					await cont.initialize(devAddress,
+						lockupAddress,
+						sTokensManagerAddress)
+	
+					await expect(cont.initialize(devAddress,
+						lockupAddress,
+						sTokensManagerAddress)).to.be.revertedWith(
+						'Initializable: contract is already initialized'
+					)
+				})
+		})
 		describe('ERC-20 swapping', () => {
 			it('should swap token and stake dev', async () => {
 				// Get latest block
 				const block = await waffle.provider.getBlock('latest')
 				const deadline = block.timestamp + 300
+				const [cont, ] = await deployWithProxy<SwapTokensAndStakeDev>('SwapTokensAndStakeDev')
+				await cont.initialize(
+					devAddress,
+					lockupAddress,
+					sTokensManagerAddress
+				)
 
 				// Get USDC via MATIC(Native Token) -> wMATIC -> USDC
 				await swapRouter.connect(account1).exactInputSingle(
@@ -117,7 +138,7 @@ describe('SwapTokensAndStakeDev', () => {
 				await usdcContract
 					.connect(account1)
 					.approve(
-						swapTokensAndStakeContract.address,
+						cont.address,
 						ethers.utils.parseUnits('1900', 6)
 					)
 
@@ -131,7 +152,7 @@ describe('SwapTokensAndStakeDev', () => {
 
 				// Use callStaic to execute getEstimatedDevForUsdc as a read method
 				const amountOut =
-					await swapTokensAndStakeContract.callStatic.getEstimatedDevForTokens(
+					await cont.callStatic.getEstimatedDevForTokens(
 						ethers.utils.solidityPack(
 							['address', 'uint24', 'address', 'uint24', 'address'],
 							[path.token1, path.fee1, path.token2, path.fee2, path.token3]
@@ -140,7 +161,7 @@ describe('SwapTokensAndStakeDev', () => {
 					)
 
 				const amountIn =
-					await swapTokensAndStakeContract.callStatic.getEstimatedTokensForDev(
+					await cont.callStatic.getEstimatedTokensForDev(
 						ethers.utils.solidityPack(
 							['address', 'uint24', 'address', 'uint24', 'address'],
 							[path.token3, path.fee2, path.token2, path.fee1, path.token1]
@@ -156,7 +177,7 @@ describe('SwapTokensAndStakeDev', () => {
 				sTokenId = sTokenId.add(1)
 
 				await expect(
-					await swapTokensAndStakeContract
+					await cont
 						.connect(account1)
 						[
 							'swapTokensAndStakeDev(address,address,bytes,address,uint256,uint256,uint256,bytes32)'
@@ -176,7 +197,7 @@ describe('SwapTokensAndStakeDev', () => {
 				)
 					.to.emit(lockupContract, 'Lockedup')
 					.withArgs(
-						swapTokensAndStakeContract.address,
+						cont.address,
 						propertyAddress,
 						amountOut,
 						sTokenId
@@ -193,6 +214,13 @@ describe('SwapTokensAndStakeDev', () => {
 				// Get latest block
 				const block = await waffle.provider.getBlock('latest')
 				const deadline = block.timestamp + 300
+
+				const [cont, ] = await deployWithProxy<SwapTokensAndStakeDev>('SwapTokensAndStakeDev')
+				await cont.initialize(
+					devAddress,
+					lockupAddress,
+					sTokensManagerAddress
+				)
 
 				// Get USDC via MATIC(Native Token) -> wMATIC -> USDC
 				await swapRouter.connect(account1).exactInputSingle(
@@ -215,7 +243,7 @@ describe('SwapTokensAndStakeDev', () => {
 				await usdcContract
 					.connect(account1)
 					.approve(
-						swapTokensAndStakeContract.address,
+						cont.address,
 						ethers.utils.parseUnits('1900', 6)
 					)
 
@@ -233,7 +261,7 @@ describe('SwapTokensAndStakeDev', () => {
 
 				// Use callStaic to execute getEstimatedDevForUsdc as a read method
 				const amountOut =
-					await swapTokensAndStakeContract.callStatic.getEstimatedDevForTokens(
+					await cont.callStatic.getEstimatedDevForTokens(
 						ethers.utils.solidityPack(
 							['address', 'uint24', 'address', 'uint24', 'address'],
 							[path.token1, path.fee1, path.token2, path.fee2, path.token3]
@@ -242,7 +270,7 @@ describe('SwapTokensAndStakeDev', () => {
 					)
 
 				const amountIn =
-					await swapTokensAndStakeContract.callStatic.getEstimatedTokensForDev(
+					await cont.callStatic.getEstimatedTokensForDev(
 						ethers.utils.solidityPack(
 							['address', 'uint24', 'address', 'uint24', 'address'],
 							[path.token3, path.fee2, path.token2, path.fee1, path.token1]
@@ -258,7 +286,7 @@ describe('SwapTokensAndStakeDev', () => {
 				sTokenId = sTokenId.add(1)
 
 				await expect(
-					await swapTokensAndStakeContract
+					await cont
 						.connect(account1)
 						[
 							'swapTokensAndStakeDev(address,address,bytes,address,uint256,uint256,uint256,bytes32,address,uint256)'
@@ -280,7 +308,7 @@ describe('SwapTokensAndStakeDev', () => {
 				)
 					.to.emit(lockupContract, 'Lockedup')
 					.withArgs(
-						swapTokensAndStakeContract.address,
+						cont.address,
 						propertyAddress,
 						amountOut,
 						sTokenId
@@ -295,7 +323,7 @@ describe('SwapTokensAndStakeDev', () => {
 
 				// Check gateway has been credited
 				expect(
-					await swapTokensAndStakeContract.gatewayFees(
+					await cont.gatewayFees(
 						gateway.address,
 						usdcAddress
 					)
@@ -303,14 +331,14 @@ describe('SwapTokensAndStakeDev', () => {
 
 				// Withdraw credit
 				await expect(
-					swapTokensAndStakeContract.connect(gateway).claim(usdcAddress)
+					cont.connect(gateway).claim(usdcAddress)
 				)
-					.to.emit(swapTokensAndStakeContract, 'Withdrawn')
+					.to.emit(cont, 'Withdrawn')
 					.withArgs(gateway.address, usdcAddress, feeAmount)
 
 				// Check gateway credit has been deducted
 				expect(
-					await swapTokensAndStakeContract.gatewayFees(
+					await cont.gatewayFees(
 						gateway.address,
 						usdcAddress
 					)
@@ -322,6 +350,10 @@ describe('SwapTokensAndStakeDev', () => {
 				// Get latest block
 				const block = await waffle.provider.getBlock('latest')
 				const deadline = block.timestamp + 300
+				const [cont, ] = await deployWithProxy<SwapTokensAndStakeDev>('SwapTokensAndStakeDev')
+				await cont.initialize(devAddress,
+					lockupAddress,
+					sTokensManagerAddress)
 
 				const path: Path = {
 					token1: weth9,
@@ -333,7 +365,7 @@ describe('SwapTokensAndStakeDev', () => {
 
 				// Use callStaic to execute getEstimatedDevForUsdc as a read method
 				const amountOut =
-					await swapTokensAndStakeContract.callStatic.getEstimatedDevForTokens(
+					await cont.callStatic.getEstimatedDevForTokens(
 						ethers.utils.solidityPack(
 							['address', 'uint24', 'address', 'uint24', 'address'],
 							[path.token1, path.fee1, path.token2, path.fee2, path.token3]
@@ -342,7 +374,7 @@ describe('SwapTokensAndStakeDev', () => {
 					)
 
 				const amountIn =
-					await swapTokensAndStakeContract.callStatic.getEstimatedTokensForDev(
+					await cont.callStatic.getEstimatedTokensForDev(
 						ethers.utils.solidityPack(
 							['address', 'uint24', 'address', 'uint24', 'address'],
 							[path.token3, path.fee2, path.token2, path.fee1, path.token1]
@@ -358,7 +390,7 @@ describe('SwapTokensAndStakeDev', () => {
 				sTokenId = sTokenId.add(1)
 
 				await expect(
-					await swapTokensAndStakeContract
+					await cont
 						.connect(account1)
 						[
 							'swapTokensAndStakeDev(address,bytes,address,uint256,uint256,bytes32)'
@@ -379,7 +411,7 @@ describe('SwapTokensAndStakeDev', () => {
 				)
 					.to.emit(lockupContract, 'Lockedup')
 					.withArgs(
-						swapTokensAndStakeContract.address,
+						cont.address,
 						propertyAddress,
 						amountOut,
 						sTokenId
@@ -394,6 +426,11 @@ describe('SwapTokensAndStakeDev', () => {
 				const depositAmount = ethers.utils.parseEther('1')
 				const feeAmount = depositAmount.mul(gatewayFeeBasisPoints).div(10000)
 
+				const [cont, ] = await deployWithProxy<SwapTokensAndStakeDev>('SwapTokensAndStakeDev')
+				await cont.initialize(devAddress,
+					lockupAddress,
+					sTokensManagerAddress)
+
 				const path: Path = {
 					token1: weth9,
 					fee1: 500,
@@ -404,7 +441,7 @@ describe('SwapTokensAndStakeDev', () => {
 
 				// Use callStaic to execute getEstimatedDevForUsdc as a read method
 				const amountOut =
-					await swapTokensAndStakeContract.callStatic.getEstimatedDevForTokens(
+					await cont.callStatic.getEstimatedDevForTokens(
 						ethers.utils.solidityPack(
 							['address', 'uint24', 'address', 'uint24', 'address'],
 							[path.token1, path.fee1, path.token2, path.fee2, path.token3]
@@ -413,7 +450,7 @@ describe('SwapTokensAndStakeDev', () => {
 					)
 
 				const amountIn =
-					await swapTokensAndStakeContract.callStatic.getEstimatedTokensForDev(
+					await cont.callStatic.getEstimatedTokensForDev(
 						ethers.utils.solidityPack(
 							['address', 'uint24', 'address', 'uint24', 'address'],
 							[path.token3, path.fee2, path.token2, path.fee1, path.token1]
@@ -429,7 +466,7 @@ describe('SwapTokensAndStakeDev', () => {
 				sTokenId = sTokenId.add(1)
 
 				await expect(
-					await swapTokensAndStakeContract
+					await cont
 						.connect(account1)
 						[
 							'swapTokensAndStakeDev(address,bytes,address,uint256,uint256,bytes32,address,uint256)'
@@ -452,7 +489,7 @@ describe('SwapTokensAndStakeDev', () => {
 				)
 					.to.emit(lockupContract, 'Lockedup')
 					.withArgs(
-						swapTokensAndStakeContract.address,
+						cont.address,
 						propertyAddress,
 						amountOut,
 						sTokenId
@@ -465,7 +502,7 @@ describe('SwapTokensAndStakeDev', () => {
 				expect(sTokenPosition[1]).to.equal(amountOut)
 				// Check gateway has been credited
 				expect(
-					await swapTokensAndStakeContract.gatewayFees(
+					await cont.gatewayFees(
 						gateway.address,
 						ethers.constants.AddressZero
 					)
@@ -473,15 +510,15 @@ describe('SwapTokensAndStakeDev', () => {
 
 				// Withdraw credit
 				await expect(
-					swapTokensAndStakeContract
+					cont
 						.connect(gateway)
 						.claim(ethers.constants.AddressZero)
 				)
-					.to.emit(swapTokensAndStakeContract, 'Withdrawn')
+					.to.emit(cont, 'Withdrawn')
 					.withArgs(gateway.address, ethers.constants.AddressZero, feeAmount)
 				// Check gateway credit has been deducted
 				expect(
-					await swapTokensAndStakeContract.gatewayFees(
+					await cont.gatewayFees(
 						gateway.address,
 						ethers.constants.AddressZero
 					)
