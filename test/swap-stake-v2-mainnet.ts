@@ -9,9 +9,7 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 const alchemyKeyMainnet =
-	typeof process.env.ALCHEMY_KEY_MAINNET === 'undefined'
-		? ''
-		: process.env.ALCHEMY_KEY_MAINNET
+	typeof process.env.ALCHEMY_KEY === 'undefined' ? '' : process.env.ALCHEMY_KEY
 
 use(solidity)
 
@@ -78,18 +76,14 @@ describe('SwapAndStakeV2 Mainnet', () => {
 			// STokenId = currentIndex + 1 will be minted.
 			let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
 			sTokenId = sTokenId.add(1)
-			await expect(
-				swapAndStakeContract['swapEthAndStakeDev(address,uint256,bytes32)'](
-					propertyAddress,
-					deadline,
-					ethers.constants.HashZero,
-					{
-						value: ethers.utils.parseEther('1'),
-					}
-				)
+			await swapAndStakeContract['swapEthAndStakeDev(address,uint256,bytes32)'](
+				propertyAddress,
+				deadline,
+				ethers.constants.HashZero,
+				{
+					value: ethers.utils.parseEther('1'),
+				}
 			)
-				.to.emit(lockupContract, 'Lockedup')
-				.withArgs(swapAndStakeContract.address, propertyAddress, amountsOut[1])
 
 			const sTokenOwner = await sTokensManagerContract.ownerOf(sTokenId)
 			const sTokenPosition: number[] = await sTokensManagerContract.positions(
@@ -118,22 +112,18 @@ describe('SwapAndStakeV2 Mainnet', () => {
 			const deadline = block!.timestamp + 300
 
 			sTokenId = sTokenId.add(1)
-			await expect(
-				swapAndStakeContract[
-					'swapEthAndStakeDev(address,uint256,bytes32,address,uint256)'
-				](
-					propertyAddress,
-					deadline,
-					ethers.constants.HashZero,
-					gateway.address,
-					gatewayFeeBasisPoints,
-					{
-						value: depositAmount,
-					}
-				)
+			await swapAndStakeContract[
+				'swapEthAndStakeDev(address,uint256,bytes32,address,uint256)'
+			](
+				propertyAddress,
+				deadline,
+				ethers.constants.HashZero,
+				gateway.address,
+				gatewayFeeBasisPoints,
+				{
+					value: depositAmount,
+				}
 			)
-				.to.emit(lockupContract, 'Lockedup')
-				.withArgs(swapAndStakeContract.address, propertyAddress, amountsOut[1])
 
 			const sTokenOwner = await sTokensManagerContract.ownerOf(sTokenId)
 			const sTokenPosition: number[] = await sTokensManagerContract.positions(

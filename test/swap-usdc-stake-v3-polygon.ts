@@ -9,9 +9,7 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 const alchemyKeyPolygon =
-	typeof process.env.ALCHEMY_KEY_POLYGON === 'undefined'
-		? ''
-		: process.env.ALCHEMY_KEY_POLYGON
+	typeof process.env.ALCHEMY_KEY === 'undefined' ? '' : process.env.ALCHEMY_KEY
 
 use(solidity)
 

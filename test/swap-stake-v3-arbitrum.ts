@@ -9,9 +9,7 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 const alchemyKeyArbitrum =
-	typeof process.env.ALCHEMY_KEY_ARBITRUM === 'undefined'
-		? ''
-		: process.env.ALCHEMY_KEY_ARBITRUM
+	typeof process.env.ALCHEMY_KEY === 'undefined' ? '' : process.env.ALCHEMY_KEY
 
 use(solidity)
 
