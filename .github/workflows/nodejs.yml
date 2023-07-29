@@ -18,6 +18,12 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: create env file
+        run: |
+          touch .env
+          echo MNEMONIC=${{ secrets.MNEMONIC }} >> .env
+          echo ALCHEMY_KEY=${{ secrets.ALCHEMY_KEY }} >> .env
+
       - name: install deps
         run: yarn
 
