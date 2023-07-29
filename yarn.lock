@@ -1781,13 +1781,10 @@
     node-fetch "^2.6.0"
     semver "^6.3.0"
 
-"@nomiclabs/hardhat-waffle@2.0.3":
-  version "2.0.3"
-  resolved "https://registry.npmjs.org/@nomiclabs/hardhat-waffle/-/hardhat-waffle-2.0.3.tgz"
-  integrity sha512-049PHSnI1CZq6+XTbrMbMv5NaL7cednTfPenx02k3cEh8wBMLa6ys++dBETJa6JjfwgA9nBhhHQ173LJv6k2Pg==
-  dependencies:
-    "@types/sinon-chai" "^3.2.3"
-    "@types/web3" "1.0.19"
+"@nomiclabs/hardhat-waffle@2.0.6":
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/@nomiclabs/hardhat-waffle/-/hardhat-waffle-2.0.6.tgz#d11cb063a5f61a77806053e54009c40ddee49a54"
+  integrity sha512-+Wz0hwmJGSI17B+BhU/qFRZ1l6/xMW82QGXE/Gi+WTmwgJrQefuBs1lIf7hzQ1hLk6hpkvb/zwcNkpVKRYTQYg==
 
 "@openzeppelin/contracts-upgradeable@4.3.2":
   version "4.3.2"
@@ -2004,20 +2001,6 @@
   resolved "https://registry.npmjs.org/@sindresorhus/is/-/is-0.14.0.tgz"
   integrity sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ==
 
-"@sinonjs/commons@^1.7.0":
-  version "1.8.3"
-  resolved "https://registry.npmjs.org/@sinonjs/commons/-/commons-1.8.3.tgz"
-  integrity sha512-xkNcLAn/wZaX14RPlwizcKicDk9G3F8m2nU3L7Ukm5zBgTwiT0wsoFAHx9Jq56fJA1z/7uKGtCRu16sOUCLIHQ==
-  dependencies:
-    type-detect "4.0.8"
-
-"@sinonjs/fake-timers@^7.1.0":
-  version "7.1.2"
-  resolved "https://registry.npmjs.org/@sinonjs/fake-timers/-/fake-timers-7.1.2.tgz"
-  integrity sha512-iQADsW4LBMISqZ6Ci1dupJL9pprqwcVFTcOsEmQOEhW+KLCVn/Y4Jrvg2k19fIHCp+iFprriYPTdRcQR8NbUPg==
-  dependencies:
-    "@sinonjs/commons" "^1.7.0"
-
 "@smithy/types@^2.0.2":
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/@smithy/types/-/types-2.0.2.tgz#49d42724c909e845bfd80a2e195740614ce497f3"
@@ -2123,13 +2106,6 @@
   resolved "https://registry.yarnpkg.com/@types/async-eventemitter/-/async-eventemitter-0.2.1.tgz#f8e6280e87e8c60b2b938624b0a3530fb3e24712"
   integrity sha512-M2P4Ng26QbAeITiH7w1d7OxtldgfAe0wobpyJzVK/XOb0cUGKU2R4pfAhqcJBXAe2ife5ZOhSv4wk7p+ffURtg==
 
-"@types/bn.js@*", "@types/bn.js@^5.1.0":
-  version "5.1.0"
-  resolved "https://registry.npmjs.org/@types/bn.js/-/bn.js-5.1.0.tgz"
-  integrity sha512-QSSVYj7pYFN49kW77o2s9xTCwZ8F2xLbjLLSEVh8D2F4JUhZtPAGOFLTD+ffqksBx/u4cE/KImFjyhqCjn/LIA==
-  dependencies:
-    "@types/node" "*"
-
 "@types/bn.js@^4.11.3", "@types/bn.js@^4.11.5":
   version "4.11.6"
   resolved "https://registry.npmjs.org/@types/bn.js/-/bn.js-4.11.6.tgz"
@@ -2137,10 +2113,12 @@
   dependencies:
     "@types/node" "*"
 
-"@types/chai@*":
-  version "4.2.21"
-  resolved "https://registry.npmjs.org/@types/chai/-/chai-4.2.21.tgz"
-  integrity sha512-yd+9qKmJxm496BOV9CMNaey8TWsikaZOwMRwPHQIjcOJM9oV+fi9ZMNw3JsVnbEEbo2gRTDnGEBv8pjyn67hNg==
+"@types/bn.js@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.npmjs.org/@types/bn.js/-/bn.js-5.1.0.tgz"
+  integrity sha512-QSSVYj7pYFN49kW77o2s9xTCwZ8F2xLbjLLSEVh8D2F4JUhZtPAGOFLTD+ffqksBx/u4cE/KImFjyhqCjn/LIA==
+  dependencies:
+    "@types/node" "*"
 
 "@types/chai@4.3.0":
   version "4.3.0"
@@ -2242,34 +2220,6 @@
   integrity sha512-Da66lEIFeIz9ltsdMZcpQvmrmmoqrfju8pm1BH8WbYjZSwUgCwXLb9C+9XYogwBITnbsSaMdVPb2ekf7TV+03w==
   dependencies:
     "@types/node" "*"
-
-"@types/sinon-chai@^3.2.3":
-  version "3.2.5"
-  resolved "https://registry.npmjs.org/@types/sinon-chai/-/sinon-chai-3.2.5.tgz"
-  integrity sha512-bKQqIpew7mmIGNRlxW6Zli/QVyc3zikpGzCa797B/tRnD9OtHvZ/ts8sYXV+Ilj9u3QRaUEM8xrjgd1gwm1BpQ==
-  dependencies:
-    "@types/chai" "*"
-    "@types/sinon" "*"
-
-"@types/sinon@*":
-  version "10.0.2"
-  resolved "https://registry.npmjs.org/@types/sinon/-/sinon-10.0.2.tgz"
-  integrity sha512-BHn8Bpkapj8Wdfxvh2jWIUoaYB/9/XhsL0oOvBfRagJtKlSl9NWPcFOz2lRukI9szwGxFtYZCTejJSqsGDbdmw==
-  dependencies:
-    "@sinonjs/fake-timers" "^7.1.0"
-
-"@types/underscore@*":
-  version "1.11.3"
-  resolved "https://registry.npmjs.org/@types/underscore/-/underscore-1.11.3.tgz"
-  integrity sha512-Fl1TX1dapfXyDqFg2ic9M+vlXRktcPJrc4PR7sRc7sdVrjavg/JHlbUXBt8qWWqhJrmSqg3RNAkAPRiOYw6Ahw==
-
-"@types/web3@1.0.19":
-  version "1.0.19"
-  resolved "https://registry.npmjs.org/@types/web3/-/web3-1.0.19.tgz"
-  integrity sha512-fhZ9DyvDYDwHZUp5/STa9XW2re0E8GxoioYJ4pEUZ13YHpApSagixj7IAdoYH5uAK+UalGq6Ml8LYzmgRA/q+A==
-  dependencies:
-    "@types/bn.js" "*"
-    "@types/underscore" "*"
 
 "@typescript-eslint/eslint-plugin@5.13.0":
   version "5.13.0"
@@ -10671,7 +10621,7 @@ type-check@~0.3.2:
   dependencies:
     prelude-ls "~1.1.2"
 
-type-detect@4.0.8, type-detect@^4.0.0, type-detect@^4.0.5:
+type-detect@^4.0.0, type-detect@^4.0.5:
   version "4.0.8"
   resolved "https://registry.npmjs.org/type-detect/-/type-detect-4.0.8.tgz"
   integrity sha512-0fr/mIH1dlO+x7TlcMy+bIDqKPsw/70tVyeHW787goQjhmqaZe10uwLujubK9q9Lg6Fiho1KUKDYz0Z7k7g5/g==
