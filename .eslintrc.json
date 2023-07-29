@@ -24,7 +24,9 @@
 			"files": ["test/**/*.ts", "scripts/**/*.ts"],
 			"rules": {
 				"@typescript-eslint/no-unsafe-call": "off",
-				"@typescript-eslint/no-unsafe-assignment": "off"
+				"@typescript-eslint/no-unsafe-assignment": "off",
+				"@typescript-eslint/naming-convention": "off",
+				"@typescript-eslint/prefer-readonly-parameter-types": "off"
 			}
 		}
 	]

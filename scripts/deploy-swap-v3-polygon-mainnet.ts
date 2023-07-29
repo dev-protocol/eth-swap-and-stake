@@ -1,5 +1,5 @@
 import { ethers } from 'hardhat'
-import { SwapAndStakeV3 } from '../typechain'
+import { type SwapAndStakeV3 } from '../typechain'
 
 async function main() {
 	const wethAddress = '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619'

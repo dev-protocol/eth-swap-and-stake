@@ -1,7 +1,7 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { ethers, waffle } from 'hardhat'
-import { SwapAndStakeV3 } from '../typechain'
+import { type SwapAndStakeV3 } from '../typechain'
 import * as dotenv from 'dotenv'
 
 dotenv.config()

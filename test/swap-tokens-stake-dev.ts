@@ -1,10 +1,10 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { ethers, waffle } from 'hardhat'
-import { SwapTokensAndStakeDev, ISwapRouter } from '../typechain'
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { type SwapTokensAndStakeDev, type ISwapRouter } from '../typechain'
+import { type SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { deployWithProxy } from './utils'
-import { Contract, BigNumber } from 'ethers'
+import { type Contract, type BigNumber } from 'ethers'
 import * as dotenv from 'dotenv'
 
 dotenv.config()

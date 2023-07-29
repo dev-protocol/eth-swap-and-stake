@@ -1,9 +1,9 @@
 import { ethers } from 'hardhat'
 import {
-	Admin,
-	Admin__factory,
-	UpgradeableProxy,
-	UpgradeableProxy__factory,
+	type Admin,
+	type Admin__factory,
+	type UpgradeableProxy,
+	type UpgradeableProxy__factory,
 } from '../typechain'
 
 export const deployAdmin = async (): Promise<Admin> => {

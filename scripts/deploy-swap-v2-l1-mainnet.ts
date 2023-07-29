@@ -1,5 +1,5 @@
 import { ethers } from 'hardhat'
-import { SwapAndStakeV2L1 } from '../typechain'
+import { type SwapAndStakeV2L1 } from '../typechain'
 
 async function main() {
 	const uniswapRouterAddress = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import '@nomiclabs/hardhat-waffle'
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-ethers'

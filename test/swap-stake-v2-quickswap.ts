@@ -1,8 +1,8 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { ethers } from 'hardhat'
-import { SwapAndStakeV2Polygon } from '../typechain'
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { type SwapAndStakeV2Polygon } from '../typechain'
+import { type SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Contract, BigNumber } from 'ethers'
 import * as dotenv from 'dotenv'
 
