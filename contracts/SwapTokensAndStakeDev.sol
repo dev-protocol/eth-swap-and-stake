@@ -8,9 +8,10 @@ import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import {ILockup} from "./interfaces/ILockup.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./Escrow.sol";
 
-contract SwapTokensAndStakeDev is Escrow {
+contract SwapTokensAndStakeDev is Escrow, Initializable {
 	// solhint-disable-next-line const-name-snakecase
 	ISwapRouter public constant uniswapRouter =
 		ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
@@ -29,11 +30,11 @@ contract SwapTokensAndStakeDev is Escrow {
 	}
 	mapping(address => Amounts) public gatewayOf;
 
-	constructor(
+	function initialize(
 		address _devAddress,
 		address _lockupAddress,
 		address _sTokensAddress
-	) {
+	) public initializer {
 		devAddress = _devAddress;
 		lockupAddress = _lockupAddress;
 		sTokensAddress = _sTokensAddress;
@@ -42,17 +43,17 @@ contract SwapTokensAndStakeDev is Escrow {
 	/// @notice Protection for path should be made at front-end such that dev is final output token
 	// External function for native token
 	/// @notice Swap native token -> dev and stake
-	/// @param path the path to swap
-	/// @param property the property to stake after swap
-	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
-	/// @param payload allows for additional data when minting SToken
+	/// @param _path the path to swap
+	/// @param _property the property to stake after swap
+	/// @param _deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	/// @param _payload allows for additional data when minting SToken
 	function swapTokensAndStakeDev(
 		address _to,
-		bytes memory path,
-		address property,
+		bytes memory _path,
+		address _property,
 		uint256 _amountOut,
-		uint256 deadline,
-		bytes32 payload
+		uint256 _deadline,
+		bytes32 _payload
 	) external payable {
 		require(msg.value > 0, "Must pass non-zero amount");
 
@@ -60,12 +61,12 @@ contract SwapTokensAndStakeDev is Escrow {
 
 		_swapTokensAndStakeDev(
 			_to,
-			path,
-			property,
+			_path,
+			_property,
 			msg.value,
 			_amountOut,
-			deadline,
-			payload
+			_deadline,
+			_payload
 		);
 
 		delete gatewayOf[address(0)];
@@ -74,86 +75,89 @@ contract SwapTokensAndStakeDev is Escrow {
 	/// @notice Protection for path should be made at front-end such that dev is final output token
 	// External function for native token
 	/// @notice Swap native token -> dev and stake
-	/// @param path the path to swap
-	/// @param property the property to stake after swap
+	/// @param _path the path to swap
+	/// @param _property the property to stake after swap
 	/// @param _amountOut the min amount of dev to stake to prevent slippage
-	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
-	/// @param payload allows for additional data when minting SToken
-	/// @param gatewayAddress is the address to which the liquidity provider fee will be directed
-	/// @param gatewayFee is the basis points to pass. For example 10000 is 100%
+	/// @param _deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	/// @param _payload allows for additional data when minting SToken
+	/// @param _gatewayAddress is the address to which the liquidity provider fee will be directed
+	/// @param _gatewayFee is the basis points to pass. For example 10000 is 100%
 	function swapTokensAndStakeDev(
 		address _to,
-		bytes memory path,
-		address property,
+		bytes memory _path,
+		address _property,
 		uint256 _amountOut,
-		uint256 deadline,
-		bytes32 payload,
-		address payable gatewayAddress,
-		uint256 gatewayFee
+		uint256 _deadline,
+		bytes32 _payload,
+		address payable _gatewayAddress,
+		uint256 _gatewayFee
 	) external payable {
 		require(msg.value > 0, "Must pass non-zero amount");
-		require(gatewayFee < 10000, "must be below 10000");
+		require(_gatewayFee < 10000, "must be below 10000");
 		// handle fee
-		uint256 feeAmount = (msg.value * gatewayFee) / 10000;
-		_deposit(gatewayAddress, feeAmount, address(0));
+		uint256 feeAmount = (msg.value * _gatewayFee) / 10000;
+		_deposit(_gatewayAddress, feeAmount, address(0));
 
-		gatewayOf[gatewayAddress] = Amounts(address(0), msg.value, feeAmount);
+		gatewayOf[_gatewayAddress] = Amounts(address(0), msg.value, feeAmount);
 
 		_swapTokensAndStakeDev(
 			_to,
-			path,
-			property,
+			_path,
+			_property,
 			(msg.value - feeAmount),
 			_amountOut,
-			deadline,
-			payload
+			_deadline,
+			_payload
 		);
-		delete gatewayOf[gatewayAddress];
+		delete gatewayOf[_gatewayAddress];
 	}
 
 	/// @notice Protection for path should be made at front-end such that dev is final output token
 	// External Function For ERC20
 	/// @notice Swap token -> dev and stake
-	/// @param token the initial token to swap by user
-	/// @param path the path to swap
-	/// @param property the property to stake after swap
+	/// @param _token the initial token to swap by user
+	/// @param _path the path to swap
+	/// @param _property the property to stake after swap
 	/// @param _amountOut the min amount of dev to stake to prevent slippage
-	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
-	/// @param payload allows for additional data when minting SToken
+	/// @param _deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	/// @param _payload allows for additional data when minting SToken
 	function swapTokensAndStakeDev(
 		address _to,
-		IERC20 token,
-		bytes memory path,
-		address property,
-		uint256 amount,
+		IERC20 _token,
+		bytes memory _path,
+		address _property,
+		uint256 _amount,
 		uint256 _amountOut,
-		uint256 deadline,
-		bytes32 payload
+		uint256 _deadline,
+		bytes32 _payload
 	) external {
 		require(
-			token.allowance(msg.sender, address(this)) >= amount,
+			_token.allowance(msg.sender, address(this)) >= _amount,
 			"insufficient allowance"
 		);
-		require(token.balanceOf(msg.sender) >= amount, "insufficient balance");
+		require(
+			_token.balanceOf(msg.sender) >= _amount,
+			"insufficient balance"
+		);
 		// Transfer the amount from the user to the contract
 		TransferHelper.safeTransferFrom(
-			address(token),
+			address(_token),
 			msg.sender,
 			address(this),
-			amount
+			_amount
 		);
 
-		gatewayOf[address(0)] = Amounts(address(token), amount, 0);
+		gatewayOf[address(0)] = Amounts(address(_token), _amount, 0);
 
 		_swapTokensAndStakeDev(
 			_to,
-			token,
-			path,
-			property,
-			amount,
+			_token,
+			_path,
+			_property,
+			_amount,
 			_amountOut,
-			deadline,
-			payload
+			_deadline,
+			_payload
 		);
 
 		delete gatewayOf[address(0)];
@@ -162,56 +166,63 @@ contract SwapTokensAndStakeDev is Escrow {
 	/// @notice Protection for path should be made at front-end such that dev is final output token
 	// External Function For ERC20
 	/// @notice Swap token -> dev and stake
-	/// @param token the initial token to swap by user
-	/// @param path the path to swap
-	/// @param property the property to stake after swap
+	/// @param _token the initial token to swap by user
+	/// @param _path the path to swap
+	/// @param _property the property to stake after swap
 	/// @param _amountOut the min amount of dev to stake to prevent slippage
-	/// @param deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
-	/// @param payload allows for additional data when minting SToken
-	/// @param gatewayAddress is the address to which the liquidity provider fee will be directed
-	/// @param gatewayFee is the basis points to pass. For example 10000 is 100%
+	/// @param _deadline refer to https://docs.uniswap.org/protocol/V1/guides/trade-tokens#deadlines
+	/// @param _payload allows for additional data when minting SToken
+	/// @param _gatewayAddress is the address to which the liquidity provider fee will be directed
+	/// @param _gatewayFee is the basis points to pass. For example 10000 is 100%
 	function swapTokensAndStakeDev(
 		address _to,
-		IERC20 token,
-		bytes memory path,
-		address property,
-		uint256 amount,
+		IERC20 _token,
+		bytes memory _path,
+		address _property,
+		uint256 _amount,
 		uint256 _amountOut,
-		uint256 deadline,
-		bytes32 payload,
-		address payable gatewayAddress,
-		uint256 gatewayFee
+		uint256 _deadline,
+		bytes32 _payload,
+		address payable _gatewayAddress,
+		uint256 _gatewayFee
 	) external {
-		require(gatewayFee < 10000, "must be below 10000");
+		require(_gatewayFee < 10000, "must be below 10000");
 		require(
-			token.allowance(msg.sender, address(this)) >= amount,
+			_token.allowance(msg.sender, address(this)) >= _amount,
 			"insufficient allowance"
 		);
-		require(token.balanceOf(msg.sender) >= amount, "insufficient balance");
+		require(
+			_token.balanceOf(msg.sender) >= _amount,
+			"insufficient balance"
+		);
 		// Transfer the amount from the user to the contract
 		TransferHelper.safeTransferFrom(
-			address(token),
+			address(_token),
 			msg.sender,
 			address(this),
-			amount
+			_amount
 		);
 		// handle fee
-		uint256 feeAmount = (amount * gatewayFee) / 10000;
-		_deposit(gatewayAddress, feeAmount, address(token));
+		uint256 feeAmount = (_amount * _gatewayFee) / 10000;
+		_deposit(_gatewayAddress, feeAmount, address(_token));
 
-		gatewayOf[gatewayAddress] = Amounts(address(token), amount, feeAmount);
+		gatewayOf[_gatewayAddress] = Amounts(
+			address(_token),
+			_amount,
+			feeAmount
+		);
 
 		_swapTokensAndStakeDev(
 			_to,
-			token,
-			path,
-			property,
-			(amount - feeAmount),
+			_token,
+			_path,
+			_property,
+			(_amount - feeAmount),
 			_amountOut,
-			deadline,
-			payload
+			_deadline,
+			_payload
 		);
-		delete gatewayOf[gatewayAddress];
+		delete gatewayOf[_gatewayAddress];
 	}
 
 	// do not use on-chain, gas inefficient!
@@ -233,22 +244,22 @@ contract SwapTokensAndStakeDev is Escrow {
 	// Internal function for erc20 token
 	function _swapTokensAndStakeDev(
 		address _to,
-		IERC20 token,
+		IERC20 _token,
 		bytes memory _path,
-		address property,
-		uint256 amount,
+		address _property,
+		uint256 _amount,
 		uint256 _amountOut,
-		uint256 deadline,
-		bytes32 payload
+		uint256 _deadline,
+		bytes32 _payload
 	) private {
 		address recipient = address(this);
-		uint256 amountIn = amount;
+		uint256 amountIn = _amount;
 
 		// 	Approve the router to spend the token amount
 		TransferHelper.safeApprove(
-			address(token),
+			address(_token),
 			address(uniswapRouter),
-			amount
+			_amount
 		);
 
 		// Multiple pool swaps are encoded through bytes called a `path`. A path is a sequence of token addresses and poolFees that define the pools used in the swaps.
@@ -257,16 +268,16 @@ contract SwapTokensAndStakeDev is Escrow {
 			.ExactInputParams({
 				path: _path,
 				recipient: recipient,
-				deadline: deadline,
+				deadline: _deadline,
 				amountIn: amountIn,
 				amountOutMinimum: _amountOut
 			});
 		uint256 amountOut = uniswapRouter.exactInput(params);
 		IERC20(devAddress).approve(lockupAddress, amountOut);
 		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
-			property,
+			_property,
 			amountOut,
-			payload
+			_payload
 		);
 		IERC721(sTokensAddress).safeTransferFrom(address(this), _to, tokenId);
 	}
@@ -275,14 +286,14 @@ contract SwapTokensAndStakeDev is Escrow {
 	function _swapTokensAndStakeDev(
 		address _to,
 		bytes memory _path,
-		address property,
-		uint256 amount,
+		address _property,
+		uint256 _amount,
 		uint256 _amountOut,
-		uint256 deadline,
-		bytes32 payload
+		uint256 _deadline,
+		bytes32 _payload
 	) private {
 		address recipient = address(this);
-		uint256 amountIn = amount;
+		uint256 amountIn = _amount;
 
 		// Multiple pool swaps are encoded through bytes called a `path`. A path is a sequence of token addresses and poolFees that define the pools used in the swaps.
 		// The format for pool encoding is (tokenIn, fee, tokenOut/tokenIn, fee, tokenOut) where tokenIn/tokenOut parameter is the shared token across the pools.
@@ -290,17 +301,17 @@ contract SwapTokensAndStakeDev is Escrow {
 			.ExactInputParams({
 				path: _path,
 				recipient: recipient,
-				deadline: deadline,
+				deadline: _deadline,
 				amountIn: amountIn,
 				amountOutMinimum: _amountOut
 			});
-		uint256 amountOut = uniswapRouter.exactInput{value: amount}(params);
+		uint256 amountOut = uniswapRouter.exactInput{value: _amount}(params);
 
 		IERC20(devAddress).approve(lockupAddress, amountOut);
 		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
-			property,
+			_property,
 			amountOut,
-			payload
+			_payload
 		);
 		IERC721(sTokensAddress).safeTransferFrom(address(this), _to, tokenId);
 	}

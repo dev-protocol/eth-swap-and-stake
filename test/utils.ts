@@ -22,5 +22,21 @@ export const deployProxy = async (
 	return contract
 }
 
+export const deployWithProxy = async <C extends Contract>(
+	name: string
+): Promise<[C, string]> => {
+	const factory = await ethers.getContractFactory(name)
+	const adminFactory = await ethers.getContractFactory('Admin')
+	const adminDeployed = await (await adminFactory.deploy()).deployed()
+	const deployedContract = await (await factory.deploy()).deployed()
+	const proxy = await deployProxy(
+		deployedContract.address,
+		adminDeployed.address,
+		new Uint8Array()
+	)
+	const admin = await adminDeployed.attach(adminDeployed.address).owner()
+	return [deployedContract.attach(proxy.address) as C, admin]
+}
+
 export const toBigNumber = (v: string | number | BigNumber): BigNumber =>
 	BigNumber.from(v)
