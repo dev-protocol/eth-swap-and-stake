@@ -8,8 +8,8 @@ import * as dotenv from 'dotenv'
 
 dotenv.config()
 
-const alchemyKeyMainnet =
-	typeof process.env.ALCHEMY_KEY === 'undefined' ? '' : process.env.ALCHEMY_KEY
+const RPC_KEY =
+	typeof process.env.INFURA_KEY === 'undefined' ? '' : process.env.INFURA_KEY
 
 use(solidity)
 
@@ -30,8 +30,7 @@ describe('SwapAndStakeV2 Mainnet', () => {
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {
-					jsonRpcUrl:
-						'https://eth-mainnet.alchemyapi.io/v2/' + alchemyKeyMainnet,
+					jsonRpcUrl: 'https://mainnet.infura.io/v3/' + RPC_KEY,
 					blockNumber: 15126211,
 				},
 			},
