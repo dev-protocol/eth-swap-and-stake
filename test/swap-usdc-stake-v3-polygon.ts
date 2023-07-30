@@ -8,9 +8,6 @@ import * as dotenv from 'dotenv'
 
 dotenv.config()
 
-const alchemyKeyPolygon =
-	typeof process.env.ALCHEMY_KEY === 'undefined' ? '' : process.env.ALCHEMY_KEY
-
 use(solidity)
 
 describe('SwapUsdcAndStakeV3 Polygon', () => {
@@ -36,8 +33,7 @@ describe('SwapUsdcAndStakeV3 Polygon', () => {
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {
-					jsonRpcUrl:
-						'https://polygon-mainnet.g.alchemy.com/v2/' + alchemyKeyPolygon,
+					jsonRpcUrl: 'https://polygon-rpc.com/',
 					blockNumber: 44358690,
 				},
 			},
