@@ -1,136 +1,256 @@
 {
-	"manifestVersion": "3.2",
-	"admin": {
-		"address": "0x4e27f32753FbCED2064b887D8597168Fe9644c59",
-		"txHash": "0x4e0e5bf0644b99fcb8f559d3f7dde0502d7d6195a07e5d934e871224d834de0d"
-	},
-	"proxies": [
-		{
-			"address": "0x7E7bFB1c1D2eAAC199F76ab1F7abFe20a406e538",
-			"txHash": "0x22cadd5608231882c4cbe9e1a8eada784b19383d221615663046cf6032e33534",
-			"kind": "transparent"
-		},
-		{
-			"address": "0x927B51D9Edd43BFDE3586E99BfaCBE08135374AA",
-			"txHash": "0x1663b449a070f315167e9964c877a20dc6c2906208084835a1cfaba64d1a5522",
-			"kind": "transparent"
-		}
-	],
-	"impls": {
-		"aa9638e1f24805fd287305321cac04be6584dad3361324464415794ae139f52e": {
-			"address": "0x10dEd1A3bb98e8B45a322Ff93d34356507C3Ce9d",
-			"txHash": "0x24b4be4732dbc2861ba3b2c67c3519dc0113e7c9da3782c19c00dd14f0b15ae8",
-			"layout": {
-				"solcVersion": "0.8.7",
-				"storage": [
-					{
-						"label": "_gatewayFees",
-						"offset": 0,
-						"slot": "0",
-						"type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
-						"contract": "Escrow",
-						"src": "contracts/Escrow.sol:10"
-					},
-					{
-						"label": "_initialized",
-						"offset": 0,
-						"slot": "1",
-						"type": "t_bool",
-						"contract": "Initializable",
-						"src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
-					},
-					{
-						"label": "_initializing",
-						"offset": 1,
-						"slot": "1",
-						"type": "t_bool",
-						"contract": "Initializable",
-						"src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
-					},
-					{
-						"label": "devAddress",
-						"offset": 2,
-						"slot": "1",
-						"type": "t_address",
-						"contract": "SwapTokensAndStakeDev",
-						"src": "contracts/SwapTokensAndStakeDev.sol:22"
-					},
-					{
-						"label": "lockupAddress",
-						"offset": 0,
-						"slot": "2",
-						"type": "t_address",
-						"contract": "SwapTokensAndStakeDev",
-						"src": "contracts/SwapTokensAndStakeDev.sol:23"
-					},
-					{
-						"label": "sTokensAddress",
-						"offset": 0,
-						"slot": "3",
-						"type": "t_address",
-						"contract": "SwapTokensAndStakeDev",
-						"src": "contracts/SwapTokensAndStakeDev.sol:24"
-					},
-					{
-						"label": "gatewayOf",
-						"offset": 0,
-						"slot": "4",
-						"type": "t_mapping(t_address,t_struct(Amounts)4263_storage)",
-						"contract": "SwapTokensAndStakeDev",
-						"src": "contracts/SwapTokensAndStakeDev.sol:31"
-					}
-				],
-				"types": {
-					"t_address": {
-						"label": "address",
-						"numberOfBytes": "20"
-					},
-					"t_bool": {
-						"label": "bool",
-						"numberOfBytes": "1"
-					},
-					"t_mapping(t_address,t_mapping(t_address,t_uint256))": {
-						"label": "mapping(address => mapping(address => uint256))",
-						"numberOfBytes": "32"
-					},
-					"t_mapping(t_address,t_struct(Amounts)4263_storage)": {
-						"label": "mapping(address => struct SwapTokensAndStakeDev.Amounts)",
-						"numberOfBytes": "32"
-					},
-					"t_mapping(t_address,t_uint256)": {
-						"label": "mapping(address => uint256)",
-						"numberOfBytes": "32"
-					},
-					"t_struct(Amounts)4263_storage": {
-						"label": "struct SwapTokensAndStakeDev.Amounts",
-						"members": [
-							{
-								"label": "token",
-								"type": "t_address",
-								"offset": 0,
-								"slot": "0"
-							},
-							{
-								"label": "input",
-								"type": "t_uint256",
-								"offset": 0,
-								"slot": "1"
-							},
-							{
-								"label": "fee",
-								"type": "t_uint256",
-								"offset": 0,
-								"slot": "2"
-							}
-						],
-						"numberOfBytes": "96"
-					},
-					"t_uint256": {
-						"label": "uint256",
-						"numberOfBytes": "32"
-					}
-				}
-			}
-		}
-	}
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x4e27f32753FbCED2064b887D8597168Fe9644c59",
+    "txHash": "0x4e0e5bf0644b99fcb8f559d3f7dde0502d7d6195a07e5d934e871224d834de0d"
+  },
+  "proxies": [
+    {
+      "address": "0x7E7bFB1c1D2eAAC199F76ab1F7abFe20a406e538",
+      "txHash": "0x22cadd5608231882c4cbe9e1a8eada784b19383d221615663046cf6032e33534",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x927B51D9Edd43BFDE3586E99BfaCBE08135374AA",
+      "txHash": "0x1663b449a070f315167e9964c877a20dc6c2906208084835a1cfaba64d1a5522",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "aa9638e1f24805fd287305321cac04be6584dad3361324464415794ae139f52e": {
+      "address": "0x10dEd1A3bb98e8B45a322Ff93d34356507C3Ce9d",
+      "txHash": "0x24b4be4732dbc2861ba3b2c67c3519dc0113e7c9da3782c19c00dd14f0b15ae8",
+      "layout": {
+        "solcVersion": "0.8.7",
+        "storage": [
+          {
+            "label": "_gatewayFees",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+            "contract": "Escrow",
+            "src": "contracts/Escrow.sol:10"
+          },
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "1",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+          },
+          {
+            "label": "devAddress",
+            "offset": 2,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "SwapTokensAndStakeDev",
+            "src": "contracts/SwapTokensAndStakeDev.sol:22"
+          },
+          {
+            "label": "lockupAddress",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_address",
+            "contract": "SwapTokensAndStakeDev",
+            "src": "contracts/SwapTokensAndStakeDev.sol:23"
+          },
+          {
+            "label": "sTokensAddress",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_address",
+            "contract": "SwapTokensAndStakeDev",
+            "src": "contracts/SwapTokensAndStakeDev.sol:24"
+          },
+          {
+            "label": "gatewayOf",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_mapping(t_address,t_struct(Amounts)4263_storage)",
+            "contract": "SwapTokensAndStakeDev",
+            "src": "contracts/SwapTokensAndStakeDev.sol:31"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(Amounts)4263_storage)": {
+            "label": "mapping(address => struct SwapTokensAndStakeDev.Amounts)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Amounts)4263_storage": {
+            "label": "struct SwapTokensAndStakeDev.Amounts",
+            "members": [
+              {
+                "label": "token",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "input",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "fee",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        }
+      }
+    },
+    "c9f360c351fc6497ad154e654756b008f17b4779edb96521278881486afe7880": {
+      "address": "0x4644fDdF5356D91c78D5b50d01b82477caDc232B",
+      "txHash": "0x88d9e0fc89dadc69a74d7b8ccbc4d69866ccd53058aa6edbc1ab74ebedc16bc0",
+      "layout": {
+        "solcVersion": "0.8.7",
+        "storage": [
+          {
+            "label": "_gatewayFees",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+            "contract": "Escrow",
+            "src": "contracts/Escrow.sol:10"
+          },
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "1",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "devAddress",
+            "offset": 2,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "SwapTokensAndStakeDev",
+            "src": "contracts/SwapTokensAndStakeDev.sol:22"
+          },
+          {
+            "label": "lockupAddress",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_address",
+            "contract": "SwapTokensAndStakeDev",
+            "src": "contracts/SwapTokensAndStakeDev.sol:23"
+          },
+          {
+            "label": "sTokensAddress",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_address",
+            "contract": "SwapTokensAndStakeDev",
+            "src": "contracts/SwapTokensAndStakeDev.sol:24"
+          },
+          {
+            "label": "gatewayOf",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_mapping(t_address,t_struct(Amounts)4686_storage)",
+            "contract": "SwapTokensAndStakeDev",
+            "src": "contracts/SwapTokensAndStakeDev.sol:31"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(Amounts)4686_storage)": {
+            "label": "mapping(address => struct SwapTokensAndStakeDev.Amounts)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Amounts)4686_storage": {
+            "label": "struct SwapTokensAndStakeDev.Amounts",
+            "members": [
+              {
+                "label": "token",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "input",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "fee",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    }
+  }
 }
