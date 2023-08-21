@@ -112,6 +112,11 @@
     ethereum-waffle "3.4.0"
     solhint "3.3.7"
 
+"@devprotocol/i-s-tokens@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@devprotocol/i-s-tokens/-/i-s-tokens-3.0.1.tgz#a8126bdf4caadf660d5334b1a53b7d43c5298f38"
+  integrity sha512-zIOj9Ekt2DFr5CIDDAnDJAzLoAgCqR37Jv9DEPYIDaF0jVzZcBR04BNdKIbPD5fHOkWhdRdoNyPeNAHAWGkg3w==
+
 "@devprotocol/protocol-v2@^0.6.0":
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/@devprotocol/protocol-v2/-/protocol-v2-0.6.0.tgz#785f715f534b38375cbd3fc57e580dd5392cb2f2"

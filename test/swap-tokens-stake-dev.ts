@@ -1,10 +1,17 @@
+/* eslint-disable new-cap */
+/* eslint-disable max-nested-callbacks */
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { ethers, waffle } from 'hardhat'
 import { type SwapTokensAndStakeDev, type ISwapRouter } from '../typechain'
 import { type SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { deployWithProxy } from './utils'
-import { type Contract, type BigNumber } from 'ethers'
+import {
+	type Contract,
+	type BigNumber,
+	type BytesLike,
+	BigNumberish,
+} from 'ethers'
 import * as dotenv from 'dotenv'
 
 dotenv.config()
@@ -456,6 +463,342 @@ describe('SwapTokensAndStakeDev', () => {
 				expect(
 					await cont.gatewayFees(gateway.address, ethers.constants.AddressZero)
 				).to.eq(0)
+			})
+		})
+		describe('Roles', () => {
+			describe('CALL_MINTFOR_ROLE', () => {
+				it('CALL_MINTFOR_ROLE is bytes32 of `ROLE.CALL_MINTFOR`', async () => {
+					const [cont] = await deployWithProxy<SwapTokensAndStakeDev>(
+						'SwapTokensAndStakeDev'
+					)
+					await cont.initialize(
+						devAddress,
+						lockupAddress,
+						sTokensManagerAddress
+					)
+
+					const role = await cont.CALL_MINTFOR_ROLE()
+
+					expect(role).to.equal(
+						ethers.utils.keccak256(
+							ethers.utils.toUtf8Bytes('ROLE.CALL_MINTFOR')
+						)
+					)
+				})
+			})
+			describe('updateOwner', () => {
+				it('should update `owner` with the owner of the passed admin contract', async () => {
+					const [cont, owner, admin] =
+						await deployWithProxy<SwapTokensAndStakeDev>(
+							'SwapTokensAndStakeDev'
+						)
+					await cont.initialize(
+						devAddress,
+						lockupAddress,
+						sTokensManagerAddress
+					)
+
+					const owner1 = await cont.owner()
+					expect(owner1).to.equal(ethers.constants.AddressZero)
+
+					await cont.updateOwner(admin.address)
+					const owner2 = await cont.owner()
+					expect(owner2).to.equal(owner)
+				})
+				it('should fail to update `owner` when the passed admin contract is not admin', async () => {
+					const [cont] = await deployWithProxy<SwapTokensAndStakeDev>(
+						'SwapTokensAndStakeDev'
+					)
+					const [cont2, , otherAdmin] =
+						await deployWithProxy<SwapTokensAndStakeDev>(
+							'SwapTokensAndStakeDev'
+						)
+					await cont.initialize(
+						devAddress,
+						lockupAddress,
+						sTokensManagerAddress
+					)
+					await cont2.initialize(
+						devAddress,
+						lockupAddress,
+						sTokensManagerAddress
+					)
+
+					await expect(cont.updateOwner(otherAdmin.address)).to.be.revertedWith(
+						'Not admin of this proxy'
+					)
+				})
+			})
+			describe('hasRole', () => {
+				it('should always returns true if the account is the owner', async () => {
+					const [cont, owner, admin] =
+						await deployWithProxy<SwapTokensAndStakeDev>(
+							'SwapTokensAndStakeDev'
+						)
+					await cont.initialize(
+						devAddress,
+						lockupAddress,
+						sTokensManagerAddress
+					)
+
+					await cont.updateOwner(admin.address)
+
+					const role = ethers.utils.keccak256(
+						ethers.utils.toUtf8Bytes('ROLE.CALL_MINTFOR')
+					)
+					expect(await cont.hasRole(role, owner)).to.equal(true)
+				})
+				it('should returns true if the account has the passed role', async () => {
+					const [cont, , admin] = await deployWithProxy<SwapTokensAndStakeDev>(
+						'SwapTokensAndStakeDev'
+					)
+					const [, , , addr1, addr2] = await ethers.getSigners()
+					await cont.initialize(
+						devAddress,
+						lockupAddress,
+						sTokensManagerAddress
+					)
+					await cont.updateOwner(admin.address)
+
+					const role = ethers.utils.keccak256(
+						ethers.utils.toUtf8Bytes('ROLE.CALL_MINTFOR')
+					)
+					await cont.grantRole(role, addr1.address)
+					await cont.grantRole(role, addr2.address)
+
+					expect(await cont.hasRole(role, addr1.address)).to.equal(true)
+					expect(await cont.hasRole(role, addr2.address)).to.equal(true)
+				})
+				it('should returns false if the account has not the passed role', async () => {
+					const [cont, , admin] = await deployWithProxy<SwapTokensAndStakeDev>(
+						'SwapTokensAndStakeDev'
+					)
+					const [, , , addr1] = await ethers.getSigners()
+					await cont.initialize(
+						devAddress,
+						lockupAddress,
+						sTokensManagerAddress
+					)
+					await cont.updateOwner(admin.address)
+
+					const role = ethers.utils.keccak256(
+						ethers.utils.toUtf8Bytes('ROLE.CALL_MINTFOR')
+					)
+
+					expect(await cont.hasRole(role, addr1.address)).to.equal(false)
+				})
+			})
+			describe('grantRole', () => {
+				it('should add the address to the passed role', async () => {
+					const [cont, , admin] = await deployWithProxy<SwapTokensAndStakeDev>(
+						'SwapTokensAndStakeDev'
+					)
+					const [, , , addr1] = await ethers.getSigners()
+					await cont.initialize(
+						devAddress,
+						lockupAddress,
+						sTokensManagerAddress
+					)
+
+					await cont.updateOwner(admin.address)
+
+					const role1 = ethers.utils.keccak256(
+						ethers.utils.toUtf8Bytes('ROLE.1')
+					)
+					const role2 = ethers.utils.keccak256(
+						ethers.utils.toUtf8Bytes('ROLE.2')
+					)
+					await cont.grantRole(role1, addr1.address)
+					await cont.grantRole(role2, addr1.address)
+
+					expect(await cont.hasRole(role1, addr1.address)).to.equal(true)
+					expect(await cont.hasRole(role2, addr1.address)).to.equal(true)
+				})
+				it('should fail to add it when not set owner yet', async () => {
+					const [cont] = await deployWithProxy<SwapTokensAndStakeDev>(
+						'SwapTokensAndStakeDev'
+					)
+					const [, , , addr1] = await ethers.getSigners()
+					await cont.initialize(
+						devAddress,
+						lockupAddress,
+						sTokensManagerAddress
+					)
+
+					const role1 = ethers.utils.keccak256(
+						ethers.utils.toUtf8Bytes('ROLE.1')
+					)
+					await expect(cont.grantRole(role1, addr1.address)).to.be.revertedWith(
+						'Not an owner'
+					)
+				})
+				it('should fail to add it when the caller is not owner', async () => {
+					const [cont, , admin] = await deployWithProxy<SwapTokensAndStakeDev>(
+						'SwapTokensAndStakeDev'
+					)
+					const [, , , addr1] = await ethers.getSigners()
+					await cont.initialize(
+						devAddress,
+						lockupAddress,
+						sTokensManagerAddress
+					)
+
+					await cont.updateOwner(admin.address)
+
+					const role1 = ethers.utils.keccak256(
+						ethers.utils.toUtf8Bytes('ROLE.1')
+					)
+					await expect(
+						cont.connect(addr1).grantRole(role1, addr1.address)
+					).to.be.revertedWith('Not an owner')
+				})
+			})
+			describe('revokeRole', () => {
+				it('should remove the address from the passed role', async () => {
+					const [cont, , admin] = await deployWithProxy<SwapTokensAndStakeDev>(
+						'SwapTokensAndStakeDev'
+					)
+					const [, , , addr1] = await ethers.getSigners()
+					await cont.initialize(
+						devAddress,
+						lockupAddress,
+						sTokensManagerAddress
+					)
+
+					await cont.updateOwner(admin.address)
+
+					const role1 = ethers.utils.keccak256(
+						ethers.utils.toUtf8Bytes('ROLE.1')
+					)
+					const role2 = ethers.utils.keccak256(
+						ethers.utils.toUtf8Bytes('ROLE.2')
+					)
+					await cont.grantRole(role1, addr1.address)
+					await cont.grantRole(role2, addr1.address)
+
+					expect(await cont.hasRole(role1, addr1.address)).to.equal(true)
+					expect(await cont.hasRole(role2, addr1.address)).to.equal(true)
+
+					await cont.revokeRole(role1, addr1.address)
+
+					expect(await cont.hasRole(role1, addr1.address)).to.equal(false)
+					expect(await cont.hasRole(role2, addr1.address)).to.equal(true)
+				})
+				it('should fail to remove it when not set owner yet', async () => {
+					const [cont] = await deployWithProxy<SwapTokensAndStakeDev>(
+						'SwapTokensAndStakeDev'
+					)
+					const [, , , addr1] = await ethers.getSigners()
+					await cont.initialize(
+						devAddress,
+						lockupAddress,
+						sTokensManagerAddress
+					)
+
+					const role1 = ethers.utils.keccak256(
+						ethers.utils.toUtf8Bytes('ROLE.1')
+					)
+					await expect(
+						cont.revokeRole(role1, addr1.address)
+					).to.be.revertedWith('Not an owner')
+				})
+				it('should fail to remove it when the caller is not owner', async () => {
+					const [cont, , admin] = await deployWithProxy<SwapTokensAndStakeDev>(
+						'SwapTokensAndStakeDev'
+					)
+					const [, , , addr1] = await ethers.getSigners()
+					await cont.initialize(
+						devAddress,
+						lockupAddress,
+						sTokensManagerAddress
+					)
+
+					await cont.updateOwner(admin.address)
+
+					const role1 = ethers.utils.keccak256(
+						ethers.utils.toUtf8Bytes('ROLE.1')
+					)
+
+					await cont.grantRole(role1, addr1.address)
+
+					await expect(
+						cont.connect(addr1).revokeRole(role1, addr1.address)
+					).to.be.revertedWith('Not an owner')
+				})
+			})
+		})
+		describe('mintFor', () => {
+			it('should success staking with the passed data', async () => {
+				const [cont, , admin] = await deployWithProxy<SwapTokensAndStakeDev>(
+					'SwapTokensAndStakeDev'
+				)
+				const [, minter, addr1, gateway, token] = await ethers.getSigners()
+				await cont.initialize(devAddress, lockupAddress, sTokensManagerAddress)
+				await cont.updateOwner(admin.address)
+				await cont.grantRole(
+					(await cont.CALL_MINTFOR_ROLE()) as BytesLike,
+					minter.address
+				)
+
+				const currentIndex = await sTokensManagerContract.currentIndex()
+
+				await cont
+					.connect(minter)
+					.mintFor(
+						addr1.address,
+						propertyAddress,
+						ethers.utils.keccak256(ethers.utils.toUtf8Bytes('XYZ')),
+						gateway.address,
+						{
+							token: token.address,
+							input: ethers.utils.parseEther('1700'),
+							fee: ethers.utils.parseEther('170'),
+						}
+					)
+
+				const sTokenPosition: [string] = await sTokensManagerContract.positions(
+					currentIndex.add(1)
+				)
+				const sTokenOwner: string = await sTokensManagerContract.ownerOf(
+					currentIndex.add(1)
+				)
+				const sTokenPayload: string = await sTokensManagerContract.payloadOf(
+					currentIndex.add(1)
+				)
+
+				expect(sTokenPosition[0]).to.equal(propertyAddress)
+				expect(sTokenOwner).to.equal(addr1.address)
+				expect(sTokenPayload).to.equal(
+					ethers.utils.keccak256(ethers.utils.toUtf8Bytes('XYZ'))
+				)
+			})
+			it('should fail to staking when the caller is not the role holder', async () => {
+				const [cont, , admin] = await deployWithProxy<SwapTokensAndStakeDev>(
+					'SwapTokensAndStakeDev'
+				)
+				const [, minter, addr1, gateway, token] = await ethers.getSigners()
+				await cont.initialize(devAddress, lockupAddress, sTokensManagerAddress)
+				await cont.updateOwner(admin.address)
+				await cont.grantRole(
+					(await cont.CALL_MINTFOR_ROLE()) as BytesLike,
+					minter.address
+				)
+
+				await expect(
+					cont
+						.connect(addr1)
+						.mintFor(
+							addr1.address,
+							propertyAddress,
+							ethers.utils.keccak256(ethers.utils.toUtf8Bytes('XYZ')),
+							gateway.address,
+							{
+								token: token.address,
+								input: ethers.utils.parseEther('1700'),
+								fee: ethers.utils.parseEther('170'),
+							}
+						)
+				).to.be.revertedWith('Missing role')
 			})
 		})
 	})

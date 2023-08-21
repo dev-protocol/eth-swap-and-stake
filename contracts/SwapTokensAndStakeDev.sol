@@ -9,9 +9,14 @@ import {ILockup} from "./interfaces/ILockup.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {EnumerableSetUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol";
+import {IProxyAdmin} from "./interfaces/IProxyAdmin.sol";
+import {ITransparentUpgradeableProxy} from "./interfaces/ITransparentUpgradeableProxy.sol";
 import "./Escrow.sol";
 
 contract SwapTokensAndStakeDev is Escrow, Initializable {
+	using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
+
 	// solhint-disable-next-line const-name-snakecase
 	ISwapRouter public constant uniswapRouter =
 		ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
@@ -29,6 +34,8 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 		uint256 fee;
 	}
 	mapping(address => Amounts) public gatewayOf;
+	mapping(bytes32 => EnumerableSetUpgradeable.AddressSet) private _roles;
+	address public owner;
 
 	function initialize(
 		address _devAddress,
@@ -38,6 +45,41 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 		devAddress = _devAddress;
 		lockupAddress = _lockupAddress;
 		sTokensAddress = _sTokensAddress;
+	}
+
+	modifier onlyRole(bytes32 _role) {
+		_checkRole(_role, msg.sender);
+		_;
+	}
+
+	modifier onlyOwner() {
+		require(owner == msg.sender, "Not an owner");
+		_;
+	}
+
+	function _checkRole(bytes32 _role, address _account) internal view {
+		if (!hasRole(_role, _account)) {
+			revert("Missing role");
+		}
+	}
+
+	function hasRole(
+		bytes32 _role,
+		address _account
+	) public view returns (bool) {
+		return _account == owner ? true : _roles[_role].contains(_account);
+	}
+
+	function grantRole(bytes32 _role, address _account) public onlyOwner {
+		_roles[_role].add(_account);
+	}
+
+	function revokeRole(bytes32 _role, address _account) public onlyOwner {
+		_roles[_role].remove(_account);
+	}
+
+	function CALL_MINTFOR_ROLE() public pure returns (bytes32) {
+		return keccak256("ROLE.CALL_MINTFOR");
 	}
 
 	/// @notice Protection for path should be made at front-end such that dev is final output token
@@ -225,6 +267,31 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 		delete gatewayOf[_gatewayAddress];
 	}
 
+	/// @dev Create a staking position with expected Amounts for pre-qualified users, such as by off-chain payments.
+	/// @param _to the destination user's address
+	/// @param _property the property to stake after swap
+	/// @param _payload allows for additional data when minting SToken
+	/// @param _gatewayAddress is the address to which the liquidity provider fee will be directed
+	/// @param _amounts is the basis points to pass. For example 10000 is 100%
+	function mintFor(
+		address _to,
+		address _property,
+		bytes32 _payload,
+		address _gatewayAddress,
+		Amounts memory _amounts
+	) external onlyRole(CALL_MINTFOR_ROLE()) {
+		gatewayOf[_gatewayAddress] = _amounts;
+
+		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
+			_property,
+			0,
+			_payload
+		);
+		IERC721(sTokensAddress).safeTransferFrom(address(this), _to, tokenId);
+
+		delete gatewayOf[_gatewayAddress];
+	}
+
 	// do not use on-chain, gas inefficient!
 	function getEstimatedTokensForDev(
 		bytes memory path,
@@ -314,5 +381,22 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 			_payload
 		);
 		IERC721(sTokensAddress).safeTransferFrom(address(this), _to, tokenId);
+	}
+
+	function updateOwner(address _proxyAdmin) public {
+		IProxyAdmin givenProxyAdmin = IProxyAdmin(_proxyAdmin);
+		address proxyAdmin;
+		try
+			givenProxyAdmin.getProxyAdmin(
+				ITransparentUpgradeableProxy(address(this))
+			)
+		returns (address _admin) {
+			proxyAdmin = _admin;
+		} catch {}
+		require(
+			proxyAdmin == address(givenProxyAdmin),
+			"Not admin of this proxy"
+		);
+		owner = givenProxyAdmin.owner();
 	}
 }

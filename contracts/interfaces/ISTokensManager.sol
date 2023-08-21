@@ -164,4 +164,6 @@ interface ISTokensManager {
 	function currentIndex() external view returns (uint256);
 
 	function ownerOf(uint256 tokenId) external view returns (address owner);
+
+	function payloadOf(uint256 tokenId) external view returns (bytes32 payload);
 }
