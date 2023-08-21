@@ -6,12 +6,7 @@ import { ethers, waffle } from 'hardhat'
 import { type SwapTokensAndStakeDev, type ISwapRouter } from '../typechain'
 import { type SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { deployWithProxy } from './utils'
-import {
-	type Contract,
-	type BigNumber,
-	type BytesLike,
-	BigNumberish,
-} from 'ethers'
+import { type Contract, type BigNumber, type BytesLike } from 'ethers'
 import * as dotenv from 'dotenv'
 
 dotenv.config()
@@ -48,7 +43,8 @@ describe('SwapTokensAndStakeDev', () => {
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {
-					jsonRpcUrl: 'https://polygon-rpc.com/',
+					jsonRpcUrl:
+						'https://polygon-mainnet.infura.io/v3/265bfd78394d426694f7c749be00f7fc',
 					blockNumber: 45237517,
 				},
 			},
