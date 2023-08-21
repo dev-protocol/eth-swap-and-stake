@@ -89,8 +89,10 @@ interface ISTokensManager {
 	 * @param _property property address
 	 * @param _descriptor descriptor address
 	 */
-	function setTokenURIDescriptor(address _property, address _descriptor)
-		external;
+	function setTokenURIDescriptor(
+		address _property,
+		address _descriptor
+	) external;
 
 	/*
 	 * @dev freeze token uri data
@@ -107,16 +109,9 @@ interface ISTokensManager {
 	 * @return uint256 The cumulative withdrawn reward amount
 	 * @return uint256 The pending withdrawal reward amount amount
 	 */
-	function positions(uint256 _tokenId)
-		external
-		view
-		returns (
-			address,
-			uint256,
-			uint256,
-			uint256,
-			uint256
-		);
+	function positions(
+		uint256 _tokenId
+	) external view returns (address, uint256, uint256, uint256, uint256);
 
 	/*
 	 * @dev Get the freezed status.
@@ -133,34 +128,27 @@ interface ISTokensManager {
 	 * @return uint256 The cumulative withdrawn reward amount
 	 * @return uint256 The withdrawable reward amount
 	 */
-	function rewards(uint256 _tokenId)
-		external
-		view
-		returns (
-			uint256,
-			uint256,
-			uint256
-		);
+	function rewards(
+		uint256 _tokenId
+	) external view returns (uint256, uint256, uint256);
 
 	/*
 	 * @dev get token ids by property
 	 * @param _property property address
 	 * @return uint256[] token id list
 	 */
-	function positionsOfProperty(address _property)
-		external
-		view
-		returns (uint256[] memory);
+	function positionsOfProperty(
+		address _property
+	) external view returns (uint256[] memory);
 
 	/*
 	 * @dev get token ids by owner
 	 * @param _owner owner address
 	 * @return uint256[] token id list
 	 */
-	function positionsOfOwner(address _owner)
-		external
-		view
-		returns (uint256[] memory);
+	function positionsOfOwner(
+		address _owner
+	) external view returns (uint256[] memory);
 
 	/*
 	 * @dev get descriptor address

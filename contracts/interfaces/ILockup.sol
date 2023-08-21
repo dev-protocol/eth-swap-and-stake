@@ -2,9 +2,10 @@
 pragma solidity >=0.8.7;
 
 interface ILockup {
-	function depositToProperty(address _property, uint256 _amount)
-		external
-		returns (uint256);
+	function depositToProperty(
+		address _property,
+		uint256 _amount
+	) external returns (uint256);
 
 	function depositToProperty(
 		address _property,
@@ -12,23 +13,21 @@ interface ILockup {
 		bytes32 _payload
 	) external returns (uint256);
 
-	function depositToPosition(uint256 _tokenId, uint256 _amount)
-		external
-		returns (bool);
+	function depositToPosition(
+		uint256 _tokenId,
+		uint256 _amount
+	) external returns (bool);
 
-	function lockup(
-		address _from,
-		address _property,
-		uint256 _value
-	) external;
+	function lockup(address _from, address _property, uint256 _value) external;
 
 	function update() external;
 
 	function withdraw(address _property, uint256 _amount) external;
 
-	function withdrawByPosition(uint256 _tokenId, uint256 _amount)
-		external
-		returns (bool);
+	function withdrawByPosition(
+		uint256 _tokenId,
+		uint256 _amount
+	) external returns (bool);
 
 	function calculateCumulativeRewardPrices()
 		external
@@ -40,41 +39,37 @@ interface ILockup {
 			uint256 _holdersCap
 		);
 
-	function calculateRewardAmount(address _property)
-		external
-		view
-		returns (uint256, uint256);
+	function calculateRewardAmount(
+		address _property
+	) external view returns (uint256, uint256);
 
 	/**
 	 * caution!!!this function is deprecated!!!
 	 * use calculateRewardAmount
 	 */
-	function calculateCumulativeHoldersRewardAmount(address _property)
-		external
-		view
-		returns (uint256);
+	function calculateCumulativeHoldersRewardAmount(
+		address _property
+	) external view returns (uint256);
 
-	function getPropertyValue(address _property)
-		external
-		view
-		returns (uint256);
+	function getPropertyValue(
+		address _property
+	) external view returns (uint256);
 
 	function getAllValue() external view returns (uint256);
 
-	function getValue(address _property, address _sender)
-		external
-		view
-		returns (uint256);
+	function getValue(
+		address _property,
+		address _sender
+	) external view returns (uint256);
 
 	function calculateWithdrawableInterestAmount(
 		address _property,
 		address _user
 	) external view returns (uint256);
 
-	function calculateWithdrawableInterestAmountByPosition(uint256 _tokenId)
-		external
-		view
-		returns (uint256);
+	function calculateWithdrawableInterestAmountByPosition(
+		uint256 _tokenId
+	) external view returns (uint256);
 
 	function cap() external view returns (uint256);
 

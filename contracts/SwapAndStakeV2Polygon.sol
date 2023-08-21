@@ -82,22 +82,18 @@ contract SwapAndStakeV2Polygon is SwapAndStakeV2 {
 	/// @notice get estimated DEV output from ETH input
 	/// @param ethAmount in ETH
 	/// @return outputs UniSwap Router Outputs
-	function getEstimatedDevForEth(uint256 ethAmount)
-		external
-		view
-		returns (uint256[] memory)
-	{
+	function getEstimatedDevForEth(
+		uint256 ethAmount
+	) external view returns (uint256[] memory) {
 		return _getEstimatedDevForEth(ethAmount, _getPathForEthToDev);
 	}
 
 	/// @notice get estimated ETH output from DEV input
 	/// @param devAmount in ETH
 	/// @return outputs UniSwap Router Outputs
-	function getEstimatedEthForDev(uint256 devAmount)
-		external
-		view
-		returns (uint256[] memory)
-	{
+	function getEstimatedEthForDev(
+		uint256 devAmount
+	) external view returns (uint256[] memory) {
 		return _getEstimatedEthForDev(devAmount, _getPathForEthToDev);
 	}
 

@@ -56,11 +56,10 @@ contract Escrow {
 	/// @param user credited
 	/// @param token should be address(0) for Ether, otherwise ERC20 token address
 	/// @return uint256 of amount credited to address
-	function gatewayFees(address user, address token)
-		external
-		view
-		returns (uint256)
-	{
+	function gatewayFees(
+		address user,
+		address token
+	) external view returns (uint256) {
 		return _gatewayFees[user][token];
 	}
 }

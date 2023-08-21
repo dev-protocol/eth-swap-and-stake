@@ -93,10 +93,9 @@ contract SwapAndStakeV3Polygon is Escrow {
 	}
 
 	// do not used on-chain, gas inefficient!
-	function getEstimatedDevForEth(uint256 ethAmount)
-		external
-		returns (uint256)
-	{
+	function getEstimatedDevForEth(
+		uint256 ethAmount
+	) external returns (uint256) {
 		address tokenIn = wethAddress;
 		address tokenOut = devAddress;
 		// V3 ETH-DEV pair fee is 1%
@@ -114,10 +113,9 @@ contract SwapAndStakeV3Polygon is Escrow {
 	}
 
 	// do not used on-chain, gas inefficient!
-	function getEstimatedEthForDev(uint256 devAmount)
-		external
-		returns (uint256)
-	{
+	function getEstimatedEthForDev(
+		uint256 devAmount
+	) external returns (uint256) {
 		address tokenIn = wethAddress;
 		address tokenOut = devAddress;
 		// V3 ETH-DEV pair fee is 1%

@@ -226,18 +226,18 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 	}
 
 	// do not use on-chain, gas inefficient!
-	function getEstimatedTokensForDev(bytes memory path, uint256 devAmount)
-		external
-		returns (uint256)
-	{
+	function getEstimatedTokensForDev(
+		bytes memory path,
+		uint256 devAmount
+	) external returns (uint256) {
 		return quoter.quoteExactInput(path, devAmount);
 	}
 
 	// do not use on-chain, gas inefficient!
-	function getEstimatedDevForTokens(bytes memory path, uint256 tokenAmount)
-		external
-		returns (uint256)
-	{
+	function getEstimatedDevForTokens(
+		bytes memory path,
+		uint256 tokenAmount
+	) external returns (uint256) {
 		return quoter.quoteExactInput(path, tokenAmount);
 	}
 
