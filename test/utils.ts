@@ -3,6 +3,7 @@ import { type Contract, BigNumber } from 'ethers'
 import {
 	type UpgradeableProxy,
 	type UpgradeableProxy__factory,
+	type ProxyAdmin,
 } from '../typechain'
 
 export const deploy = async <C extends Contract>(name: string): Promise<C> => {
@@ -27,7 +28,7 @@ export const deployProxy = async (
 
 export const deployWithProxy = async <C extends Contract>(
 	name: string
-): Promise<[C, string]> => {
+): Promise<[C, string, ProxyAdmin]> => {
 	const factory = await ethers.getContractFactory(name)
 	const adminFactory = await ethers.getContractFactory('Admin')
 	const adminDeployed = await (await adminFactory.deploy()).deployed()
@@ -38,7 +39,11 @@ export const deployWithProxy = async <C extends Contract>(
 		new Uint8Array()
 	)
 	const admin = await adminDeployed.attach(adminDeployed.address).owner()
-	return [deployedContract.attach(proxy.address) as C, admin]
+	return [
+		deployedContract.attach(proxy.address) as C,
+		admin,
+		adminDeployed as ProxyAdmin,
+	]
 }
 
 export const toBigNumber = (v: string | number | BigNumber): BigNumber =>
