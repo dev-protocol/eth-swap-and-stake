@@ -251,6 +251,188 @@
           }
         }
       }
+    },
+    "ecaf934ce119ce25f9555d024b280413d1ff4b52ddd132a82a0049973ace0bda": {
+      "address": "0x74E220c83fD0A9d0a53d4ED77Eb6050Ec75851Fe",
+      "txHash": "0x21b6b9359d8371725472b4a5447a6c7f136c05bdcbd0b54979fda72d6907a2a2",
+      "layout": {
+        "solcVersion": "0.8.7",
+        "storage": [
+          {
+            "label": "_gatewayFees",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+            "contract": "Escrow",
+            "src": "contracts/Escrow.sol:10"
+          },
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "1",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "devAddress",
+            "offset": 2,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "SwapTokensAndStakeDev",
+            "src": "contracts/SwapTokensAndStakeDev.sol:27"
+          },
+          {
+            "label": "lockupAddress",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_address",
+            "contract": "SwapTokensAndStakeDev",
+            "src": "contracts/SwapTokensAndStakeDev.sol:28"
+          },
+          {
+            "label": "sTokensAddress",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_address",
+            "contract": "SwapTokensAndStakeDev",
+            "src": "contracts/SwapTokensAndStakeDev.sol:29"
+          },
+          {
+            "label": "gatewayOf",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_mapping(t_address,t_struct(Amounts)5309_storage)",
+            "contract": "SwapTokensAndStakeDev",
+            "src": "contracts/SwapTokensAndStakeDev.sol:36"
+          },
+          {
+            "label": "_roles",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_mapping(t_bytes32,t_struct(AddressSet)965_storage)",
+            "contract": "SwapTokensAndStakeDev",
+            "src": "contracts/SwapTokensAndStakeDev.sol:37"
+          },
+          {
+            "label": "owner",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_address",
+            "contract": "SwapTokensAndStakeDev",
+            "src": "contracts/SwapTokensAndStakeDev.sol:38"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "label": "bytes32[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(Amounts)5309_storage)": {
+            "label": "mapping(address => struct SwapTokensAndStakeDev.Amounts)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(AddressSet)965_storage)": {
+            "label": "mapping(bytes32 => struct EnumerableSetUpgradeable.AddressSet)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AddressSet)965_storage": {
+            "label": "struct EnumerableSetUpgradeable.AddressSet",
+            "members": [
+              {
+                "label": "_inner",
+                "type": "t_struct(Set)650_storage",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Amounts)5309_storage": {
+            "label": "struct SwapTokensAndStakeDev.Amounts",
+            "members": [
+              {
+                "label": "token",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "input",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "fee",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(Set)650_storage": {
+            "label": "struct EnumerableSetUpgradeable.Set",
+            "members": [
+              {
+                "label": "_values",
+                "type": "t_array(t_bytes32)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_indexes",
+                "type": "t_mapping(t_bytes32,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
     }
   }
 }
