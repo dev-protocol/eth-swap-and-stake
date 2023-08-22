@@ -57,7 +57,7 @@ const config: HardhatUserConfig = {
 				mnemonic: mnemnoc,
 			},
 			gas: 3000000,
-			gasPrice: utils.parseUnits('80', 'gwei').toNumber(),
+			gasPrice: utils.parseUnits('82', 'gwei').toNumber(),
 		},
 		polygonMumbai: {
 			url: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_KEY!}`,
