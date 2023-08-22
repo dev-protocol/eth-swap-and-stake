@@ -18,12 +18,12 @@ async function main() {
 			process.exit(1)
 		})
 
-	// Await upgrades.upgradeProxy(DEPLOYED_ADDRESS, contract)
+	await upgrades.upgradeProxy(DEPLOYED_ADDRESS, contract)
 
-	// console.log(
-	// 	'new implementation is:',
-	// 	await upgrades.erc1967.getImplementationAddress(DEPLOYED_ADDRESS)
-	// )
+	console.log(
+		'new implementation is:',
+		await upgrades.erc1967.getImplementationAddress(DEPLOYED_ADDRESS)
+	)
 }
 
 main()
