@@ -52,7 +52,7 @@
 		"@devprotocol/protocol": "^3.4.1",
 		"@devprotocol/protocol-v2": "^0.6.0",
 		"@openzeppelin/contracts-upgradeable": "^4.4.2",
-		"@openzeppelin/hardhat-upgrades": "^1.22.1",
+		"@openzeppelin/hardhat-upgrades": "^2.0.0",
 		"@typechain/ethers-v5": "^9.0.0",
 		"@typechain/hardhat": "^2.3.0",
 		"@uniswap/v2-periphery": "^1.1.0-beta.0",
