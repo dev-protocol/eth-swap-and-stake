@@ -54,7 +54,7 @@
 		"@openzeppelin/contracts-upgradeable": "^4.4.2",
 		"@openzeppelin/hardhat-upgrades": "^1.22.1",
 		"@typechain/ethers-v5": "^9.0.0",
-		"@typechain/hardhat": "^2.3.0",
+		"@typechain/hardhat": "^9.0.0",
 		"@uniswap/v2-periphery": "^1.1.0-beta.0",
 		"@uniswap/v3-periphery": "^1.4.0",
 		"solhint": "^4.0.0",
