@@ -88,10 +88,9 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 		ecosystemFee = _ecosystemFee;
 	}
 
-	function updateEcosystemFeeThreshold(uint256 _ecosystemFeeThreshold)
-		public
-		onlyOwner
-	{
+	function updateEcosystemFeeThreshold(
+		uint256 _ecosystemFeeThreshold
+	) public onlyOwner {
 		ecosystemFeeThreshold = _ecosystemFeeThreshold;
 	}
 
