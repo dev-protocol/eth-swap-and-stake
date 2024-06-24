@@ -147,7 +147,7 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 		uint256 _gatewayFee
 	) external payable {
 		require(msg.value > 0, "Must pass non-zero amount");
-		require(_gatewayFee < 10000, "must be below 10000");
+		require(_gatewayFee <= 10000, "must be below or equal 10000");
 		// handle fee
 		uint256 feeAmount = (msg.value * _gatewayFee) / 10000;
 		_deposit(_gatewayAddress, feeAmount, address(0));
@@ -240,7 +240,7 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 		address payable _gatewayAddress,
 		uint256 _gatewayFee
 	) external {
-		require(_gatewayFee < 10000, "must be below 10000");
+		require(_gatewayFee <= 10000, "must be below or equal 10000");
 		require(
 			_token.allowance(msg.sender, address(this)) >= _amount,
 			"insufficient allowance"
