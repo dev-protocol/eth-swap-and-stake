@@ -36,6 +36,8 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 	mapping(address => Amounts) public gatewayOf;
 	mapping(bytes32 => EnumerableSetUpgradeable.AddressSet) private _roles;
 	address public owner;
+	uint256 public ecosystemFee;
+	uint256 public ecosystemFeeThreshold;
 
 	function initialize(
 		address _devAddress,
@@ -80,6 +82,17 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 
 	function CALL_MINTFOR_ROLE() public pure returns (bytes32) {
 		return keccak256("ROLE.CALL_MINTFOR");
+	}
+
+	function updateEcosystemFee(uint256 _ecosystemFee) public onlyOwner {
+		ecosystemFee = _ecosystemFee;
+	}
+
+	function updateEcosystemFeeThreshold(uint256 _ecosystemFeeThreshold)
+		public
+		onlyOwner
+	{
+		ecosystemFeeThreshold = _ecosystemFeeThreshold;
 	}
 
 	/// @notice Protection for path should be made at front-end such that dev is final output token
