@@ -22,7 +22,7 @@ jobs:
         run: |
           touch .env
           echo MNEMONIC=${{ secrets.MNEMONIC }} >> .env
-          echo INFURA_KEY=${{ secrets.ALCHEMY_KEY }} >> .env
+          echo ALCHEMY_KEY=${{ secrets.ALCHEMY_KEY }} >> .env
 
       - name: install deps
         run: yarn
