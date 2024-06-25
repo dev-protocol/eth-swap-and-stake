@@ -27,7 +27,8 @@ describe('SwapAndStakeV2 Quickswap', () => {
 	let wethContract: Contract
 	let router: Contract
 
-	beforeEach(async () => {
+	beforeEach(async function () {
+		this.timeout(60000)
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {

@@ -27,7 +27,8 @@ describe('SwapAndStakeV3 Arbitrum', () => {
 	const propertyAddress = '0x7645306DfB9e14C0B849bb71eeC7BB4D1Cde8251'
 	const sTokensManagerAddress = '0x40d999931f7055F670511860e24624939e71a96a'
 
-	beforeEach(async () => {
+	beforeEach(async function () {
+		this.timeout(60000)
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {

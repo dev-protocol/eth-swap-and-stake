@@ -26,7 +26,8 @@ describe('SwapAndStakeV2 Mainnet', () => {
 	const propertyAddress = '0xac1AC9d00314aE7B4a7d6DbEE4860bECedF92309'
 	const sTokensManagerAddress = '0x50489Ff5f879A44C87bBA85287729D663b18CeD5'
 
-	beforeEach(async () => {
+	beforeEach(async function () {
+		this.timeout(60000)
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {
