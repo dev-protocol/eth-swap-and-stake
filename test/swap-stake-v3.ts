@@ -19,7 +19,6 @@ describe('SwapAndStakeV3 Arbitrum', () => {
 	const sTokensManagerAddress = '0x40d999931f7055F670511860e24624939e71a96a'
 
 	beforeEach(async function () {
-		this.timeout(60000)
 		const factory = await ethers.getContractFactory('SwapAndStakeV3')
 		swapAndStakeContract = (await factory.deploy(
 			wethAddress,
@@ -28,6 +27,7 @@ describe('SwapAndStakeV3 Arbitrum', () => {
 			sTokensManagerAddress
 		)) as SwapAndStakeV3
 		await swapAndStakeContract.deployed()
+		this.timeout(60000)
 	})
 	describe('swap eth for dev', () => {
 		it('should revert when sending 0 ETH', async () => {

@@ -11,6 +11,9 @@ import * as dotenv from 'dotenv'
 
 dotenv.config()
 
+const RPC_KEY =
+	typeof process.env.ALCHEMY_KEY === 'undefined' ? '' : process.env.ALCHEMY_KEY
+
 use(solidity)
 
 type Path = {
@@ -40,13 +43,12 @@ describe('SwapTokensAndStakeDev', () => {
 	let swapRouter: ISwapRouter
 
 	beforeEach(async function () {
-		this.timeout(60000)
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {
 					jsonRpcUrl:
-						'https://polygon-mainnet.infura.io/v3/265bfd78394d426694f7c749be00f7fc',
-					blockNumber: 45237517,
+						'https://polygon-mainnet.g.alchemy.com/v2/' + RPC_KEY,
+						blockNumber: 58590400,
 				},
 			},
 		])
@@ -77,6 +79,7 @@ describe('SwapTokensAndStakeDev', () => {
 			'contracts/interfaces/ISTokensManager.sol:ISTokensManager',
 			sTokensManagerAddress
 		)
+		this.timeout(60000)
 	})
 	describe('SwapTokensAndStakeDev', () => {
 		describe('initialize', () => {

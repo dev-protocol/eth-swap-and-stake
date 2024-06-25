@@ -9,7 +9,7 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 const RPC_KEY =
-	typeof process.env.INFURA_KEY === 'undefined' ? '' : process.env.INFURA_KEY
+	typeof process.env.ALCHEMY_KEY === 'undefined' ? '' : process.env.ALCHEMY_KEY
 
 use(solidity)
 
@@ -27,11 +27,10 @@ describe('SwapAndStakeV2 Mainnet', () => {
 	const sTokensManagerAddress = '0x50489Ff5f879A44C87bBA85287729D663b18CeD5'
 
 	beforeEach(async function () {
-		this.timeout(60000)
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {
-					jsonRpcUrl: 'https://mainnet.infura.io/v3/' + RPC_KEY,
+					jsonRpcUrl: 'https://eth-mainnet.g.alchemy.com/v2/' + RPC_KEY,
 					blockNumber: 15126211,
 				},
 			},
@@ -59,6 +58,7 @@ describe('SwapAndStakeV2 Mainnet', () => {
 			'ISTokensManager',
 			sTokensManagerAddress
 		)
+		this.timeout(60000)
 	})
 	describe('swap eth for dev', () => {
 		it('should stake eth for dev without gateway fee', async () => {

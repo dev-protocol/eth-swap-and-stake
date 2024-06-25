@@ -7,6 +7,9 @@ import { Contract, BigNumber } from 'ethers'
 import * as dotenv from 'dotenv'
 
 dotenv.config()
+const RPC_KEY =
+	typeof process.env.ALCHEMY_KEY === 'undefined' ? '' : process.env.ALCHEMY_KEY
+
 
 use(solidity)
 
@@ -28,13 +31,12 @@ describe('SwapAndStakeV2 Quickswap', () => {
 	let router: Contract
 
 	beforeEach(async function () {
-		this.timeout(60000)
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {
 					jsonRpcUrl:
-						'https://polygon-mainnet.infura.io/v3/265bfd78394d426694f7c749be00f7fc',
-					blockNumber: 30632152,
+						'https://polygon-mainnet.g.alchemy.com/v2/' + RPC_KEY,
+						blocknumber:30632152
 				},
 			},
 		])
@@ -79,6 +81,7 @@ describe('SwapAndStakeV2 Quickswap', () => {
 			],
 			account1
 		)
+		this.timeout(60000)
 	})
 	describe('swap eth for dev', () => {
 		it('should stake eth for dev', async () => {
