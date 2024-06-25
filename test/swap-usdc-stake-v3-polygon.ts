@@ -30,7 +30,7 @@ describe('SwapUsdcAndStakeV3 Polygon', () => {
 	let swapRouter: ISwapRouter
 
 	beforeEach(async function () {
-		this.timeout(60000);
+		this.timeout(60000)
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {
