@@ -46,9 +46,8 @@ describe('SwapTokensAndStakeDev', () => {
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {
-					jsonRpcUrl:
-						'https://polygon-mainnet.g.alchemy.com/v2/' + RPC_KEY,
-						blockNumber: 58590400,
+					jsonRpcUrl: 'https://polygon-mainnet.g.alchemy.com/v2/' + RPC_KEY,
+					blockNumber: 58590400,
 				},
 			},
 		])

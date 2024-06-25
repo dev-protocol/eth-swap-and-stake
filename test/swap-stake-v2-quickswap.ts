@@ -10,7 +10,6 @@ dotenv.config()
 const RPC_KEY =
 	typeof process.env.ALCHEMY_KEY === 'undefined' ? '' : process.env.ALCHEMY_KEY
 
-
 use(solidity)
 
 describe('SwapAndStakeV2 Quickswap', () => {
@@ -34,9 +33,8 @@ describe('SwapAndStakeV2 Quickswap', () => {
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {
-					jsonRpcUrl:
-						'https://polygon-mainnet.g.alchemy.com/v2/' + RPC_KEY,
-						blocknumber:30632152
+					jsonRpcUrl: 'https://polygon-mainnet.g.alchemy.com/v2/' + RPC_KEY,
+					blocknumber: 30632152,
 				},
 			},
 		])
