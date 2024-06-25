@@ -155,7 +155,8 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 
 		uint256 feeAmount = (msg.value * _gatewayFee) / 10000;
 
-		uint256 acutualFeeAmount = ((msg.value - ecosystemFeeAmount) * _gatewayFee) / 10000;
+		uint256 acutualFeeAmount = ((msg.value - ecosystemFeeAmount) *
+			_gatewayFee) / 10000;
 
 		_deposit(owner, ecosystemFeeAmount, address(0));
 		_deposit(_gatewayAddress, acutualFeeAmount, address(0));
@@ -274,7 +275,7 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 		// handle acutual gateway fee
 		uint256 acutualFeeAmount = ((_amount - ecosystemFeeAmount) *
 			_gatewayFee) / 10000;
-		
+
 		_deposit(owner, ecosystemFeeAmount, address(_token));
 		_deposit(_gatewayAddress, acutualFeeAmount, address(_token));
 
