@@ -75,20 +75,30 @@ describe('SwapAndStakeV2 Quickswap', () => {
 		router = new Contract(
 			uniswapRouterAddress,
 			[
+				'function getAmountsIn(uint amountOut, address[] calldata path) external view returns (uint[] memory amounts)',
 				'function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)',
 			],
 			account1
 		)
+
 		this.timeout(60000)
 	})
+
 	describe('swap eth for dev', () => {
 		it('should stake eth for dev', async () => {
 			const ethAmount = ethers.utils.parseEther('1')
 
+			// Get the req. amount of WMATIC required to get ethAmount.
+			const reqWMATICForETHAmount = (
+				await router.getAmountsIn(ethAmount, [
+					'0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270', // WMATIC
+					'0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619', // WETH
+				])
+			)[0]
+
 			// Get some WETH
 			let block = await account1.provider?.getBlock('latest')
 			let deadline = block!.timestamp + 300
-
 			// Exchange MATIC for WETH
 			await router.swapExactETHForTokens(
 				1,
@@ -99,7 +109,7 @@ describe('SwapAndStakeV2 Quickswap', () => {
 				account1.address,
 				deadline,
 				{
-					value: ethers.utils.parseEther('5000'),
+					value: reqWMATICForETHAmount,
 				}
 			)
 
@@ -149,10 +159,19 @@ describe('SwapAndStakeV2 Quickswap', () => {
 			expect(sTokenOwner).to.equal(account1.address)
 			expect(sTokenPosition[1]).to.equal(amountsOut[2])
 		})
+
 		it('should swap and stake with gateway fee', async () => {
 			let block = await account1.provider?.getBlock('latest')
 			let deadline = block!.timestamp + 300
 			const depositAmount = BigNumber.from('1000000000000053927')
+
+			// Get the req. amount of WMATIC required to get depositAmount.
+			const reqWMATICForDepositAmount = (
+				await router.getAmountsIn(depositAmount, [
+					'0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270', // WMATIC
+					'0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619', // WETH
+				])
+			)[0]
 
 			// Exchange MATIC for WETH
 			await router.swapExactETHForTokens(
@@ -164,15 +183,13 @@ describe('SwapAndStakeV2 Quickswap', () => {
 				account1.address,
 				deadline,
 				{
-					value: ethers.utils.parseEther('5000'),
+					value: reqWMATICForDepositAmount,
 				}
 			)
 
 			const balance = await wethContract.balanceOf(account1.address)
-
 			// Sanity check to ensure account1 has enough weth
 			expect(Number(balance)).to.be.greaterThanOrEqual(Number(depositAmount))
-
 			await wethContract.approve(swapAndStakeContract.address, depositAmount)
 
 			const gatewayFeeBasisPoints = 333 // In basis points, so 3.33%
