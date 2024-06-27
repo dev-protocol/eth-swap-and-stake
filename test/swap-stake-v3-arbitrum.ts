@@ -9,7 +9,7 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 const RPC_KEY =
-	typeof process.env.INFURA_KEY === 'undefined' ? '' : process.env.INFURA_KEY
+	typeof process.env.ALCHEMY_KEY === 'undefined' ? '' : process.env.ALCHEMY_KEY
 
 use(solidity)
 
@@ -31,8 +31,8 @@ describe('SwapAndStakeV3 Arbitrum', () => {
 		await ethers.provider.send('hardhat_reset', [
 			{
 				forking: {
-					jsonRpcUrl: 'https://arbitrum-mainnet.infura.io/v3/' + RPC_KEY,
-					blockNumber: 54992509,
+					jsonRpcUrl: 'https://arb-mainnet.g.alchemy.com/v2/' + RPC_KEY,
+					blockNumber: 225577784,
 				},
 			},
 		])

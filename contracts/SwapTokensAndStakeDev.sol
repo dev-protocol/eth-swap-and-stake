@@ -36,6 +36,8 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 	mapping(address => Amounts) public gatewayOf;
 	mapping(bytes32 => EnumerableSetUpgradeable.AddressSet) private _roles;
 	address public owner;
+	uint256 public ecosystemFee;
+	uint256 public ecosystemFeeThreshold;
 
 	function initialize(
 		address _devAddress,
@@ -80,6 +82,16 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 
 	function CALL_MINTFOR_ROLE() public pure returns (bytes32) {
 		return keccak256("ROLE.CALL_MINTFOR");
+	}
+
+	function updateEcosystemFee(uint256 _ecosystemFee) public onlyOwner {
+		ecosystemFee = _ecosystemFee;
+	}
+
+	function updateEcosystemFeeThreshold(
+		uint256 _ecosystemFeeThreshold
+	) public onlyOwner {
+		ecosystemFeeThreshold = _ecosystemFeeThreshold;
 	}
 
 	/// @notice Protection for path should be made at front-end such that dev is final output token
@@ -135,10 +147,19 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 		uint256 _gatewayFee
 	) external payable {
 		require(msg.value > 0, "Must pass non-zero amount");
-		require(_gatewayFee < 10000, "must be below 10000");
+		require(_gatewayFee <= 10000, "must be below or equal 10000");
 		// handle fee
+		uint256 ecosystemFeeAmount = _gatewayFee >= ecosystemFeeThreshold
+			? (msg.value * ecosystemFee) / 10000
+			: 0;
+
 		uint256 feeAmount = (msg.value * _gatewayFee) / 10000;
-		_deposit(_gatewayAddress, feeAmount, address(0));
+
+		uint256 acutualFeeAmount = ((msg.value - ecosystemFeeAmount) *
+			_gatewayFee) / 10000;
+
+		_deposit(owner, ecosystemFeeAmount, address(0));
+		_deposit(_gatewayAddress, acutualFeeAmount, address(0));
 
 		gatewayOf[_gatewayAddress] = Amounts(address(0), msg.value, feeAmount);
 
@@ -146,7 +167,7 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 			_to,
 			_path,
 			_property,
-			(msg.value - feeAmount),
+			(msg.value - ecosystemFeeAmount - acutualFeeAmount),
 			_amountOut,
 			_deadline,
 			_payload
@@ -228,7 +249,7 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 		address payable _gatewayAddress,
 		uint256 _gatewayFee
 	) external {
-		require(_gatewayFee < 10000, "must be below 10000");
+		require(_gatewayFee <= 10000, "must be below or equal 10000");
 		require(
 			_token.allowance(msg.sender, address(this)) >= _amount,
 			"insufficient allowance"
@@ -244,9 +265,19 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 			address(this),
 			_amount
 		);
+
+		uint256 ecosystemFeeAmount = _gatewayFee >= ecosystemFeeThreshold
+			? (_amount * ecosystemFee) / 10000
+			: 0;
+
 		// handle fee
 		uint256 feeAmount = (_amount * _gatewayFee) / 10000;
-		_deposit(_gatewayAddress, feeAmount, address(_token));
+		// handle acutual gateway fee
+		uint256 acutualFeeAmount = ((_amount - ecosystemFeeAmount) *
+			_gatewayFee) / 10000;
+
+		_deposit(owner, ecosystemFeeAmount, address(_token));
+		_deposit(_gatewayAddress, acutualFeeAmount, address(_token));
 
 		gatewayOf[_gatewayAddress] = Amounts(
 			address(_token),
@@ -259,7 +290,7 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 			_token,
 			_path,
 			_property,
-			(_amount - feeAmount),
+			(_amount - ecosystemFeeAmount - acutualFeeAmount),
 			_amountOut,
 			_deadline,
 			_payload
