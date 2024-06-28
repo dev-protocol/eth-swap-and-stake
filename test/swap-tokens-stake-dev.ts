@@ -242,7 +242,147 @@ describe('SwapTokensAndStakeDev', () => {
 					.connect(account1)
 					.approve(cont.address, ethers.utils.parseUnits('1900', 6))
 
-				const gatewayFeeBasisPoints = 333 // In basis points, so 3.33%
+				const gatewayFeeBasisPoints = 10000 // In basis points, so 3.33%
+				const depositAmount = ethers.utils.parseUnits('1', 6)
+				const ecosystemFeeAmount =
+					gatewayFeeBasisPoints >= ecosystemFeeThreshold
+						? depositAmount.mul(ecosystemFee).div(10000)
+						: 0
+				const acutualFeeAmount = depositAmount
+					.sub(ecosystemFeeAmount)
+					.mul(gatewayFeeBasisPoints)
+					.div(10000)
+				const path: Path = {
+					token1: usdcAddress,
+					fee1: 500,
+					token2: wethAddress,
+					fee2: 10000,
+					token3: devAddress,
+				}
+
+				// Use callStaic to execute getEstimatedDevForUsdc as a read method
+				const amountOut = await cont.callStatic.getEstimatedDevForTokens(
+					ethers.utils.solidityPack(
+						['address', 'uint24', 'address', 'uint24', 'address'],
+						[path.token1, path.fee1, path.token2, path.fee2, path.token3]
+					),
+					depositAmount.sub(ecosystemFeeAmount).sub(acutualFeeAmount)
+				)
+
+				const amountIn = await cont.callStatic.getEstimatedTokensForDev(
+					ethers.utils.solidityPack(
+						['address', 'uint24', 'address', 'uint24', 'address'],
+						[path.token3, path.fee2, path.token2, path.fee1, path.token1]
+					),
+					amountOut
+				)
+
+				// Assuming only 1% slippage, it can be dynamic so need to make more better assertion
+				const expected = ethers.utils.parseUnits('1', 6)
+				expect(amountIn).to.lte(expected.sub(expected.mul(1).div(100)))
+				// STokenId = currentIndex + 1 will be minted.
+				let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
+				sTokenId = sTokenId.add(1)
+
+				await expect(
+					await cont
+						.connect(account1)
+						[
+							'swapTokensAndStakeDev(address,address,bytes,address,uint256,uint256,uint256,bytes32,address,uint256)'
+						](
+							account1.address,
+							usdcAddress,
+							ethers.utils.solidityPack(
+								['address', 'uint24', 'address', 'uint24', 'address'],
+								[path.token1, path.fee1, path.token2, path.fee2, path.token3]
+							),
+							propertyAddress,
+							ethers.utils.parseUnits('1', 6),
+							depositAmount.sub(ecosystemFeeAmount).sub(acutualFeeAmount),
+							deadline,
+							ethers.utils.formatBytes32String(''),
+							gateway.address,
+							gatewayFeeBasisPoints
+						)
+				)
+					.to.emit(lockupContract, 'Lockedup')
+					.withArgs(
+						cont.address,
+						propertyAddress,
+						depositAmount.sub(ecosystemFeeAmount).sub(acutualFeeAmount),
+						sTokenId
+					)
+
+				const sTokenOwner = await sTokensManagerContract.ownerOf(sTokenId)
+				const sTokenPosition: number[] = await sTokensManagerContract.positions(
+					sTokenId
+				)
+				expect(sTokenOwner).to.equal(account1.address)
+				expect(sTokenPosition[1]).to.equal(
+					depositAmount.sub(ecosystemFeeAmount).sub(acutualFeeAmount)
+				)
+
+				// Check gateway has been credited
+				expect(await cont.gatewayFees(gateway.address, usdcAddress)).to.eq(
+					acutualFeeAmount
+				)
+
+				// Withdraw credit
+				await expect(cont.connect(gateway).claim(usdcAddress))
+					.to.emit(cont, 'Withdrawn')
+					.withArgs(gateway.address, usdcAddress, acutualFeeAmount)
+
+				// Check gateway credit has been deducted
+				expect(await cont.gatewayFees(gateway.address, usdcAddress)).to.eq(0)
+			})
+			it('should stake dev by swapping tokens and deduct fees(gatewayfee >= ecosystemFeeThreshold)', async () => {
+				// Get latest block
+				const block = await waffle.provider.getBlock('latest')
+				const deadline = block.timestamp + 300
+
+				const [cont, owner, admin] =
+					await deployWithProxy<SwapTokensAndStakeDev>('SwapTokensAndStakeDev')
+				await cont.initialize(devAddress, lockupAddress, sTokensManagerAddress)
+
+				const owner1 = await cont.owner()
+				expect(owner1).to.equal(ethers.constants.AddressZero)
+
+				await cont.updateOwner(admin.address)
+				const owner2 = await cont.owner()
+				expect(owner2).to.equal(owner)
+
+				const contractOwner = await ethers.getSigner(owner)
+
+				const ecosystemFee = 250 // In basis points, so 2.5%
+				const ecosystemFeeThreshold = 8500 // In basis points, so 85%
+
+				// Get USDC via MATIC(Native Token) -> wMATIC -> USDC
+				await swapRouter.connect(account1).exactInputSingle(
+					{
+						tokenIn: weth9,
+						tokenOut: usdcAddress,
+						fee: 3000,
+						recipient: account1.address,
+						deadline,
+						amountIn: ethers.utils.parseEther('1700'),
+						amountOutMinimum: 0,
+						sqrtPriceLimitX96: 0,
+					},
+					{
+						value: ethers.utils.parseEther('1700'),
+					}
+				)
+				await cont.connect(contractOwner).updateEcosystemFee(ecosystemFee)
+				await cont
+					.connect(contractOwner)
+					.updateEcosystemFeeThreshold(ecosystemFeeThreshold)
+
+				// Approve USDC
+				await usdcContract
+					.connect(account1)
+					.approve(cont.address, ethers.utils.parseUnits('1900', 6))
+
+				const gatewayFeeBasisPoints = 8600 // In basis points, so 3.33%
 				const depositAmount = ethers.utils.parseUnits('1', 6)
 				const ecosystemFeeAmount =
 					gatewayFeeBasisPoints >= ecosystemFeeThreshold
@@ -328,7 +468,7 @@ describe('SwapTokensAndStakeDev', () => {
 				// Check gateway credit has been deducted
 				expect(await cont.gatewayFees(gateway.address, usdcAddress)).to.eq(0)
 			})
-			it('should stake dev by swapping tokens and deduct fees(gatewayfee >= ecosystemFeeThreshold)', async () => {
+			it('should stake dev by swapping tokens and deduct fees(gatewayfee ==10000 > ecosystemFeeThreshold)', async () => {
 				// Get latest block
 				const block = await waffle.provider.getBlock('latest')
 				const deadline = block.timestamp + 300
@@ -375,7 +515,7 @@ describe('SwapTokensAndStakeDev', () => {
 					.connect(account1)
 					.approve(cont.address, ethers.utils.parseUnits('1900', 6))
 
-				const gatewayFeeBasisPoints = 8600 // In basis points, so 3.33%
+				const gatewayFeeBasisPoints = 10000 // In basis points, so 3.33%
 				const depositAmount = ethers.utils.parseUnits('1', 6)
 				const ecosystemFeeAmount =
 					gatewayFeeBasisPoints >= ecosystemFeeThreshold
@@ -649,6 +789,122 @@ describe('SwapTokensAndStakeDev', () => {
 				const deadline = block.timestamp + 300
 
 				const gatewayFeeBasisPoints = 8600 // In basis points, so 3.33%
+				const depositAmount = ethers.utils.parseEther('1')
+				const ecosystemFee = 250 // In basis points, so 2.5%
+				const ecosystemFeeThreshold = 8500 // In basis points, so 85%
+				const ecosystemFeeAmount =
+					gatewayFeeBasisPoints >= ecosystemFeeThreshold
+						? depositAmount.mul(ecosystemFee).div(10000)
+						: 0
+				const acutualFeeAmount = depositAmount
+					.sub(ecosystemFeeAmount)
+					.mul(gatewayFeeBasisPoints)
+					.div(10000)
+
+				const [cont, owner, admin] =
+					await deployWithProxy<SwapTokensAndStakeDev>('SwapTokensAndStakeDev')
+				await cont.initialize(devAddress, lockupAddress, sTokensManagerAddress)
+
+				const owner1 = await cont.owner()
+				expect(owner1).to.equal(ethers.constants.AddressZero)
+
+				await cont.updateOwner(admin.address)
+				const owner2 = await cont.owner()
+				expect(owner2).to.equal(owner)
+
+				const contractOwner = await ethers.getSigner(owner)
+
+				await cont.connect(contractOwner).updateEcosystemFee(ecosystemFee)
+				await cont
+					.connect(contractOwner)
+					.updateEcosystemFeeThreshold(ecosystemFeeThreshold)
+
+				const path: Path = {
+					token1: weth9,
+					fee1: 500,
+					token2: wethAddress,
+					fee2: 10000,
+					token3: devAddress,
+				}
+
+				// Use callStaic to execute getEstimatedDevForUsdc as a read method
+				const amountOut = await cont.callStatic.getEstimatedDevForTokens(
+					ethers.utils.solidityPack(
+						['address', 'uint24', 'address', 'uint24', 'address'],
+						[path.token1, path.fee1, path.token2, path.fee2, path.token3]
+					),
+					depositAmount.sub(ecosystemFeeAmount).sub(acutualFeeAmount)
+				)
+
+				const amountIn = await cont.callStatic.getEstimatedTokensForDev(
+					ethers.utils.solidityPack(
+						['address', 'uint24', 'address', 'uint24', 'address'],
+						[path.token3, path.fee2, path.token2, path.fee1, path.token1]
+					),
+					amountOut
+				)
+
+				// Assuming only 1% slippage, it can be dynamic so need to make more better assertion
+				const expected = ethers.utils.parseEther('1')
+				expect(amountIn).to.lte(expected.sub(expected.mul(1).div(100)))
+				// STokenId = currentIndex + 1 will be minted.
+				let sTokenId: BigNumber = await sTokensManagerContract.currentIndex()
+				sTokenId = sTokenId.add(1)
+
+				await expect(
+					await cont
+						.connect(account1)
+						[
+							'swapTokensAndStakeDev(address,bytes,address,uint256,uint256,bytes32,address,uint256)'
+						](
+							account1.address,
+							ethers.utils.solidityPack(
+								['address', 'uint24', 'address', 'uint24', 'address'],
+								[path.token1, path.fee1, path.token2, path.fee2, path.token3]
+							),
+							propertyAddress,
+							amountOut,
+							deadline,
+							ethers.utils.formatBytes32String(''),
+							gateway.address,
+							gatewayFeeBasisPoints,
+							{
+								value: ethers.utils.parseEther('1'),
+							}
+						)
+				)
+					.to.emit(lockupContract, 'Lockedup')
+					.withArgs(cont.address, propertyAddress, amountOut, sTokenId)
+				const sTokenOwner = await sTokensManagerContract.ownerOf(sTokenId)
+				const sTokenPosition: number[] = await sTokensManagerContract.positions(
+					sTokenId
+				)
+				expect(sTokenOwner).to.equal(account1.address)
+				expect(sTokenPosition[1]).to.equal(amountOut)
+				// Check gateway has been credited
+				expect(
+					await cont.gatewayFees(gateway.address, ethers.constants.AddressZero)
+				).to.eq(acutualFeeAmount)
+
+				// Withdraw credit
+				await expect(cont.connect(gateway).claim(ethers.constants.AddressZero))
+					.to.emit(cont, 'Withdrawn')
+					.withArgs(
+						gateway.address,
+						ethers.constants.AddressZero,
+						acutualFeeAmount
+					)
+				// Check gateway credit has been deducted
+				expect(
+					await cont.gatewayFees(gateway.address, ethers.constants.AddressZero)
+				).to.eq(0)
+			})
+			it('should stake dev by swapping native token and deduct fees(gatewayfee ==10000 > ecosystemFeeThreshold)', async () => {
+				// Get latest block
+				const block = await waffle.provider.getBlock('latest')
+				const deadline = block.timestamp + 300
+
+				const gatewayFeeBasisPoints = 10000 // In basis points, so 3.33%
 				const depositAmount = ethers.utils.parseEther('1')
 				const ecosystemFee = 250 // In basis points, so 2.5%
 				const ecosystemFeeThreshold = 8500 // In basis points, so 85%

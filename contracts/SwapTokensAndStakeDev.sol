@@ -328,7 +328,7 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 		bytes memory path,
 		uint256 devAmount
 	) external returns (uint256) {
-		return quoter.quoteExactInput(path, devAmount);
+		return devAmount > 0 ? quoter.quoteExactInput(path, devAmount) : 0;
 	}
 
 	// do not use on-chain, gas inefficient!
@@ -336,7 +336,7 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 		bytes memory path,
 		uint256 tokenAmount
 	) external returns (uint256) {
-		return quoter.quoteExactInput(path, tokenAmount);
+		return tokenAmount > 0 ? quoter.quoteExactInput(path, tokenAmount) : 0;
 	}
 
 	// Internal function for erc20 token
@@ -350,28 +350,28 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 		uint256 _deadline,
 		bytes32 _payload
 	) private {
-		address recipient = address(this);
-		uint256 amountIn = _amount;
+		uint256 amountOut = 0;
+		if (_amount > 0) {
+			// 	Approve the router to spend the token amount
+			TransferHelper.safeApprove(
+				address(_token),
+				address(uniswapRouter),
+				_amount
+			);
 
-		// 	Approve the router to spend the token amount
-		TransferHelper.safeApprove(
-			address(_token),
-			address(uniswapRouter),
-			_amount
-		);
-
-		// Multiple pool swaps are encoded through bytes called a `path`. A path is a sequence of token addresses and poolFees that define the pools used in the swaps.
-		// The format for pool encoding is (tokenIn, fee, tokenOut/tokenIn, fee, tokenOut) where tokenIn/tokenOut parameter is the shared token across the pools.
-		ISwapRouter.ExactInputParams memory params = ISwapRouter
-			.ExactInputParams({
-				path: _path,
-				recipient: recipient,
-				deadline: _deadline,
-				amountIn: amountIn,
-				amountOutMinimum: _amountOut
-			});
-		uint256 amountOut = uniswapRouter.exactInput(params);
-		IERC20(devAddress).approve(lockupAddress, amountOut);
+			// Multiple pool swaps are encoded through bytes called a `path`. A path is a sequence of token addresses and poolFees that define the pools used in the swaps.
+			// The format for pool encoding is (tokenIn, fee, tokenOut/tokenIn, fee, tokenOut) where tokenIn/tokenOut parameter is the shared token across the pools.
+			ISwapRouter.ExactInputParams memory params = ISwapRouter
+				.ExactInputParams({
+					path: _path,
+					recipient: address(this),
+					deadline: _deadline,
+					amountIn: _amount,
+					amountOutMinimum: _amountOut
+				});
+			amountOut = uniswapRouter.exactInput(params);
+			IERC20(devAddress).approve(lockupAddress, amountOut);
+		}
 		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
 			_property,
 			amountOut,
@@ -390,20 +390,20 @@ contract SwapTokensAndStakeDev is Escrow, Initializable {
 		uint256 _deadline,
 		bytes32 _payload
 	) private {
-		address recipient = address(this);
-		uint256 amountIn = _amount;
-
+		uint256 amountOut = 0;
 		// Multiple pool swaps are encoded through bytes called a `path`. A path is a sequence of token addresses and poolFees that define the pools used in the swaps.
 		// The format for pool encoding is (tokenIn, fee, tokenOut/tokenIn, fee, tokenOut) where tokenIn/tokenOut parameter is the shared token across the pools.
-		ISwapRouter.ExactInputParams memory params = ISwapRouter
-			.ExactInputParams({
-				path: _path,
-				recipient: recipient,
-				deadline: _deadline,
-				amountIn: amountIn,
-				amountOutMinimum: _amountOut
-			});
-		uint256 amountOut = uniswapRouter.exactInput{value: _amount}(params);
+		if (_amount > 0) {
+			ISwapRouter.ExactInputParams memory params = ISwapRouter
+				.ExactInputParams({
+					path: _path,
+					recipient: address(this),
+					deadline: _deadline,
+					amountIn: _amount,
+					amountOutMinimum: _amountOut
+				});
+			amountOut = uniswapRouter.exactInput{value: _amount}(params);
+		}
 
 		IERC20(devAddress).approve(lockupAddress, amountOut);
 		uint256 tokenId = ILockup(lockupAddress).depositToProperty(
