@@ -51,7 +51,7 @@
 	"dependencies": {
 		"@devprotocol/protocol": "^3.4.1",
 		"@devprotocol/protocol-v2": "^0.6.0",
-		"@openzeppelin/contracts-upgradeable": "^4.4.2",
+		"@openzeppelin/contracts-upgradeable": "^5.0.0",
 		"@openzeppelin/hardhat-upgrades": "^1.22.1",
 		"@typechain/ethers-v5": "^9.0.0",
 		"@typechain/hardhat": "^2.3.0",
