@@ -34,7 +34,7 @@
 		"chai": "4.5.0",
 		"del-cli": "5.1.0",
 		"dotenv": "16.4.5",
-		"eslint": "8.57.0",
+		"eslint": "9.16.0",
 		"eslint-config-prettier": "9.1.0",
 		"eslint-config-xo": "0.45.0",
 		"eslint-config-xo-typescript": "1.0.1",
