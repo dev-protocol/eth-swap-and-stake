@@ -39,7 +39,7 @@
 		"eslint-config-xo": "0.45.0",
 		"eslint-config-xo-typescript": "1.0.1",
 		"ethereum-waffle": "^4.0.0",
-		"ethers": "5.7.2",
+		"ethers": "6.13.4",
 		"hardhat": "2.22.17",
 		"husky": "9.1.7",
 		"mocha": "11.0.1",
